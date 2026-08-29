@@ -35,6 +35,7 @@ export interface Shift {
   start_time: string;
   end_time: string | null;
   session_type: SessionType;
+  camera_role: string | null;
   location: string;
   assignee_id: string | null;
   status: ShiftStatus;

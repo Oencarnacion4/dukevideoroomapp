@@ -27,8 +27,13 @@ no local Supabase/Postgres stack required or expected. You'll need:
 
 - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — from your
   Supabase project's API settings, used by the browser and server clients.
-- `SUPABASE_SERVICE_ROLE_KEY` — server-only, used for admin operations
-  (roster seeding, notification fan-out). Never expose this to the client.
+
+That's the only Supabase config this app needs. It never uses the
+service-role key at runtime — every write happens as the signed-in user
+under Row-Level Security, and the few operations that need to look across
+users (claiming a roster entry at registration, notifying another crew
+member) are `SECURITY DEFINER` Postgres functions, not an elevated API key.
+See `supabase/SETUP.md` for how to stand up the database.
 
 ## Project layout
 
