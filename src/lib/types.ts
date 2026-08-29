@@ -21,10 +21,14 @@ export type GuideFormat = "written" | "video";
 
 export interface Profile {
   id: string;
+  auth_user_id: string | null;
   full_name: string;
   email: string | null;
   role: Role;
   roster_confirmed: boolean;
+  alerts_seen_at: string | null;
+  clock_in_at: string | null;
+  clock_label: string | null;
   created_at: string;
 }
 

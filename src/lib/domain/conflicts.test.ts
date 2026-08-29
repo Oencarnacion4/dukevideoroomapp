@@ -16,6 +16,7 @@ describe("conflictFor", () => {
   const blocks: AvailabilityBlock[] = [
     {
       id: "a1",
+      profile_id: "p1",
       day_of_week: "Wed",
       start_time: "4:00 PM",
       end_time: "5:30 PM",
@@ -41,7 +42,7 @@ describe("conflictFor", () => {
 
   it("always flags an all-day block on the matching day", () => {
     const allDay: AvailabilityBlock[] = [
-      { id: "a2", day_of_week: "Sat", start_time: null, end_time: null, all_day: true, label: "Travel" },
+      { id: "a2", profile_id: "p1", day_of_week: "Sat", start_time: null, end_time: null, all_day: true, label: "Travel" },
     ];
     const window = shiftWindow("10:00 AM", "1:00 PM");
     expect(conflictFor(allDay, "Sat", window)?.label).toBe("Travel");

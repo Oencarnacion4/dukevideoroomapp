@@ -64,3 +64,35 @@ export function labelToPgTime(label: string): string {
   const mm = mins % 60;
   return `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;
 }
+
+/** Hours between two labels, or null for an open-ended shift. */
+export function durationHours(start: string, end: string | null): number | null {
+  if (end === null) return null;
+  const a = toMinutes(start);
+  const b = toMinutes(end);
+  if (a == null || b == null || b <= a) return null;
+  return (b - a) / 60;
+}
+
+export const DAYS: readonly string[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/** Monday of the week containing `date`, as "YYYY-MM-DD". */
+export function getWeekStart(date: Date = new Date()): string {
+  const d = new Date(date);
+  const dow = d.getDay(); // 0 = Sunday
+  const diffToMonday = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diffToMonday);
+  return d.toISOString().slice(0, 10);
+}
+
+export function addDays(dateStr: string, days: number): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+export function formatWeekLabel(weekStart: string): string {
+  const d = new Date(`${weekStart}T00:00:00`);
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+  return `Week of ${month} ${d.getDate()}`;
+}

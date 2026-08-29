@@ -1,13 +1,27 @@
-import { toMinutes } from "./time";
-import type { DayOfWeek } from "@/lib/types";
+import { pgTimeToLabel, toMinutes } from "./time";
+import type { Availability, DayOfWeek } from "@/lib/types";
 
 export interface AvailabilityBlock {
   id: string;
+  profile_id: string;
   day_of_week: DayOfWeek;
   start_time: string | null; // "3:00 PM" label, or null when all_day
   end_time: string | null;
   all_day: boolean;
   label: string;
+}
+
+/** DB row (Postgres `time` strings) -> the label-based shape conflict checking uses. */
+export function toAvailabilityBlock(a: Availability): AvailabilityBlock {
+  return {
+    id: a.id,
+    profile_id: a.profile_id,
+    day_of_week: a.day_of_week,
+    start_time: a.start_time ? pgTimeToLabel(a.start_time) : null,
+    end_time: a.end_time ? pgTimeToLabel(a.end_time) : null,
+    all_day: a.all_day,
+    label: a.label,
+  };
 }
 
 /**
