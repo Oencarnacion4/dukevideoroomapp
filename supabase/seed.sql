@@ -8,6 +8,12 @@
 -- else below is not — re-running after real shifts/tasks/guides exist
 -- will add duplicate demo rows. Delete this content once the real season
 -- starts, or don't run it at all if you'd rather start from an empty crew.
+--
+-- Wrapped in an explicit transaction: if any statement below fails, the
+-- whole script rolls back together rather than leaving a half-seeded
+-- database, so it's always safe to fix an error and just re-run the file.
+
+begin;
 
 -- ---------------------------------------------------------------------
 -- Roster — name-only, unclaimed. Whoever signs up as "Jordan R." (etc.)
@@ -117,10 +123,7 @@ join profiles p on p.full_name = ct.who and p.auth_user_id is null;
 -- Tasks, ported verbatim from the prototype's TASKS array. The 'mine'
 -- bucket becomes 'personal', scoped to whoever claims the Jordan R. entry.
 -- ---------------------------------------------------------------------
-with jordan as (
-  select id from profiles where full_name = 'Jordan R.' and auth_user_id is null limit 1
-),
-task_data (bucket, title, assigned_by, due_label, tag) as (
+with task_data (bucket, title, assigned_by, due_label, tag) as (
   values
     ('assigned', 'Cut Tuesday practice into segments, upload before film', 'Coach Vance', 'Due Sun 6 PM', 'Priority'),
     ('assigned', 'Build 4-min transition reel for Monday walkthrough', 'Coach Ellis', 'Due Mon 9 AM', 'Priority'),
@@ -146,6 +149,9 @@ task_data (bucket, title, assigned_by, due_label, tag) as (
 insert into tasks (bucket, title, assigned_by, due_label, tag)
 select bucket, title, assigned_by, due_label, tag from task_data;
 
+with jordan as (
+  select id from profiles where full_name = 'Jordan R.' and auth_user_id is null limit 1
+)
 insert into tasks (bucket, title, assigned_by, due_label, tag, owner_id)
 select 'personal', title, assigned_by, due_label, tag, jordan.id
 from jordan,
@@ -155,6 +161,9 @@ from jordan,
   ) as t(title, assigned_by, due_label, tag);
 
 -- A few tasks already checked off today, for demo texture.
+with jordan as (
+  select id from profiles where full_name = 'Jordan R.' and auth_user_id is null limit 1
+)
 insert into task_completions (task_id, profile_id, completed_on)
 select t.id, jordan.id, current_date
 from tasks t, jordan
@@ -229,3 +238,5 @@ insert into guide_steps (guide_id, position, title, body)
 select ins.id, sd.position, sd.step_title, sd.step_body
 from step_data sd
 join inserted ins on ins.title = sd.title;
+
+commit;

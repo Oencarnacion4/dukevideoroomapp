@@ -22,6 +22,14 @@ copy. Run it once, the same way, after the three migrations above.
 Skip it if you'd rather start with an empty crew — you can add real roster
 names later from the Crew screen once the app is running.
 
+The whole file runs as one transaction (`begin`/`commit`) — if any statement
+in it fails, everything in the file rolls back together, so it's always
+safe to just fix the error and re-run the whole file from the top. (If
+you hit an error before this transaction wrapper was added: running
+`select count(*) from profiles;` and getting `0` confirms nothing was left
+behind, since Postgres rolls back an entire multi-statement paste on error
+by default — safe to re-run.)
+
 ## 3. Turn off email confirmation (recommended for this crew)
 
 By default Supabase requires a user to click a confirmation link before
