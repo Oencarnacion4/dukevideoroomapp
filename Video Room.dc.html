@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/industry-7498fc1c-0c39-4728-84ef-3f94e80885d7/styles.css">
+<script src="_ds/industry-7498fc1c-0c39-4728-84ef-3f94e80885d7/_ds_bundle.js"></script>
+<style>
+:root{
+  --color-accent:#00539b;
+  --color-accent-100:#e9f1fb; --color-accent-200:#cbdff5; --color-accent-300:#a2c4ea;
+  --color-accent-400:#6ea1d8; --color-accent-500:#2e7dc2; --color-accent-600:#00539b;
+  --color-accent-700:#013f7d; --color-accent-800:#012169; --color-accent-900:#00133f;
+  --color-accent-2:#00539b;
+  --color-accent-2-100:#e9f1fb; --color-accent-2-200:#cbdff5; --color-accent-2-300:#a2c4ea;
+  --color-accent-2-400:#6ea1d8; --color-accent-2-500:#2e7dc2; --color-accent-2-600:#00539b;
+  --color-accent-2-700:#013f7d; --color-accent-2-800:#012169; --color-accent-2-900:#00133f;
+  --color-bg:#f3f3f2; --color-surface:#eaeae9;
+}
+body{margin:0;background:#dcdcd9}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-900)}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+<div style="min-height:100vh;display:grid;place-items:center;padding:32px;font-family:var(--font-body)">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);position:relative;overflow:hidden">
+
+  <div style="background:var(--color-accent-800);color:#fff;padding:56px 16px 12px;display:flex;align-items:flex-end;gap:12px;flex:none">
+    <div style="flex:1;min-width:0">
+      <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--color-accent-300)">Duke Men's Basketball</div>
+      <div style="font-family:var(--font-heading);font-weight:600;font-size:26px;line-height:1.05;letter-spacing:0.01em">VIDEO ROOM</div>
+    </div>
+    <button onClick="{{ openAlerts }}" style="position:relative;width:38px;height:38px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8.5a5 5 0 0110 0V12l1.4 2.4H3.6L5 12V8.5z"/><path d="M8.2 16.6a2 2 0 003.6 0"/></svg>
+      <sc-if value="{{ badge }}" hint-placeholder-val="{{ true }}">
+        <span style="position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;background:#fff;color:var(--color-accent-800);font-family:var(--font-heading);font-size:11px;line-height:17px;text-align:center">{{ badge }}</span>
+      </sc-if>
+    </button>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;overflow-x:hidden">
+
+    <sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:18px 16px 24px;display:flex;flex-direction:column;gap:18px">
+      <div>
+        <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--color-accent-700)">Saturday · Aug 29</div>
+        <h3 style="margin:2px 0 0">Afternoon, {{ firstName }}.</h3>
+        <div style="font-size:13px;color:color-mix(in srgb, var(--color-text) 55%, transparent);margin-top:2px">{{ todayLine }}</div>
+      </div>
+
+      <div class="card blueprint" style="gap:10px;padding:14px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="flex:1;min-width:0">
+            <div class="card-kicker">Next shift</div>
+            <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1;margin-top:2px">{{ next.session }}</div>
+            <div style="font-size:13px;margin-top:3px">{{ next.when }}</div>
+          </div>
+          <span class="tag {{ next.tagClass }}">{{ next.statusLabel }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;border-top:1px solid var(--color-divider);padding-top:10px">
+          <div>
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent)">Assignment</div>
+            <div style="font-size:13px">{{ next.role }}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent)">Location</div>
+            <div style="font-size:13px">{{ next.loc }}</div>
+          </div>
+        </div>
+        <sc-if value="{{ next.showActions }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:8px;margin-top:2px">
+            <button class="btn btn-primary" style="flex:1" onClick="{{ next.accept }}">Accept shift</button>
+            <button class="btn btn-secondary" style="flex:1" onClick="{{ next.decline }}">Can't make it</button>
+          </div>
+        </sc-if>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;height:46px;font-size:16px;letter-spacing:0.04em" onClick="{{ startPractice }}">START PRACTICE MODE</button>
+
+      <sc-if value="{{ ownHours }}" hint-placeholder-val="{{ true }}">
+      <div class="card" style="padding:13px;gap:9px">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <h5 style="margin:0;flex:1">Hours this week</h5>
+          <span style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1">{{ hoursTotal }}</span>
+          <span style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">of 10–15</span>
+        </div>
+        <div style="position:relative;height:8px;background:color-mix(in srgb, var(--color-text) 9%, transparent)">
+          <div style="position:absolute;inset:0;width:{{ hoursPct }};background:{{ hoursBarColor }}"></div>
+          <div style="position:absolute;top:-3px;bottom:-3px;left:66.6%;width:1px;background:var(--color-accent-900)"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:baseline">
+          <span style="flex:1;font-size:12.5px;color:{{ hoursVerdictColor }}">{{ hoursVerdict }}</span>
+          <button class="btn btn-ghost" style="font-size:12px" onClick="{{ goHours }}">Timesheet</button>
+        </div>
+        <button class="btn btn-secondary" style="width:100%" onClick="{{ toggleClock }}">{{ clockAction }} · {{ clockLine }}</button>
+      </div>
+      </sc-if>
+
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+          <h5 style="margin:0;flex:1">Daily checklist</h5>
+          <span style="font-family:var(--font-heading);font-size:13px;color:var(--color-accent-700)">{{ dailyProgress }}</span>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ dailyItems }}" as="d" hint-placeholder-count="4">
+            <button onClick="{{ d.toggle }}" style="display:flex;align-items:center;gap:11px;padding:11px 2px;background:transparent;border:0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent);text-align:left;cursor:pointer;font:inherit;width:100%">
+              <span style="width:19px;height:19px;flex:none;display:grid;place-items:center;border:1px solid var(--color-accent-600);background:{{ d.fill }};color:#fff;font-size:12px;line-height:1">{{ d.mark }}</span>
+              <span style="flex:1;font-size:14px;color:{{ d.color }};text-decoration:{{ d.strike }}">{{ d.title }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+          <h5 style="margin:0;flex:1">From the coaches</h5>
+          <button class="btn btn-ghost" style="font-size:12px" onClick="{{ goTasks }}">All tasks</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ coachTasks }}" as="t" hint-placeholder-count="2">
+            <div class="card" style="padding:11px 12px;gap:6px">
+              <div style="display:flex;gap:8px;align-items:flex-start">
+                <span style="flex:1;font-size:14px;line-height:1.35">{{ t.title }}</span>
+                <span class="tag {{ t.tagClass }}">{{ t.tag }}</span>
+              </div>
+              <div class="card-meta">{{ t.by }} · {{ t.due }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isSchedule }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <h4 style="margin:0;flex:1">Week of Aug 31</h4>
+        <button class="btn btn-ghost" style="font-size:12px" onClick="{{ openCrew }}">Crew · {{ crewCount }}</button>
+      </div>
+      <div style="font-family:var(--font-heading);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700);margin-top:-8px">{{ weekSummary }}</div>
+
+      <sc-if value="{{ isStaff }}" hint-placeholder-val="{{ true }}">
+        <div class="card blueprint" style="padding:13px;gap:10px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="display:flex;align-items:baseline;gap:8px">
+            <div class="card-kicker" style="flex:1">Coverage · whole crew</div>
+            <span class="tag tag-accent">{{ roleBadge }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+            <sc-for list="{{ coverage }}" as="cv" hint-placeholder-count="7">
+              <button onClick="{{ cv.pick }}" style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0;cursor:pointer;font:inherit;border:1px solid {{ cv.border }};background:{{ cv.bg }};color:var(--color-text)">
+                <span style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7">{{ cv.dow }}</span>
+                <span style="font-family:var(--font-heading);font-weight:600;font-size:15px;line-height:1">{{ cv.count }}</span>
+                <span style="font-size:8.5px;letter-spacing:0.04em;text-transform:uppercase;opacity:0.65">{{ cv.note }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;border-top:1px solid var(--color-divider);padding-top:9px">
+            <div>
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1">{{ awaitingCount }}</div>
+              <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent)">awaiting reply</div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1">{{ openCount }}</div>
+              <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent)">unclaimed</div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1">{{ unregistered }}</div>
+              <div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent)">not signed up</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+        <sc-for list="{{ weekDays }}" as="w" hint-placeholder-count="7">
+          <button onClick="{{ w.pick }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 7px;cursor:pointer;font:inherit;border:1px solid {{ w.border }};background:{{ w.bg }};color:{{ w.fg }}">
+            <span style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.75">{{ w.dow }}</span>
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:16px;line-height:1">{{ w.num }}</span>
+            <span style="width:5px;height:5px;background:{{ w.dot }}"></span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div class="seg" style="align-self:flex-start">
+        <label class="seg-opt"><input type="radio" name="scope" checked="{{ scopeAll }}" onChange="{{ setScopeAll }}"><span>Whole week</span></label>
+        <label class="seg-opt"><input type="radio" name="scope" checked="{{ scopeMine }}" onChange="{{ setScopeMine }}"><span>My shifts</span></label>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ shownShifts }}" as="s" hint-placeholder-count="4">
+          <div class="card blueprint" style="padding:13px;gap:9px">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="flex:none;width:52px">
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ s.dow }}</div>
+                <div style="font-family:var(--font-heading);font-weight:600;font-size:15px;line-height:1.15">{{ s.time }}</div>
+                <div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ s.dur }}</div>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:var(--font-heading);font-weight:600;font-size:17px;line-height:1.15">{{ s.session }}</div>
+                <div style="font-size:12.5px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ s.sub }}</div>
+                <div style="display:flex;align-items:center;gap:7px;margin-top:7px">
+                  <span style="width:24px;height:24px;flex:none;display:grid;place-items:center;background:var(--color-accent-100);color:var(--color-accent-800);font-family:var(--font-heading);font-size:11px;letter-spacing:0.04em">{{ s.initials }}</span>
+                  <span style="font-size:13px;flex:1">{{ s.who }}</span>
+                  <span class="tag {{ s.tagClass }}">{{ s.statusLabel }}</span>
+                </div>
+              </div>
+            </div>
+            <sc-if value="{{ s.hasNote }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid var(--color-divider);padding-top:8px;display:flex;gap:8px;align-items:flex-start">
+                <span style="flex:none;font-family:var(--font-heading);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-700);padding-top:2px">Note</span>
+                <span style="flex:1;font-size:12.5px;line-height:1.4">{{ s.note }}</span>
+              </div>
+            </sc-if>
+            <div style="display:flex;justify-content:flex-end">
+              <button class="btn btn-ghost" style="font-size:12px" onClick="{{ s.openNote }}">{{ s.noteBtn }}</button>
+            </div>
+            <sc-if value="{{ s.showActions }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:8px;border-top:1px solid var(--color-divider);padding-top:9px">
+                <button class="btn btn-primary" style="flex:1" onClick="{{ s.accept }}">Accept</button>
+                <button class="btn btn-secondary" style="flex:1" onClick="{{ s.decline }}">Decline</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ s.showSwap }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid var(--color-divider);padding-top:9px;display:flex;flex-direction:column;gap:7px">
+                <div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ s.swapNote }}</div>
+                <button class="btn btn-secondary" style="width:100%" onClick="{{ s.openSwap }}">Propose a replacement</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ s.showClaim }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top:1px solid var(--color-divider);padding-top:9px">
+                <button class="btn btn-primary" style="width:100%" onClick="{{ s.claim }}">Claim this slot</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onClick="{{ openBuilder }}">+ New shift</button>
+        <button class="btn btn-secondary" style="flex:none" onClick="{{ postSlot }}">Quick open slot</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isMine }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:16px 16px 24px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <h4 style="margin:0">My availability</h4>
+        <div style="font-size:13px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">{{ myEmail }}</div>
+      </div>
+      <div style="font-size:12.5px;line-height:1.45;color:color-mix(in srgb, var(--color-text) 62%, transparent)">Classes and days you cannot work. Staff see a conflict warning before they assign you.</div>
+
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+          <h5 style="margin:0;flex:1">Blocked time</h5>
+          <button class="btn btn-ghost" style="font-size:12px" onClick="{{ editMyClasses }}">Add classes</button>
+        </div>
+        <sc-if value="{{ myBlocksEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid var(--color-divider);padding:16px;text-align:center;font-size:13px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">Nothing blocked yet — every hour of the week is open.</div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ myBlocks }}" as="bl" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+              <span style="width:42px;flex:none;font-family:var(--font-heading);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ bl.day }}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px">{{ bl.label }}</div>
+                <div style="font-size:11.5px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">{{ bl.span }}</div>
+              </div>
+              <span class="tag {{ bl.tagClass }}">{{ bl.kindLabel }}</span>
+              <button class="btn btn-ghost" style="font-size:12px" onClick="{{ bl.remove }}">Remove</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div class="card blueprint" style="padding:13px;gap:9px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div class="card-kicker">Something came up</div>
+        <div style="font-size:13px;line-height:1.4">Block a whole day you cannot work this week.</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+          <sc-for list="{{ offDays }}" as="d" hint-placeholder-count="7">
+            <button onClick="{{ d.pick }}" style="padding:8px 0;font:inherit;font-family:var(--font-heading);font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }}">{{ d.label }}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="input" placeholder="Reason — e.g. exam, travel home" value="{{ offLabel }}" onChange="{{ typeOff }}">
+          <button class="btn btn-primary" style="flex:none" onClick="{{ addOff }}">Block day</button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isHours }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:16px 16px 24px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <h4 style="margin:0">{{ hoursHeading }}</h4>
+        <div style="font-size:13px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">{{ hoursSubhead }}</div>
+      </div>
+
+      <sc-if value="{{ ownHours }}" hint-placeholder-val="{{ true }}">
+      <div class="card blueprint" style="padding:14px;gap:10px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;align-items:flex-end;gap:9px">
+          <span style="font-family:var(--font-heading);font-weight:600;font-size:44px;line-height:0.9">{{ hoursTotal }}</span>
+          <span style="font-size:12px;padding-bottom:5px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">{{ hoursRemaining }}</span>
+        </div>
+        <div style="position:relative;height:12px;background:color-mix(in srgb, var(--color-text) 9%, transparent)">
+          <div style="position:absolute;inset:0;width:{{ hoursPct }};background:{{ hoursBarColor }}"></div>
+          <div style="position:absolute;top:-4px;bottom:-4px;left:66.6%;width:1px;background:var(--color-accent-900)"></div>
+        </div>
+        <div style="display:flex;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 45%, transparent)">
+          <span style="flex:1">0</span><span style="flex:1;text-align:center">10 min</span><span>15 cap</span>
+        </div>
+        <div style="font-size:13px;color:{{ hoursVerdictColor }}">{{ hoursVerdict }}</div>
+        <button class="btn btn-primary" style="width:100%;height:42px" onClick="{{ toggleClock }}">{{ clockAction }}</button>
+        <div style="font-size:11.5px;text-align:center;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ clockLine }}</div>
+      </div>
+
+      <div>
+        <h5 style="margin:0 0 6px">Entries</h5>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ logRows }}" as="l" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+              <div style="width:52px;flex:none">
+                <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ l.dow }}</div>
+                <div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ l.date }}</div>
+              </div>
+              <div style="flex:1;min-width:0;font-size:14px">{{ l.session }}</div>
+              <span class="tag {{ l.tagClass }}">{{ l.src }}</span>
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:15px;min-width:44px;text-align:right">{{ l.hoursLabel }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <h5 style="margin:0 0 6px">Log a shift you worked</h5>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ loggable }}" as="q" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--color-divider);padding:10px 11px">
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13.5px">{{ q.label }}</div>
+                <div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ q.sub }}</div>
+              </div>
+              <button class="btn btn-secondary" style="flex:none" onClick="{{ q.log }}">{{ q.btn }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      </sc-if>
+
+      <sc-if value="{{ seesCrewHours }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+          <h5 style="margin:0;flex:1">Everyone this week</h5>
+          <span style="font-family:var(--font-heading);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-accent-700)">{{ crewShortCount }} under 10</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ crewHours }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;align-items:baseline;gap:8px;font-size:13px">
+                <span style="flex:1">{{ p.name }}</span>
+                <span style="font-family:var(--font-heading);font-weight:600;font-size:15px">{{ p.hoursLabel }}</span>
+                <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:{{ p.noteColor }};min-width:56px;text-align:right">{{ p.note }}</span>
+              </div>
+              <div style="position:relative;height:7px;background:color-mix(in srgb, var(--color-text) 9%, transparent)">
+                <div style="position:absolute;inset:0;width:{{ p.pct }};background:{{ p.color }}"></div>
+                <div style="position:absolute;top:-3px;bottom:-3px;left:66.6%;width:1px;background:var(--color-accent-900)"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ ownHours }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <h5 style="margin:0 0 8px">My earlier weeks</h5>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;align-items:baseline;gap:8px;font-size:12.5px">
+                <span style="flex:1">{{ h.label }}</span>
+                <span style="font-family:var(--font-heading);font-weight:600;font-size:14px">{{ h.hoursLabel }}</span>
+                <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 45%, transparent)">{{ h.note }}</span>
+              </div>
+              <div style="position:relative;height:6px;background:color-mix(in srgb, var(--color-text) 9%, transparent)">
+                <div style="position:absolute;inset:0;width:{{ h.pct }};background:{{ h.color }}"></div>
+                <div style="position:absolute;top:-2px;bottom:-2px;left:66.6%;width:1px;background:var(--color-accent-900)"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isTasks }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:16px 0 24px;display:flex;flex-direction:column;gap:14px">
+      <div style="padding:0 16px"><h4 style="margin:0">Task board</h4></div>
+
+      <div style="display:flex;gap:7px;overflow-x:auto;padding:0 16px 2px">
+        <sc-for list="{{ buckets }}" as="b" hint-placeholder-count="6">
+          <button onClick="{{ b.pick }}" style="flex:none;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;border:1px solid {{ b.border }};background:{{ b.bg }};color:{{ b.fg }}">{{ b.label }} <span style="opacity:0.6">{{ b.count }}</span></button>
+        </sc-for>
+      </div>
+
+      <div style="padding:0 16px;font-size:12px;color:{{ taskPrivacyColor }};margin-top:-6px">{{ taskPrivacy }}</div>
+
+      <div style="padding:0 16px;display:flex;flex-direction:column">
+        <sc-for list="{{ bucketTasks }}" as="t" hint-placeholder-count="5">
+          <div style="display:flex;gap:11px;padding:12px 2px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+            <button onClick="{{ t.toggle }}" style="width:20px;height:20px;flex:none;margin-top:2px;display:grid;place-items:center;padding:0;cursor:pointer;border:1px solid var(--color-accent-600);background:{{ t.fill }};color:#fff;font-size:12px;line-height:1">{{ t.mark }}</button>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;line-height:1.35;color:{{ t.color }};text-decoration:{{ t.strike }}">{{ t.title }}</div>
+              <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+                <span style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent);flex:1">{{ t.meta }}</span>
+                <span class="tag {{ t.tagClass }}">{{ t.tag }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="padding:4px 16px 0;display:flex;gap:8px">
+        <input class="input" placeholder="Add to {{ bucketLabel }}…" value="{{ newTask }}" onChange="{{ typeTask }}" onKeyDown="{{ maybeAdd }}">
+        <button class="btn btn-primary" style="flex:none" onClick="{{ addTask }}">Add</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isGuides }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <div style="flex:1;min-width:0">
+          <h4 style="margin:0">How-tos</h4>
+          <div style="font-size:13px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">Written by the room, for the room.</div>
+        </div>
+        <button class="btn btn-primary" style="flex:none" onClick="{{ openCompose }}">+ New</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ guides }}" as="g" hint-placeholder-count="5">
+          <button onClick="{{ g.open }}" class="card blueprint" style="padding:0;gap:0;cursor:pointer;text-align:left;font:inherit;flex-direction:row;align-items:stretch">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <div class="duotone" style="width:84px;flex:none;background:var(--color-accent-200);border-right:1px solid var(--color-divider);display:grid;place-items:center;position:relative">
+              <svg width="100%" height="100%" style="position:absolute;inset:0" preserveAspectRatio="none"><defs><pattern id="stripe" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--color-accent-400)" stroke-width="2.5"></line></pattern></defs><rect width="100%" height="100%" fill="url(#stripe)"></rect></svg>
+              <span style="position:relative;font-family:ui-monospace,Menlo,monospace;font-size:9px;letter-spacing:0.04em;color:var(--color-accent-900);background:var(--color-bg);padding:2px 4px">{{ g.slot }}</span>
+            </div>
+            <div style="flex:1;min-width:0;padding:12px 13px;display:flex;flex-direction:column;gap:4px">
+              <div class="card-kicker">{{ g.kicker }}</div>
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:17px;line-height:1.15">{{ g.title }}</div>
+              <div class="card-meta" style="margin-top:2px">{{ g.meta }}</div>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:16px 16px 24px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <h4 style="margin:0;flex:1">Alerts</h4>
+        <button class="btn btn-ghost" style="font-size:12px" onClick="{{ closeAlerts }}">Done</button>
+      </div>
+      <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="4">
+        <div style="display:flex;gap:11px;padding:11px 0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+          <span style="width:7px;height:7px;flex:none;margin-top:6px;background:{{ a.dot }}"></span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;line-height:1.35">{{ a.title }}</div>
+            <div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-top:2px">{{ a.time }}</div>
+          </div>
+        </div>
+      </sc-for>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onClick="{{ signOut }}">Sign out</button>
+    </div>
+    </sc-if>
+
+  </div>
+
+  <div style="flex:none;display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--color-divider);background:var(--color-bg);padding-bottom:26px">
+    <button onClick="{{ goToday }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:transparent;border:0;border-top:2px solid {{ c.todayBar }};cursor:pointer;font:inherit;color:{{ c.today }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8.6L10 3l7 5.6V17H3z"></path><path d="M8 17v-4.6h4V17"></path></svg>
+      <span style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.06em;text-transform:uppercase">Today</span>
+    </button>
+    <button onClick="{{ goSchedule }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:transparent;border:0;border-top:2px solid {{ c.scheduleBar }};cursor:pointer;font:inherit;color:{{ c.schedule }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4.5" width="14" height="12.5"></rect><path d="M6.5 2.5v3M13.5 2.5v3M3 8.5h14"></path></svg>
+      <span style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.06em;text-transform:uppercase">Schedule</span>
+    </button>
+    <button onClick="{{ goHours }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:transparent;border:0;border-top:2px solid {{ c.hoursBar }};cursor:pointer;font:inherit;color:{{ c.hours }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"></circle><path d="M10 6v4.2l2.8 1.8"></path></svg>
+      <span style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.06em;text-transform:uppercase">{{ hoursTabLabel }}</span>
+    </button>
+    <button onClick="{{ goTasks }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:transparent;border:0;border-top:2px solid {{ c.tasksBar }};cursor:pointer;font:inherit;color:{{ c.tasks }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 5.5h10M7 10h10M7 14.5h10"></path><path d="M2.5 5.3l1.4 1.4L6 4.4"></path><path d="M2.5 9.8l1.4 1.4L6 8.9"></path></svg>
+      <span style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.06em;text-transform:uppercase">Tasks</span>
+    </button>
+    <button onClick="{{ goGuides }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:transparent;border:0;border-top:2px solid {{ c.guidesBar }};cursor:pointer;font:inherit;color:{{ c.guides }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="3" width="13" height="14"></rect><path d="M6.5 7h7M6.5 10.5h7M6.5 14h4"></path></svg>
+      <span style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.06em;text-transform:uppercase">How-tos</span>
+    </button>
+    <button onClick="{{ goSixth }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 8px;background:transparent;border:0;border-top:2px solid {{ c.mineBar }};cursor:pointer;font:inherit;color:{{ c.mine }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3"></circle><path d="M4 17c0-3.2 2.7-5 6-5s6 1.8 6 5"></path></svg>
+      <span style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.06em;text-transform:uppercase">{{ sixthLabel }}</span>
+    </button>
+  </div>
+
+  <sc-if value="{{ practiceOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-accent-900);color:#fff;display:flex;flex-direction:column;z-index:40">
+    <div style="padding:56px 16px 14px;flex:none;border-bottom:1px solid rgba(255,255,255,0.16)">
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <div style="flex:1">
+          <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--color-accent-300)">During practice</div>
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:24px;line-height:1.1">{{ practiceTitle }}</div>
+        </div>
+        <span style="font-family:var(--font-heading);font-size:14px;color:var(--color-accent-300)">{{ practiceProgress }}</span>
+      </div>
+      <div style="height:3px;background:rgba(255,255,255,0.18);margin-top:12px">
+        <div style="height:100%;background:#fff;width:{{ practicePct }}"></div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:6px 16px 16px">
+      <sc-for list="{{ practiceSteps }}" as="p" hint-placeholder-count="6">
+        <button onClick="{{ p.toggle }}" style="display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;font:inherit;padding:14px 0;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,0.14);cursor:pointer;color:inherit">
+          <span style="width:22px;height:22px;flex:none;display:grid;place-items:center;border:1px solid rgba(255,255,255,0.5);background:{{ p.fill }};color:var(--color-accent-900);font-family:var(--font-heading);font-size:12px;line-height:1">{{ p.mark }}</span>
+          <span style="flex:1;min-width:0">
+            <span style="display:block;font-size:15px;line-height:1.3;opacity:{{ p.opacity }};text-decoration:{{ p.strike }}">{{ p.title }}</span>
+            <span style="display:block;font-size:11.5px;color:var(--color-accent-300);margin-top:3px">{{ p.hint }}</span>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="flex:none;padding:12px 16px 34px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,0.16)">
+      <button class="btn" style="flex:1;background:#fff;color:var(--color-accent-900);border-color:#fff" onClick="{{ endPractice }}">End practice</button>
+      <button class="btn" style="flex:none;border-color:rgba(255,255,255,0.45);color:#fff" onClick="{{ closePractice }}">Minimize</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ guideOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;z-index:35">
+    <div style="padding:56px 16px 12px;flex:none;background:var(--color-accent-800);color:#fff;display:flex;align-items:flex-end;gap:10px">
+      <button onClick="{{ closeGuide }}" style="width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-300)">{{ guide.kicker }}</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1">{{ guide.title }}</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px">
+      <sc-if value="{{ guide.isVideo }}" hint-placeholder-val="{{ false }}">
+        <div class="blueprint duotone" style="aspect-ratio:16/9;background:var(--color-accent-200);display:grid;place-items:center;position:relative;margin-bottom:16px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <svg width="100%" height="100%" style="position:absolute;inset:0" preserveAspectRatio="none"><rect width="100%" height="100%" fill="url(#stripe)"></rect></svg>
+          <span style="position:relative;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--color-accent-900);background:var(--color-bg);padding:3px 6px">screen recording · {{ guide.length }}</span>
+        </div>
+      </sc-if>
+      <div style="font-size:14px;line-height:1.5;margin-bottom:16px">{{ guide.intro }}</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <sc-for list="{{ guideSteps }}" as="st" hint-placeholder-count="4">
+          <div style="display:flex;gap:12px">
+            <span style="width:26px;height:26px;flex:none;display:grid;place-items:center;background:var(--color-accent-800);color:#fff;font-family:var(--font-heading);font-size:13px">{{ st.n }}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:16px;line-height:1.2">{{ st.title }}</div>
+              <div style="font-size:13.5px;line-height:1.5;margin-top:3px;color:color-mix(in srgb, var(--color-text) 78%, transparent)">{{ st.body }}</div>
+              <sc-if value="{{ st.shot }}" hint-placeholder-val="{{ true }}">
+                <div class="blueprint duotone" style="margin-top:9px;height:104px;background:var(--color-accent-200);display:grid;place-items:center;position:relative">
+                  <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+                  <svg width="100%" height="100%" style="position:absolute;inset:0" preserveAspectRatio="none"><rect width="100%" height="100%" fill="url(#stripe)"></rect></svg>
+                  <span style="position:relative;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;color:var(--color-accent-900);background:var(--color-bg);padding:2px 5px">{{ st.shot }}</span>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:22px;padding-top:12px;border-top:1px solid var(--color-divider);font-size:12px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ guide.credit }}</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ builderOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;z-index:45">
+    <div style="padding:56px 16px 12px;flex:none;background:var(--color-accent-800);color:#fff;display:flex;align-items:flex-end;gap:10px">
+      <button onClick="{{ closeBuilder }}" style="width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-300)">Build a shift</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1">Week of Aug 31</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-bottom:7px">Day</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">
+          <sc-for list="{{ bDays }}" as="d" hint-placeholder-count="7">
+            <button onClick="{{ d.pick }}" style="padding:9px 0;font:inherit;font-family:var(--font-heading);font-size:12px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }}">{{ d.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-bottom:7px">Start and end</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select class="input" style="flex:1" value="{{ bStart }}" onChange="{{ setStart }}">
+            <sc-for list="{{ timeOptions }}" as="t" hint-placeholder-count="4">
+              <option value="{{ t }}">{{ t }}</option>
+            </sc-for>
+          </select>
+          <span style="flex:none;font-size:13px;color:color-mix(in srgb, var(--color-text) 45%, transparent)">to</span>
+          <select class="input" style="flex:1" value="{{ bEnd }}" onChange="{{ setEnd }}">
+            <sc-for list="{{ endOptions }}" as="t" hint-placeholder-count="4">
+              <option value="{{ t }}">{{ t }}</option>
+            </sc-for>
+          </select>
+        </div>
+        <div style="font-size:12px;line-height:1.4;margin-top:6px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">{{ spanNote }}</div>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-bottom:7px">Session</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ bSessions }}" as="t" hint-placeholder-count="6">
+            <button onClick="{{ t.pick }}" style="padding:7px 11px;font:inherit;font-size:13px;cursor:pointer;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-bottom:7px">Who works it</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <sc-for list="{{ bPeople }}" as="p" hint-placeholder-count="6">
+            <button onClick="{{ p.pick }}" style="display:flex;align-items:center;gap:9px;padding:10px 11px;font:inherit;text-align:left;cursor:pointer;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }}">
+              <span style="flex:1;font-size:14px">{{ p.name }}</span>
+              <span style="font-size:11px;color:{{ p.loadColor }};font-weight:{{ p.loadWeight }};opacity:0.85">{{ p.load }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-bottom:7px">Notes</div>
+        <textarea class="input" style="min-height:74px" placeholder="Anything the crew should know — has to leave early, doubling up on cameras, meet at the loading dock…" value="{{ bNote }}" onChange="{{ setBNote }}"></textarea>
+      </div>
+    </div>
+    <div style="flex:none;padding:12px 16px 34px;border-top:1px solid var(--color-divider);display:flex;flex-direction:column;gap:8px">
+      <sc-if value="{{ conflict }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid var(--color-accent-900);padding:10px 11px;display:flex;flex-direction:column;gap:7px">
+          <div style="font-family:var(--font-heading);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-900)">Class conflict</div>
+          <div style="font-size:12.5px;line-height:1.4">{{ conflictLine }}</div>
+          <label class="radio" style="gap:9px">
+            <input type="checkbox" checked="{{ override }}" onChange="{{ toggleOverride }}" style="position:absolute;opacity:0;width:0;height:0">
+            <span class="dot" style="border-radius:0"></span>
+            <span style="font-size:12.5px">Assign anyway — I cleared it with them</span>
+          </label>
+        </div>
+      </sc-if>
+      <div style="font-size:12px;color:color-mix(in srgb, var(--color-text) 60%, transparent);line-height:1.4">{{ builderLine }} — {{ builderLine2 }}<br>{{ builderWho }}</div>
+      <button class="btn btn-primary" style="width:100%;height:44px" disabled="{{ postDisabled }}" onClick="{{ postShift }}">{{ postLabel }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ composeOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;z-index:52">
+    <div style="padding:56px 16px 12px;flex:none;background:var(--color-accent-800);color:#fff;display:flex;align-items:flex-end;gap:10px">
+      <button onClick="{{ closeCompose }}" style="width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-300)">New how-to</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1">Write it once</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:15px">
+      <div class="field"><label>Title</label><input class="input" placeholder="e.g. Resetting the corner camera mid-practice" value="{{ ngTitle }}" onChange="{{ setNgTitle }}"></div>
+
+      <div>
+        <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent);margin-bottom:7px">Category</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ ngKickers }}" as="k" hint-placeholder-count="4">
+            <button onClick="{{ k.pick }}" style="padding:7px 11px;font:inherit;font-size:13px;cursor:pointer;border:1px solid {{ k.border }};background:{{ k.bg }};color:{{ k.fg }}">{{ k.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Format</label>
+        <div class="seg">
+          <label class="seg-opt"><input type="radio" name="ngkind" checked="{{ ngWritten }}" onChange="{{ pickWritten }}"><span>Written steps</span></label>
+          <label class="seg-opt"><input type="radio" name="ngkind" checked="{{ ngVideo }}" onChange="{{ pickVideo }}"><span>Screen recording</span></label>
+        </div>
+      </div>
+
+      <div class="field"><label>Intro — why this matters</label><textarea class="input" style="min-height:66px" placeholder="One or two lines. When does someone need this?" value="{{ ngIntro }}" onChange="{{ setNgIntro }}"></textarea></div>
+
+      <sc-if value="{{ ngVideo }}" hint-placeholder-val="{{ false }}">
+        <button class="btn btn-secondary" style="width:100%;height:44px" onClick="{{ attachVideo }}">{{ videoLabel }}</button>
+      </sc-if>
+
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
+          <div style="flex:1;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:color-mix(in srgb, var(--color-text) 50%, transparent)">Steps</div>
+          <span style="font-family:var(--font-heading);font-size:12px;color:var(--color-accent-700)">{{ ngStepCount }} added</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ ngSteps }}" as="st" hint-placeholder-count="0">
+            <div style="display:flex;gap:10px;border:1px solid var(--color-divider);padding:10px 11px">
+              <span style="width:24px;height:24px;flex:none;display:grid;place-items:center;background:var(--color-accent-800);color:#fff;font-family:var(--font-heading);font-size:12px">{{ st.n }}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px">{{ st.title }}</div>
+                <div style="font-size:12px;line-height:1.4;color:color-mix(in srgb, var(--color-text) 62%, transparent)">{{ st.body }}</div>
+                <div style="display:flex;gap:8px;margin-top:6px">
+                  <button class="btn btn-ghost" style="font-size:11.5px" onClick="{{ st.addShot }}">{{ st.shotLabel }}</button>
+                  <button class="btn btn-ghost" style="font-size:11.5px" onClick="{{ st.remove }}">Delete</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--color-divider);padding-top:12px">
+        <input class="input" placeholder="Step title — e.g. Pull rig 4 from the cage" value="{{ ngStepTitle }}" onChange="{{ setNgStepTitle }}">
+        <textarea class="input" style="min-height:58px" placeholder="What exactly to do. Plain words." value="{{ ngStepBody }}" onChange="{{ setNgStepBody }}"></textarea>
+        <button class="btn btn-secondary" style="width:100%" onClick="{{ addStep }}">Add step</button>
+      </div>
+    </div>
+    <div style="flex:none;padding:12px 16px 34px;border-top:1px solid var(--color-divider)">
+      <button class="btn btn-primary" style="width:100%;height:44px" disabled="{{ publishDisabled }}" onClick="{{ publishGuide }}">{{ publishLabel }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ availOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;z-index:55">
+    <div style="padding:56px 16px 12px;flex:none;background:var(--color-accent-800);color:#fff;display:flex;align-items:flex-end;gap:10px">
+      <button onClick="{{ closeAvail }}" style="width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-300)">Class times · not available</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1">{{ availTitle }}</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px">
+      <div style="font-size:12.5px;line-height:1.45;color:color-mix(in srgb, var(--color-text) 60%, transparent);margin-bottom:12px">{{ availNote }}</div>
+      <sc-if value="{{ availEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid var(--color-divider);padding:16px;text-align:center;font-size:13px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">Nothing blocked yet — every hour of the week is open.</div>
+      </sc-if>
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ availBlocks }}" as="bl" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+            <span style="width:42px;flex:none;font-family:var(--font-heading);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ bl.day }}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px">{{ bl.label }}</div>
+              <div style="font-size:11.5px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">{{ bl.span }}</div>
+            </div>
+            <sc-if value="{{ availEditable }}" hint-placeholder-val="{{ true }}">
+              <button class="btn btn-ghost" style="font-size:12px" onClick="{{ bl.remove }}">Remove</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ availEditable }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:none;padding:12px 16px 34px;border-top:1px solid var(--color-divider);display:flex;flex-direction:column;gap:9px">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+          <sc-for list="{{ avDays }}" as="d" hint-placeholder-count="7">
+            <button onClick="{{ d.pick }}" style="padding:8px 0;font:inherit;font-family:var(--font-heading);font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }}">{{ d.label }}</button>
+          </sc-for>
+        </div>
+        <div style="font-size:11.5px;color:color-mix(in srgb, var(--color-text) 55%, transparent);margin-top:-3px">{{ avDaysLine }}</div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <select class="input" style="flex:1" value="{{ avStart }}" onChange="{{ setAvStart }}">
+            <sc-for list="{{ timeOptions }}" as="t" hint-placeholder-count="4"><option value="{{ t }}">{{ t }}</option></sc-for>
+          </select>
+          <span style="flex:none;font-size:13px;color:color-mix(in srgb, var(--color-text) 45%, transparent)">to</span>
+          <select class="input" style="flex:1" value="{{ avEnd }}" onChange="{{ setAvEnd }}">
+            <sc-for list="{{ timeOptions }}" as="t" hint-placeholder-count="4"><option value="{{ t }}">{{ t }}</option></sc-for>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="input" placeholder="Course or reason — e.g. STAT 210" value="{{ avLabel }}" onChange="{{ setAvLabel }}">
+          <button class="btn btn-primary" style="flex:none" onClick="{{ addBlock }}">Block</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ crewOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;z-index:50">
+    <div style="padding:56px 16px 12px;flex:none;background:var(--color-accent-800);color:#fff;display:flex;align-items:flex-end;gap:10px">
+      <button onClick="{{ closeCrew }}" style="width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-300)">Roster</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1">The crew</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px">
+      <div style="font-size:12.5px;line-height:1.45;color:color-mix(in srgb, var(--color-text) 60%, transparent);margin-bottom:12px">Add names now, no email needed. When someone signs up with that name, their account attaches to this roster entry — shifts, hours and classes already waiting.</div>
+      <button class="btn btn-secondary" style="width:100%;margin-bottom:12px" onClick="{{ openMyAvail }}">My class schedule</button>
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ crew }}" as="p" hint-placeholder-count="6">
+          <button onClick="{{ p.open }}" style="display:flex;align-items:center;gap:10px;padding:11px 2px;width:100%;text-align:left;font:inherit;background:transparent;border:0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent);cursor:pointer">
+            <span style="width:28px;height:28px;flex:none;display:grid;place-items:center;background:var(--color-accent-100);color:var(--color-accent-800);font-family:var(--font-heading);font-size:12px">{{ p.initials }}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px">{{ p.name }}</div>
+              <div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ p.emailLine }}</div>
+              <div style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ p.shiftLine }} · {{ p.classLine }}</div>
+            </div>
+            <span class="tag {{ p.tagClass }}">{{ p.statusLabel }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:none;padding:12px 16px 34px;border-top:1px solid var(--color-divider);display:flex;gap:8px">
+      <input class="input" placeholder="Add a name to the roster" value="{{ rosterAdd }}" onChange="{{ typeRoster }}">
+      <button class="btn btn-primary" style="flex:none" onClick="{{ addToRoster }}">Add</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showSignIn }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;inset:0;background:var(--color-accent-800);color:#fff;display:flex;flex-direction:column;z-index:90">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:0 24px 26px">
+      <div style="font-family:var(--font-heading);font-size:12px;letter-spacing:0.24em;text-transform:uppercase;color:var(--color-accent-300)">Duke Men's Basketball</div>
+      <div style="font-family:var(--font-heading);font-weight:600;font-size:52px;line-height:0.95;letter-spacing:0.01em">VIDEO<br>ROOM</div>
+      <div style="font-size:13.5px;color:var(--color-accent-200);margin-top:10px;max-width:260px">Shifts, hours, task board and how-tos for the practice video crew.</div>
+    </div>
+    <div style="flex:none;background:var(--color-bg);color:var(--color-text);padding:20px 24px 34px;display:flex;flex-direction:column;gap:12px">
+      <div class="field">
+        <label>Email</label>
+        <input class="input" type="email" placeholder="you@gmail.com" value="{{ email }}" onChange="{{ typeEmail }}">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input class="input" type="password" placeholder="Your password" value="{{ pass }}" onChange="{{ typePass }}">
+      </div>
+      <div class="seg">
+        <label class="seg-opt"><input type="radio" name="signas" checked="{{ signAsLead }}" onChange="{{ pickSignLead }}"><span>Head intern</span></label>
+        <label class="seg-opt"><input type="radio" name="signas" checked="{{ signAsStaff }}" onChange="{{ pickSignStaff }}"><span>Staff</span></label>
+        <label class="seg-opt"><input type="radio" name="signas" checked="{{ signAsIntern }}" onChange="{{ pickSignIntern }}"><span>Intern</span></label>
+      </div>
+      <button class="btn btn-primary" style="width:100%;height:44px" onClick="{{ signIn }}">Sign in</button>
+      <div style="display:flex;align-items:baseline;gap:6px;font-size:12.5px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">
+        <span style="flex:1">New intern this season?</span>
+        <button class="btn btn-ghost" style="font-size:12.5px" onClick="{{ goRegister }}">Register</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showRegister }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--color-bg);display:flex;flex-direction:column;z-index:95">
+    <div style="padding:56px 16px 12px;flex:none;background:var(--color-accent-800);color:#fff;display:flex;align-items:flex-end;gap:10px">
+      <button onClick="{{ backToSignIn }}" style="width:34px;height:34px;flex:none;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.28);color:#fff;cursor:pointer;padding:0">
+        <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4l-6 6 6 6"></path></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-accent-300)">Register</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.1">Join the video room</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+      <div class="field">
+        <label>Full name</label>
+        <input class="input" placeholder="First and last" value="{{ regName }}" onChange="{{ typeRegName }}">
+        <div style="font-size:12px;line-height:1.4;margin-top:6px;color:{{ regMatchColor }}">{{ regMatchLine }}</div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input class="input" type="email" placeholder="you@gmail.com" value="{{ regEmail }}" onChange="{{ typeRegEmail }}">
+        <div style="font-size:12px;line-height:1.4;margin-top:6px;color:color-mix(in srgb, var(--color-text) 55%, transparent)">Any email you actually check — personal is fine. Sign-in and alerts go here.</div>
+      </div>
+      <div class="field"><label>Crew code from staff <span style="font-weight:400;opacity:0.6">— optional</span></label><input class="input" placeholder="6 characters" value="{{ regCode }}" onChange="{{ typeRegCode }}"></div>
+      <div class="field">
+        <label>Role</label>
+        <div class="seg">
+          <label class="seg-opt"><input type="radio" name="role" checked="{{ roleIntern }}" onChange="{{ pickIntern }}"><span>Intern</span></label>
+          <label class="seg-opt"><input type="radio" name="role" checked="{{ roleLead }}" onChange="{{ pickLead }}"><span>Head intern</span></label>
+          <label class="seg-opt"><input type="radio" name="role" checked="{{ roleStaff }}" onChange="{{ pickStaff }}"><span>Staff</span></label>
+        </div>
+      </div>
+      <div style="font-size:12.5px;line-height:1.45;color:color-mix(in srgb, var(--color-text) 60%, transparent)">{{ roleNote }}</div>
+    </div>
+    <div style="flex:none;padding:12px 20px 34px;border-top:1px solid var(--color-divider)">
+      <button class="btn btn-primary" style="width:100%;height:44px" disabled="{{ regDisabled }}" onClick="{{ createAccount }}">{{ regLabel }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ swapOpen }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" style="position:absolute;z-index:60">
+    <div class="dialog blueprint" style="background:var(--color-bg)">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="dialog-title">Propose a replacement</div>
+      <div class="dialog-body">{{ swapShiftLine }}</div>
+      <div style="display:flex;flex-direction:column;gap:2px;max-height:212px;overflow-y:auto">
+        <sc-for list="{{ swapCandidates }}" as="p" hint-placeholder-count="4">
+          <label class="radio" style="justify-content:flex-start;gap:10px;padding:9px 2px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+            <input type="radio" name="swap" checked="{{ p.checked }}" onChange="{{ p.pick }}">
+            <span class="dot"></span>
+            <span style="flex:1">{{ p.name }}</span>
+            <span style="font-size:11px;color:color-mix(in srgb, var(--color-text) 50%, transparent)">{{ p.load }}</span>
+          </label>
+        </sc-for>
+      </div>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" onClick="{{ closeSwap }}">Cancel</button>
+        <button class="btn btn-primary" disabled="{{ swapDisabled }}" onClick="{{ sendSwap }}">Send request</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ noteOpen }}" hint-placeholder-val="{{ false }}">
+  <div class="dialog-backdrop" style="position:absolute;z-index:65">
+    <div class="dialog blueprint" style="background:var(--color-bg)">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="dialog-title">{{ noteTitle }}</div>
+      <div class="dialog-body">{{ noteBody }}</div>
+      <textarea class="input" style="min-height:88px" placeholder="e.g. Need to leave at 4:45 — Tre is covering the rest." value="{{ noteDraft }}" onChange="{{ typeNote }}"></textarea>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" onClick="{{ closeNote }}">{{ noteCancel }}</button>
+        <button class="btn btn-primary" onClick="{{ saveNote }}">Save note</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:16px;right:16px;bottom:96px;z-index:70;background:var(--color-accent-900);color:#fff;padding:11px 13px;font-size:13px;line-height:1.35;box-shadow:var(--shadow-lg)">{{ toast }}</div>
+  </sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:470,&quot;height&quot;:940},&quot;roster&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Jordan R., Maya P., Tre W., Sam K., Devin L., Ana G.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Crew roster&quot;},&quot;staffCanEditClasses&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Crew roster&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Sign in&quot;,&quot;Straight to app&quot;],&quot;default&quot;:&quot;Sign in&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;myName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Jordan R.&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Who's signed in&quot;},&quot;brandColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#012169&quot;,&quot;options&quot;:[&quot;#012169&quot;,&quot;#00539b&quot;,&quot;#00133f&quot;,&quot;#1d2d3d&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Look&quot;},&quot;showBadges&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;requireSwapOnDecline&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behavior&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'today', day: 'all', scope: 'all', bucket: 'assigned',
+      guideId: null, practice: false, alerts: false,
+      swapFor: null, swapPick: null, newTask: '', toast: null,
+      status: { s1: 'pending', s2: 'accepted', s3: 'accepted', s4: 'pending', s5: 'pending', s6: 'accepted', s7: 'swap', s8: 'accepted' },
+      done: { d2: true, t3: true, t7: true, t11: true },
+      pdone: {}, extra: [], seen: false, nextSlot: 0,
+      logs: [
+        { id: 'l1', dow: 'Mon', date: 'Aug 24', session: 'Full practice', hours: 3.25, src: 'Clocked' },
+        { id: 'l2', dow: 'Tue', date: 'Aug 25', session: 'Early lift + edit', hours: 2.5, src: 'Clocked' },
+        { id: 'l3', dow: 'Wed', date: 'Aug 26', session: 'Editing bay', hours: 1.75, src: 'Manual' },
+        { id: 'l4', dow: 'Thu', date: 'Aug 27', session: 'Individual workouts', hours: 1.5, src: 'Clocked' },
+      ],
+      clockIn: null, clockLabel: null, now: Date.now(),
+      screen: props && props.startScreen === 'Straight to app' ? 'app' : 'signin',
+      role: 'Lead', identity: null, signAs: 'Lead',
+      crewWeek: { 'Jordan R.': 0, 'Maya P.': 11.5, 'Tre W.': 8.25, 'Sam K.': 13.0, 'Devin L.': 4.5, 'Ana G.': 10.75 },
+      logOwner: 'Jordan R.',
+      emails: { 'Jordan R.': 'jordan.rivera@gmail.com', 'Maya P.': 'mayap@gmail.com', 'Tre W.': 'tre.w@gmail.com', 'Ana G.': 'anag@gmail.com' },
+      offDraft: { day: 'Sat', label: '' },
+      composeOpen: false, extraGuides: [],
+      ng: { title: '', kicker: 'Software', kind: 'w', intro: '', steps: [], stepTitle: '', stepBody: '', shots: 0, video: false },
+      email: '', pass: '',
+      regName: '', regEmail: '', regRole: 'Intern', regCode: '',
+      builderOpen: false,
+      b: { day: 'Wed', time: '4:15 PM', end: 'Open end', session: 'Full practice', who: 'Open', note: '' },
+      notes: { s3: 'Have to leave 30 min early — class at 6.' },
+      noteFor: null, noteDraft: '', noteMode: 'edit',
+      rosterExtra: [], rosterAdd: '', crewOpen: false,
+      availOpen: false, availWho: null, override: false,
+      availDraft: { days: ['Mon'], start: '9:00 AM', end: '10:15 AM', label: '' },
+      avail: {
+        'Jordan R.': [
+          { id: 'a1', day: 'Tue', start: '6:00 PM', end: '7:15 PM', label: 'PSY 105' },
+          { id: 'a2', day: 'Thu', start: '9:30 AM', end: '10:45 AM', label: 'MATH 216' },
+        ],
+        'Maya P.': [
+          { id: 'a3', day: 'Mon', start: '9:00 AM', end: '10:15 AM', label: 'STAT 210' },
+          { id: 'a4', day: 'Wed', start: '9:00 AM', end: '10:15 AM', label: 'STAT 210' },
+          { id: 'a5', day: 'Tue', start: '3:00 PM', end: '4:30 PM', label: 'HIST 180' },
+        ],
+        'Tre W.': [
+          { id: 'a6', day: 'Wed', start: '4:00 PM', end: '5:30 PM', label: 'ECON 101' },
+          { id: 'a7', day: 'Fri', start: '1:00 PM', end: '2:30 PM', label: 'BIO lab' },
+        ],
+        'Sam K.': [{ id: 'a8', day: 'Mon', start: '1:00 PM', end: '2:15 PM', label: 'CHEM 110' }],
+        'Ana G.': [{ id: 'a9', day: 'Sun', start: '7:00 PM', end: '8:00 PM', label: 'Study group' }],
+      },
+      registered: { 'Jordan R.': true, 'Maya P.': true, 'Tre W.': true, 'Ana G.': true },
+    };
+  }
+
+  names() {
+    const src = this.props.roster || 'Jordan R., Maya P., Tre W., Sam K., Devin L., Ana G.';
+    return src.split(/[,\n]/).map(x => x.trim()).filter(Boolean).concat(this.state.rosterExtra);
+  }
+  matchRoster(typed) {
+    const norm = x => (x || '').toLowerCase().replace(/[^a-z ]/g, '').trim();
+    const t = norm(typed);
+    if (!t) return null;
+    const names = this.names();
+    const parts = t.split(/\s+/);
+    return names.find(n => norm(n) === t)
+      || names.find(n => {
+        const np = norm(n).split(/\s+/);
+        return np[0] === parts[0] && (parts.length === 1 || !np[1] || np[1][0] === parts[1][0]);
+      })
+      || names.find(n => norm(n).startsWith(t) || t.startsWith(norm(n)))
+      || null;
+  }
+
+  timeOpts() {
+    if (this._times) return this._times;
+    const out = [];
+    for (let m = 5 * 60; m <= 22 * 60; m += 15) {
+      const h = Math.floor(m / 60), mm = m % 60;
+      const ap = h < 12 ? 'AM' : 'PM';
+      const hh = h % 12 === 0 ? 12 : h % 12;
+      out.push(hh + ':' + String(mm).padStart(2, '0') + ' ' + ap);
+    }
+    this._times = out;
+    return out;
+  }
+  toMin(t) {
+    const m = /(\d+):(\d+)\s*(AM|PM)/.exec(t);
+    if (!m) return null;
+    let h = +m[1] % 12;
+    if (m[3] === 'PM') h += 12;
+    return h * 60 + (+m[2]);
+  }
+  spanLabel(start, end) {
+    if (end === 'Open end') return 'Open end';
+    const a = this.toMin(start), b = this.toMin(end);
+    if (a == null || b == null || b <= a) return 'Open end';
+    const d = b - a, h = Math.floor(d / 60), mm = d % 60;
+    return (h ? h + 'h' : '') + (mm ? (h ? ' ' : '') + mm + 'm' : '');
+  }
+
+  DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  DAYNUM = { Mon: '31', Tue: '1', Wed: '2', Thu: '3', Fri: '4', Sat: '5', Sun: '6' };
+  TIMES = ['6:00 AM', '8:30 AM', '10:00 AM', '11:00 AM', '1:30 PM', '3:00 PM', '4:15 PM', '7:00 PM'];
+  DURS = ['1h', '1h 30m', '2h', '2h 30m', '3h'];
+  SESSIONS = ['Full practice', 'Game', 'Half-court work', 'Individual workouts', 'Early lift', 'Live scrimmage', 'Film session prep'];
+  LOCS = { 'Early lift': 'Weight room', Game: 'Main arena', 'Live scrimmage': 'Main arena', 'Individual workouts': 'Auxiliary gym', 'Film session prep': 'Video room' };
+
+  blocksFor(n) { return this.state.avail[n] || []; }
+  shiftWindow(b) {
+    const s = this.toMin(b.time);
+    const e = b.end === 'Open end' ? s + 150 : this.toMin(b.end);
+    return [s, e <= s ? s + 150 : e];
+  }
+  conflictFor(name, day, win) {
+    return this.blocksFor(name).find(bl => bl.day === day && (bl.allDay || (this.toMin(bl.start) < win[1] && this.toMin(bl.end) > win[0]))) || null;
+  }
+  chipsOn(key, field, options) {
+    return options.map(o => {
+      const active = this.state[key][field] === o;
+      return {
+        label: o,
+        bg: active ? 'var(--color-accent-800)' : 'transparent',
+        fg: active ? '#fff' : 'var(--color-text)',
+        border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+        pick: () => this.setState(s => ({ [key]: { ...s[key], [field]: o } })),
+      };
+    });
+  }
+  chips(field, options) {
+    return options.map(o => {
+      const active = this.state.b[field] === o;
+      return {
+        label: o,
+        bg: active ? 'var(--color-accent-800)' : 'transparent',
+        fg: active ? '#fff' : 'var(--color-text)',
+        border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+        pick: () => this.setState(s => ({ b: { ...s.b, [field]: o } })),
+      };
+    });
+  }
+
+  componentWillUnmount() { clearInterval(this._tick); clearTimeout(this._t); }
+
+  me() { return this.state.identity || this.props.myName || 'Jordan R.'; }
+  isStaff() { return this.state.role === 'Staff' || this.state.role === 'Lead'; }
+  logsHours() { return this.state.role !== 'Staff'; }
+  ROLE_LABEL = { Staff: 'Staff view', Lead: 'Head intern · admin', Intern: 'Intern view' };
+
+  componentDidMount() {
+    this.applyBrand();
+    this._tick = setInterval(() => this.setState({ now: Date.now() }), 15000);
+  }
+  componentDidUpdate() { this.applyBrand(); }
+  applyBrand() {
+    const c = this.props.brandColor;
+    if (c) document.documentElement.style.setProperty('--color-accent-800', c);
+  }
+
+  SHIFTS = [
+    { id: 's1', dow: 'Mon', num: '31', time: '1:30 PM', dur: 'Open end', session: 'Full practice', role: 'Baseline cam', loc: 'Practice court', who: 'Jordan R.' },
+    { id: 's2', dow: 'Tue', num: '1', time: '6:00 AM', dur: '1h 15m', session: 'Early lift', role: 'Floor cam', loc: 'Weight room', who: 'Maya P.' },
+    { id: 's3', dow: 'Tue', num: '1', time: '3:00 PM', dur: '2h 45m', session: 'Full practice', role: 'Baseline cam', loc: 'Practice court', who: 'Jordan R.' },
+    { id: 's4', dow: 'Wed', num: '2', time: '4:15 PM', dur: '2h', session: 'Half-court work', role: 'Corner cam', loc: 'Practice court', who: 'Tre W.' },
+    { id: 's5', dow: 'Thu', num: '3', time: '11:00 AM', dur: '1h 30m', session: 'Individual workouts', role: 'Handheld', loc: 'Auxiliary gym', who: 'Jordan R.' },
+    { id: 's6', dow: 'Fri', num: '4', time: '2:00 PM', dur: '2h 30m', session: 'Full practice', role: 'Baseline cam', loc: 'Practice court', who: 'Sam K.' },
+    { id: 's7', dow: 'Sat', num: '5', time: '10:00 AM', dur: '3h', session: 'Live scrimmage', role: 'Baseline + corner', loc: 'Main arena', who: 'Jordan R.' },
+    { id: 's8', dow: 'Sun', num: '6', time: '7:00 PM', dur: '1h', session: 'Film session prep', role: 'Editing bay', loc: 'Video room', who: 'Ana G.' },
+  ];
+
+  BUCKETS = [
+    { id: 'assigned', label: 'From coaches' }, { id: 'daily', label: 'Daily' },
+    { id: 'practice', label: 'During practice' }, { id: 'post', label: 'Post-practice' },
+    { id: 'game', label: 'Game day' }, { id: 'mine', label: 'Mine' },
+  ];
+
+  TASKS = [
+    { id: 't1', bucket: 'assigned', title: 'Cut Tuesday practice into segments, upload before film', by: 'Coach Vance', due: 'Due Sun 6 PM', tag: 'Priority' },
+    { id: 't2', bucket: 'assigned', title: 'Build 4-min transition reel for Monday walkthrough', by: 'Coach Ellis', due: 'Due Mon 9 AM', tag: 'Priority' },
+    { id: 't3', bucket: 'assigned', title: 'Re-tag last season ball-screen clips with new labels', by: 'Coach Vance', due: 'No date', tag: 'Backlog' },
+    { id: 't4', bucket: 'assigned', title: 'Pull individual highlight cuts for the two new guards', by: 'Coach Ruiz', due: 'Due Wed', tag: 'Normal' },
+    { id: 't5', bucket: 'daily', title: 'Charge all camera + recorder batteries', by: 'Daily', due: 'Before 11 AM', tag: 'Daily' },
+    { id: 't6', bucket: 'daily', title: 'Confirm practice time in the staff thread', by: 'Daily', due: 'Morning', tag: 'Daily' },
+    { id: 't7', bucket: 'daily', title: 'Clear yesterday\u2019s cards, verify backup finished', by: 'Daily', due: 'Morning', tag: 'Daily' },
+    { id: 't8', bucket: 'daily', title: 'Check editing bay drives have 200GB+ free', by: 'Daily', due: 'Anytime', tag: 'Daily' },
+    { id: 't9', bucket: 'daily', title: 'Post the day\u2019s shift assignments to the board', by: 'Daily', due: 'Morning', tag: 'Daily' },
+    { id: 't10', bucket: 'practice', title: 'Cameras up and framed 20 min before first whistle', by: 'Practice', due: 'Pre-practice', tag: 'Setup' },
+    { id: 't11', bucket: 'practice', title: 'Slate the recording with date + session type', by: 'Practice', due: 'Start', tag: 'Setup' },
+    { id: 't12', bucket: 'practice', title: 'Mark segment breaks live as coaches call them', by: 'Practice', due: 'Ongoing', tag: 'Live' },
+    { id: 't13', bucket: 'practice', title: 'Flag anything a coach says to \u201Cpull that one\u201D', by: 'Practice', due: 'Ongoing', tag: 'Live' },
+    { id: 't14', bucket: 'post', title: 'Offload both cards, verify frame counts match', by: 'Post', due: 'Within 30 min', tag: 'Required' },
+    { id: 't15', bucket: 'post', title: 'Push practice file to the shared drive + Hudl', by: 'Post', due: 'Same day', tag: 'Required' },
+    { id: 't16', bucket: 'post', title: 'Log the session in the practice index sheet', by: 'Post', due: 'Same day', tag: 'Normal' },
+    { id: 't17', bucket: 'post', title: 'Wrap cables, lock the cage, cards back in the bin', by: 'Post', due: 'Before leaving', tag: 'Required' },
+    { id: 't18', bucket: 'game', title: 'Confirm arena feed + tripod positions with ops', by: 'Game day', due: 'Gameday \u22124h', tag: 'Game' },
+    { id: 't19', bucket: 'game', title: 'Test the bench iPad tagging setup end to end', by: 'Game day', due: 'Gameday \u22122h', tag: 'Game' },
+    { id: 't20', bucket: 'game', title: 'Deliver first-half cut to staff at halftime', by: 'Game day', due: 'Halftime', tag: 'Priority' },
+    { id: 't21', bucket: 'mine', title: 'Ask Coach Ellis about the new tagging shortcuts', by: 'Personal', due: 'Whenever', tag: 'Note' },
+    { id: 't22', bucket: 'mine', title: 'Rewatch the export-presets how-to before Friday', by: 'Personal', due: 'By Fri', tag: 'Note' },
+  ];
+
+  PRACTICE = [
+    { id: 'p1', title: 'Cameras up, framed, and recording 20 min early', hint: 'Baseline first, then corner' },
+    { id: 'p2', title: 'Slate the file: date, session type, personnel', hint: 'Say it out loud on the mic too' },
+    { id: 'p3', title: 'Confirm audio on the coach mic', hint: 'Levels around \u221212 dB' },
+    { id: 'p4', title: 'Mark warmup / stretch break', hint: 'Tap as the horn sounds' },
+    { id: 'p5', title: 'Mark each drill segment as it starts', hint: 'Shell, closeouts, transition' },
+    { id: 'p6', title: 'Flag every \u201Cpull that one\u201D from staff', hint: 'Note the player and the action' },
+    { id: 'p7', title: 'Watch card space at the halfway point', hint: 'Swap if under 20 min left' },
+    { id: 'p8', title: 'Mark live scrimmage start and stop', hint: 'Coaches watch this segment first' },
+    { id: 'p9', title: 'Stop recording only after staff clears the floor', hint: 'Post-practice talks get used' },
+  ];
+
+  GUIDES = [
+    { id: 'g1', kicker: 'Hardware', title: 'Baseline camera setup, start to finish', kind: 'w', meta: 'Written · 6 steps · updated Aug', slot: 'tripod setup', intro: 'The baseline rig is the one every coach watches, so it gets set the same way every single day. Twenty minutes before first whistle, no exceptions.', credit: 'Written by Maya P. · last checked Aug 24' },
+    { id: 'g2', kicker: 'Software', title: 'Tagging a practice in the editor', kind: 'v', meta: 'Video · 7:40', slot: 'editor UI', length: '7:40', intro: 'Screen recording of a full practice tag pass, real time, no cuts. Watch it once before your first solo practice.', credit: 'Recorded by Tre W. · Aug 12' },
+    { id: 'g3', kicker: 'Software', title: 'Export presets for staff vs players', kind: 'w', meta: 'Written · 4 steps', slot: 'export dialog', intro: 'Staff cuts and player cuts leave with different presets. Sending the wrong one is the most common mistake in this room.', credit: 'Written by Sam K. · Aug 19' },
+    { id: 'g4', kicker: 'Workflow', title: 'Card offload and backup verification', kind: 'w', meta: 'Written · 5 steps · required reading', slot: 'offload station', intro: 'Nothing gets deleted until two copies exist and the frame counts match. This is the one procedure with no shortcuts.', credit: 'Written by Ana G. · Aug 21' },
+    { id: 'g5', kicker: 'Software', title: 'Uploading to the shared drive + Hudl', kind: 'v', meta: 'Video · 4:12', slot: 'upload screen', length: '4:12', intro: 'Where files go, how they get named, and what to do when an upload stalls at 90 percent.', credit: 'Recorded by Devin L. · Aug 9' },
+    { id: 'g6', kicker: 'Hardware', title: 'Bench iPad tagging setup for games', kind: 'w', meta: 'Written · 5 steps', slot: 'bench setup', intro: 'Game day only. The bench setup rides on arena wifi, so it gets tested twice: four hours out and two hours out.', credit: 'Written by Jordan R. · Aug 26' },
+  ];
+
+  STEPS = {
+    g1: [
+      { n: 1, title: 'Pull rig 4 from the cage', body: 'Rig 4 is the baseline body. Check the lens is the 24-70 and the battery reads full before you leave the cage.', shot: 'cage layout' },
+      { n: 2, title: 'Set the tripod on the baseline mark', body: 'Tape mark is 6 feet right of the stanchion. Legs at second notch, head level, plate locked.', shot: 'floor mark' },
+      { n: 3, title: 'Frame both free-throw lines', body: 'Wide enough that both lines sit inside the frame with a foot of air above the rim.', shot: 'framing guide' },
+      { n: 4, title: 'Settings: 1080/60, shutter 1/120', body: 'Manual exposure. Practice-court lights do not change, so lock it and leave it.', shot: null },
+      { n: 5, title: 'Card check and record test', body: 'Fresh card, 10-second test, play it back on the body. Do not trust the record light alone.', shot: 'record test' },
+      { n: 6, title: 'Slate and roll', body: 'Roll before players are on the floor. Extra footage is free; missing the first drill is not.', shot: null },
+    ],
+    g2: [
+      { n: 1, title: 'Open the practice file in the tagging window', body: 'It lands in the day folder automatically once the offload finishes.' },
+      { n: 2, title: 'Set your segment hotkeys', body: 'The room uses 1 through 6 for shell, closeouts, transition, live, special, and free throws.' },
+      { n: 3, title: 'Tag in one pass, clean up after', body: 'Do not stop to fix a mistag mid-pass. Note the timecode and come back.' },
+      { n: 4, title: 'Name segments the way coaches search', body: 'Drill name first, then personnel. That is how they type it into search.' },
+    ],
+    g3: [
+      { n: 1, title: 'Pick the audience preset first', body: 'Staff preset keeps full audio and full length. Player preset trims audio and caps each clip at 90 seconds.', shot: 'preset list' },
+      { n: 2, title: 'Check the bitrate before you queue', body: 'Staff at 20 Mbps, player at 8. Anything higher clogs the upload.', shot: null },
+      { n: 3, title: 'Name the file to the room convention', body: 'YYYY-MM-DD_session_audience. The date leads so folders sort themselves.', shot: 'naming example' },
+      { n: 4, title: 'Queue, then verify the first 10 seconds', body: 'Play the exported file. A silent staff cut has to be caught here, not by a coach.', shot: null },
+    ],
+    g4: [
+      { n: 1, title: 'Card into the reader, never the camera', body: 'Camera offloads are slow and drain the battery mid-transfer.', shot: 'reader station' },
+      { n: 2, title: 'Copy to the day folder on the working drive', body: 'Copy, do not move. The card stays intact until step 4 passes.', shot: null },
+      { n: 3, title: 'Mirror to the backup drive', body: 'Same folder name, second drive. Both copies exist before anything gets deleted.', shot: 'two drives' },
+      { n: 4, title: 'Compare frame counts on both copies', body: 'Counts match or you copy again. This is the check that saves practices.', shot: 'count check' },
+      { n: 5, title: 'Format the card in-camera, log it', body: 'Format in the body, not the computer. Initial the card log on the wall.', shot: null },
+    ],
+    g5: [
+      { n: 1, title: 'Drop the export into the upload watch folder', body: 'The watch folder handles the shared drive push on its own.' },
+      { n: 2, title: 'Upload to Hudl second, not first', body: 'Shared drive is the source of truth. Hudl is the distribution copy.' },
+      { n: 3, title: 'Confirm the staff notification went out', body: 'If the thread stays quiet, the upload did not finish. Check before you leave.' },
+    ],
+    g6: [
+      { n: 1, title: 'Pair the iPad to arena wifi, not the practice network', body: 'Different network in the arena. Pair it four hours out while ops is still around.', shot: 'network screen' },
+      { n: 2, title: 'Connect to the tagging session', body: 'Session name is the opponent and date. Join as a tagger, not a viewer.', shot: null },
+      { n: 3, title: 'Run a two-minute live test with the truck feed', body: 'Tag something, confirm it lands upstairs. Do not assume.', shot: 'live test' },
+      { n: 4, title: 'Charge and stage the backup iPad', body: 'Second iPad lives in the bench bag, charged, already joined.', shot: null },
+      { n: 5, title: 'Halftime handoff', body: 'Whoever is upstairs cuts the first-half reel. Bench tagger keeps tagging.', shot: null },
+    ],
+  };
+
+  ALERTS = [
+    { title: 'Coach Vance moved Wednesday practice to 4:15 PM', time: '18 min ago', hot: true },
+    { title: 'You have 3 shifts awaiting your response this week', time: '2 hours ago', hot: true },
+    { title: 'Devin L. accepted your swap request for Sat 10:00 AM', time: 'Yesterday', hot: false },
+    { title: 'New how-to posted: Bench iPad tagging setup', time: '2 days ago', hot: false },
+    { title: 'Maya P. finished the Tuesday practice upload', time: '3 days ago', hot: false },
+  ];
+
+  set(k, v) { this.setState({ [k]: v }); }
+  flash(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+  setStatus(id, st, msg) {
+    this.setState(s => ({ status: { ...s.status, [id]: st } }));
+    if (msg) this.flash(msg);
+  }
+  allShifts() { return this.SHIFTS.concat(this.state.extra); }
+  allTasks() { return this.TASKS.concat(this.state.extra.filter(x => x.bucket)); }
+
+  statusMeta(st) {
+    if (st === 'accepted') return { statusLabel: 'Accepted', tagClass: 'tag-accent' };
+    if (st === 'declined') return { statusLabel: 'Declined', tagClass: 'tag-neutral' };
+    if (st === 'swap') return { statusLabel: 'Swap sent', tagClass: 'tag-outline' };
+    if (st === 'open') return { statusLabel: 'Open slot', tagClass: 'tag-outline' };
+    if (st === 'covered') return { statusLabel: 'Covered', tagClass: 'tag-accent' };
+    return { statusLabel: 'Needs reply', tagClass: 'tag-outline' };
+  }
+
+  shiftView(s) {
+    const st = this.state.status[s.id] || 'pending';
+    const meta = this.statusMeta(st);
+    const mine = s.who === this.me();
+    const requireSwap = this.props.requireSwapOnDecline !== false;
+    const note = this.state.notes[s.id] || '';
+    return {
+      ...s, ...meta, mine, note,
+      sub: [s.role, s.loc].filter(Boolean).join(' · '),
+      hasNote: !!note,
+      noteBtn: note ? 'Edit note' : 'Add a note',
+      openNote: () => this.setState({ noteFor: s.id, noteDraft: note, noteMode: 'edit' }),
+      when: s.dow + ' · ' + s.time + ' · ' + s.dur,
+      initials: s.who === 'Open' ? '—' : s.who.split(' ').map(x => x[0]).join(''),
+      showActions: mine && st === 'pending',
+      showSwap: mine && st === 'declined',
+      showClaim: st === 'open',
+      swapNote: requireSwap ? 'You declined. Name who can cover it — coaches see the swap, not a hole in the schedule.' : 'You declined. Coaches have been notified.',
+      accept: () => {
+        this.setStatus(s.id, 'accepted', 'Accepted — ' + s.dow + ' ' + s.time + '. Added to your week.');
+        this.setState({ noteFor: s.id, noteDraft: note, noteMode: 'accept' });
+      },
+      decline: () => {
+        this.setStatus(s.id, 'declined');
+        if (requireSwap) this.setState({ swapFor: s.id, swapPick: null });
+        else this.flash('Declined — coaches notified.');
+      },
+      openSwap: () => this.setState({ swapFor: s.id, swapPick: null }),
+      claim: () => this.setStatus(s.id, 'accepted', 'Slot claimed. It is yours.'),
+    };
+  }
+
+  taskView(t) {
+    const done = !!this.state.done[t.id];
+    const tagClass = t.tag === 'Priority' || t.tag === 'Required' ? 'tag-accent' : t.tag === 'Live' || t.tag === 'Game' ? 'tag-outline' : 'tag-neutral';
+    return {
+      ...t, done, tagClass,
+      meta: t.by + ' · ' + t.due,
+      fill: done ? 'var(--color-accent)' : 'transparent',
+      mark: done ? '\u2713' : '',
+      color: done ? 'color-mix(in srgb, var(--color-text) 42%, transparent)' : 'var(--color-text)',
+      strike: done ? 'line-through' : 'none',
+      toggle: () => this.setState(s => ({ done: { ...s.done, [t.id]: !s.done[t.id] } })),
+    };
+  }
+
+  HISTORY = [
+    { label: 'Aug 17 – 23', hours: 12.5 },
+    { label: 'Aug 10 – 16', hours: 9.25 },
+    { label: 'Aug 3 – 9', hours: 15.75 },
+  ];
+
+  durHours(d) {
+    const h = /(\d+)h/.exec(d), m = /(\d+)m/.exec(d);
+    return (h ? +h[1] : 0) + (m ? +m[1] / 60 : 0);
+  }
+  fmtHours(n) {
+    const r = Math.round(n * 4) / 4;
+    return (r % 1 === 0 ? r.toFixed(0) : r.toFixed(2).replace(/0$/, '')) + ' h';
+  }
+  liveHours() {
+    return this.state.clockIn ? (this.state.now - this.state.clockIn) / 3600000 : 0;
+  }
+  toggleClock() {
+    if (this.state.clockIn) {
+      const h = Math.max(0.25, Math.round(this.liveHours() * 4) / 4);
+      const label = this.state.clockLabel || 'Video room';
+      this.setState(st => ({
+        clockIn: null, clockLabel: null,
+        logs: st.logs.concat([{ id: 'c' + Date.now(), dow: 'Sat', date: 'Aug 29', session: label, hours: h, src: 'Clocked' }]),
+      }));
+      this.flash('Clocked out — ' + this.fmtHours(h) + ' added to this week.');
+    } else {
+      const next = this.SHIFTS.find(x => x.who === this.me());
+      this.setState({ clockIn: Date.now(), clockLabel: next ? next.session : 'Video room', now: Date.now() });
+      this.flash('Clocked in. Timer runs until you clock out.');
+    }
+  }
+
+  renderVals() {
+    const s = this.state;
+    const me = this.me();
+    const shifts = this.allShifts().map(x => this.shiftView(x));
+    const mineShifts = shifts.filter(x => x.mine);
+    const pending = mineShifts.filter(x => (s.status[x.id] || 'pending') === 'pending');
+    const accepted = mineShifts.filter(x => (s.status[x.id] || 'pending') === 'accepted');
+    const tasks = this.allTasks().map(t => this.taskView(t));
+    const dailyAll = tasks.filter(t => t.bucket === 'daily');
+    const dailyDone = dailyAll.filter(t => t.done).length;
+    const pdoneCount = this.PRACTICE.filter(p => s.pdone[p.id]).length;
+    const badgeCount = pending.length + (s.seen ? 0 : 2);
+    const win = this.shiftWindow(s.b);
+    const conflict = s.b.who === 'Open' ? null : this.conflictFor(s.b.who, s.b.day, win);
+    const logged = s.logs.reduce((a, l) => a + l.hours, 0);
+    const total = logged + this.liveHours();
+    const weekHours = n => (n === s.logOwner ? total : 0) + (s.crewWeek[n] || 0);
+
+    const next = shifts.find(x => x.mine && (s.status[x.id] || 'pending') !== 'declined') || shifts[0];
+    const swapShift = shifts.find(x => x.id === s.swapFor);
+    const guide = s.extraGuides.concat(this.GUIDES).find(g => g.id === s.guideId) || {};
+    const bucketDef = this.BUCKETS.find(b => b.id === s.bucket) || this.BUCKETS[0];
+
+    const on = 'var(--color-accent-800)';
+    const off = 'color-mix(in srgb, var(--color-text) 50%, transparent)';
+    const c = {};
+    ['today', 'schedule', 'hours', 'tasks', 'guides', 'mine'].forEach(k => {
+      const active = s.tab === k && !s.alerts;
+      c[k] = active ? on : off;
+      c[k + 'Bar'] = active ? on : 'transparent';
+    });
+
+    return {
+      firstName: me.split(' ')[0],
+      todayLine: pending.length
+        ? pending.length + ' shift' + (pending.length === 1 ? '' : 's') + ' still need your answer · ' + accepted.length + ' accepted'
+        : 'Week is settled — ' + accepted.length + ' shifts accepted.',
+      badge: this.props.showBadges === false ? 0 : badgeCount,
+      isToday: s.tab === 'today' && !s.alerts,
+      isSchedule: s.tab === 'schedule' && !s.alerts,
+      isTasks: s.tab === 'tasks' && !s.alerts,
+      isGuides: s.tab === 'guides' && !s.alerts,
+      isAlerts: s.alerts,
+      c,
+      goToday: () => this.setState({ tab: 'today', alerts: false }),
+      goSchedule: () => this.setState({ tab: 'schedule', alerts: false }),
+      goTasks: () => this.setState({ tab: 'tasks', alerts: false }),
+      goGuides: () => this.setState({ tab: 'guides', alerts: false }),
+      openAlerts: () => this.setState({ alerts: true, seen: true }),
+      closeAlerts: () => this.setState({ alerts: false }),
+      alerts: this.ALERTS.map(a => ({ ...a, dot: a.hot ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 25%, transparent)' })),
+
+      next,
+      dailyProgress: dailyDone + ' of ' + dailyAll.length,
+      dailyItems: dailyAll.slice(0, 5),
+      coachTasks: tasks.filter(t => t.bucket === 'assigned' && !t.done).slice(0, 2),
+
+      weekSummary: accepted.length + ' accepted · ' + pending.length + ' pending',
+      weekDays: this.SHIFTS.reduce((acc, x) => (acc.some(a => a.dow === x.dow) ? acc : acc.concat([x])), []).map(x => {
+        const dayShifts = shifts.filter(y => y.dow === x.dow);
+        const active = s.day === x.dow;
+        const hasMine = dayShifts.some(y => y.mine);
+        return {
+          dow: x.dow, num: x.num,
+          bg: active ? 'var(--color-accent-800)' : 'transparent',
+          fg: active ? '#fff' : 'var(--color-text)',
+          border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+          dot: dayShifts.length ? (hasMine ? (active ? '#fff' : 'var(--color-accent)') : (active ? 'rgba(255,255,255,0.45)' : 'color-mix(in srgb, var(--color-text) 25%, transparent)')) : 'transparent',
+          pick: () => this.setState({ day: s.day === x.dow ? 'all' : x.dow }),
+        };
+      }),
+      scopeAll: s.scope === 'all',
+      scopeMine: s.scope === 'mine',
+      setScopeAll: () => this.set('scope', 'all'),
+      setScopeMine: () => this.set('scope', 'mine'),
+      shownShifts: shifts
+        .filter(x => s.scope === 'all' || x.mine)
+        .filter(x => s.day === 'all' || x.dow === s.day),
+      postSlot: () => {
+        const n = s.nextSlot + 1;
+        this.setState(st => ({
+          nextSlot: n,
+          extra: st.extra.concat([{ id: 'o' + n, dow: 'Wed', num: '2', time: '7:00 AM', dur: '1h', session: 'Extra shooting session', role: 'Handheld', loc: 'Auxiliary gym', who: 'Open' }]),
+          status: { ...st.status, ['o' + n]: 'open' },
+          scope: 'all', day: 'all',
+        }));
+        this.flash('Open slot posted to Wed 7:00 AM — anyone can claim it.');
+      },
+
+      buckets: this.BUCKETS.map(b => {
+        const active = s.bucket === b.id;
+        const list = tasks.filter(t => t.bucket === b.id);
+        return {
+          label: b.label,
+          count: list.filter(t => !t.done).length,
+          bg: active ? 'var(--color-accent-800)' : 'transparent',
+          fg: active ? '#fff' : 'var(--color-text)',
+          border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+          pick: () => this.set('bucket', b.id),
+        };
+      }),
+      bucketLabel: bucketDef.label,
+      taskPrivacy: s.bucket === 'mine'
+        ? 'Private — only you see this list.'
+        : 'Shared with the whole crew — anyone can add one or check one off.',
+      taskPrivacyColor: s.bucket === 'mine' ? 'var(--color-accent-700)' : 'color-mix(in srgb, var(--color-text) 50%, transparent)',
+
+      crewOpen: s.crewOpen,
+      openCrew: () => this.set('crewOpen', true),
+      closeCrew: () => this.set('crewOpen', false),
+      openMyAvail: () => this.setState({ availOpen: true, availWho: me }),
+      availOpen: s.availOpen,
+      availWho: s.availWho || '',
+      availTitle: s.availWho === me ? 'My class schedule' : (s.availWho || '') + '\u2019s classes',
+      availEditable: s.availWho === me || this.props.staffCanEditClasses !== false,
+      availNote: s.availWho === me
+        ? 'Add every class and anything else you cannot miss. Staff see the conflict before they assign you, not after.'
+        : 'You are entering these for ' + (s.availWho || '') + '. Pick every day the class meets, then Block.',
+      availBlocks: this.blocksFor(s.availWho).slice().sort((a, b) => this.DAYS.indexOf(a.day) - this.DAYS.indexOf(b.day) || this.toMin(a.start || '12:00 AM') - this.toMin(b.start || '12:00 AM')).map(bl => ({
+        ...bl,
+        span: bl.allDay ? 'All day — cannot work' : bl.start + ' – ' + bl.end,
+        remove: () => this.setState(st => ({ avail: { ...st.avail, [st.availWho]: this.blocksFor(st.availWho).filter(x => x.id !== bl.id) } })),
+      })),
+      availEmpty: this.blocksFor(s.availWho).length === 0,
+      closeAvail: () => this.setState({ availOpen: false, availWho: null }),
+      avDays: this.DAYS.map(d => {
+        const active = s.availDraft.days.indexOf(d) > -1;
+        return {
+          label: d,
+          bg: active ? 'var(--color-accent-800)' : 'transparent',
+          fg: active ? '#fff' : 'var(--color-text)',
+          border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+          pick: () => this.setState(st => ({
+            availDraft: {
+              ...st.availDraft,
+              days: active ? st.availDraft.days.filter(x => x !== d) : st.availDraft.days.concat([d]),
+            },
+          })),
+        };
+      }),
+      avDaysLine: s.availDraft.days.length
+        ? 'Blocking ' + s.availDraft.days.join(', ') + ' — one entry per day, same time.'
+        : 'Pick the days this class meets (tap several — MWF in one go).',
+      avStart: s.availDraft.start,
+      avEnd: s.availDraft.end,
+      avLabel: s.availDraft.label,
+      setAvStart: e => this.setState(st => ({ availDraft: { ...st.availDraft, start: e.target.value } })),
+      setAvEnd: e => this.setState(st => ({ availDraft: { ...st.availDraft, end: e.target.value } })),
+      setAvLabel: e => this.setState(st => ({ availDraft: { ...st.availDraft, label: e.target.value } })),
+      addBlock: () => {
+        const d = s.availDraft, who = s.availWho;
+        if (!d.days.length) { this.flash('Pick at least one day.'); return; }
+        if (this.toMin(d.end) <= this.toMin(d.start)) { this.flash('End time has to be after the start.'); return; }
+        const label = (d.label || '').trim() || 'Class';
+        const blocks = d.days.map((day, i) => ({ id: 'b' + Date.now() + i, day, start: d.start, end: d.end, label }));
+        this.setState(st => ({
+          avail: { ...st.avail, [who]: this.blocksFor(who).concat(blocks) },
+          availDraft: { ...st.availDraft, label: '' },
+        }));
+        this.flash(label + ' blocked ' + d.days.join('/') + ' ' + d.start + '–' + d.end + ' for ' + (who === me ? 'you' : who) + '.');
+      },
+      crewCount: this.names().length,
+      crew: this.names().map(n => {
+        const reg = !!s.registered[n];
+        const mineCount = shifts.filter(x => x.who === n).length;
+        return {
+          name: n,
+          initials: n.split(' ').map(x => x[0]).join(''),
+          shiftLine: mineCount + (mineCount === 1 ? ' shift' : ' shifts') + ' this week',
+          statusLabel: reg ? 'Registered' : 'Invite pending',
+          tagClass: reg ? 'tag-accent' : 'tag-outline',
+          isMe: n === me,
+          classLine: this.blocksFor(n).length
+            ? this.blocksFor(n).length + ' block' + (this.blocksFor(n).length === 1 ? '' : 's') + ' on file'
+            : 'No class times on file',
+          emailLine: s.emails[n] || 'no email yet',
+          open: () => this.setState({ availOpen: true, availWho: n }),
+        };
+      }),
+      rosterAdd: s.rosterAdd,
+      typeRoster: e => this.set('rosterAdd', e.target.value),
+      addToRoster: () => {
+        const v = (s.rosterAdd || '').trim();
+        if (!v) return;
+        this.setState(st => ({ rosterExtra: st.rosterExtra.concat([v]), rosterAdd: '' }));
+        this.flash(v + ' added to the roster. They can register with that name.');
+      },
+
+      regMatch: !!this.matchRoster(s.regName),
+      regMatchLine: s.regRole === 'Staff'
+        ? 'Staff accounts do not need a roster entry.'
+        : s.regRole === 'Lead' && !this.matchRoster(s.regName)
+        ? 'Head intern accounts do not need a roster match.'
+        : s.regName.trim()
+          ? (this.matchRoster(s.regName)
+            ? '\u2713 Matched to the roster as ' + this.matchRoster(s.regName) + ' — your shifts and hours are already waiting.'
+            : 'Not on the roster — you can still join. Staff confirm you afterwards.')
+          : 'First name is enough if you are already on the roster.',
+      regMatchColor: 'var(--color-accent-700)',
+      regDisabled: !s.regName.trim() || !s.regEmail.trim(),
+      regLabel: (!s.regName.trim() || !s.regEmail.trim()) ? 'Add your name and email'
+        : (s.regRole !== 'Intern' || this.matchRoster(s.regName) ? 'Create account' : 'Join and request access'),
+      bucketTasks: tasks.filter(t => t.bucket === s.bucket),
+      newTask: s.newTask,
+      typeTask: e => this.set('newTask', e.target.value),
+      maybeAdd: e => { if (e.key === 'Enter') this.addTaskNow(); },
+      addTask: () => this.addTaskNow(),
+
+      guides: s.extraGuides.concat(this.GUIDES).map(g => ({ ...g, open: () => this.set('guideId', g.id) })),
+      guideOpen: !!s.guideId,
+      guide: { ...guide, isVideo: guide.kind === 'v', length: guide.length && guide.length !== '\u2014' ? guide.length : 'just posted' },
+      guideSteps: (this.STEPS[s.guideId] || guide.steps || []),
+      closeGuide: () => this.set('guideId', null),
+
+      composeOpen: s.composeOpen,
+      openCompose: () => this.set('composeOpen', true),
+      closeCompose: () => this.set('composeOpen', false),
+      ngTitle: s.ng.title,
+      ngIntro: s.ng.intro,
+      ngStepTitle: s.ng.stepTitle,
+      ngStepBody: s.ng.stepBody,
+      typeNg: k => e => this.setState(st => ({ ng: { ...st.ng, [k]: e.target.value } })),
+      setNgTitle: e => this.setState(st => ({ ng: { ...st.ng, title: e.target.value } })),
+      setNgIntro: e => this.setState(st => ({ ng: { ...st.ng, intro: e.target.value } })),
+      setNgStepTitle: e => this.setState(st => ({ ng: { ...st.ng, stepTitle: e.target.value } })),
+      setNgStepBody: e => this.setState(st => ({ ng: { ...st.ng, stepBody: e.target.value } })),
+      ngKickers: ['Hardware', 'Software', 'Workflow', 'Game day'].map(k => {
+        const active = s.ng.kicker === k;
+        return {
+          label: k,
+          bg: active ? 'var(--color-accent-800)' : 'transparent',
+          fg: active ? '#fff' : 'var(--color-text)',
+          border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+          pick: () => this.setState(st => ({ ng: { ...st.ng, kicker: k } })),
+        };
+      }),
+      ngWritten: s.ng.kind === 'w',
+      ngVideo: s.ng.kind === 'v',
+      pickWritten: () => this.setState(st => ({ ng: { ...st.ng, kind: 'w' } })),
+      pickVideo: () => this.setState(st => ({ ng: { ...st.ng, kind: 'v' } })),
+      ngVideoAttached: s.ng.video,
+      videoLabel: s.ng.video ? 'Recording attached ✓' : 'Attach screen recording',
+      attachVideo: () => { this.setState(st => ({ ng: { ...st.ng, video: !st.ng.video } })); },
+      ngSteps: s.ng.steps.map((st2, i) => ({
+        n: i + 1, title: st2.title, body: st2.body,
+        shotLabel: st2.shot ? 'Screenshot attached' : 'No screenshot',
+        addShot: () => this.setState(stt => ({ ng: { ...stt.ng, steps: stt.ng.steps.map((x, j) => (j === i ? { ...x, shot: x.shot ? null : 'screenshot' } : x)) } })),
+        remove: () => this.setState(stt => ({ ng: { ...stt.ng, steps: stt.ng.steps.filter((x, j) => j !== i) } })),
+      })),
+      ngStepCount: s.ng.steps.length,
+      addStep: () => {
+        const t = s.ng.stepTitle.trim();
+        if (!t) { this.flash('Give the step a short title.'); return; }
+        this.setState(st => ({ ng: { ...st.ng, steps: st.ng.steps.concat([{ title: t, body: st.ng.stepBody.trim(), shot: null }]), stepTitle: '', stepBody: '' } }));
+      },
+      publishDisabled: !s.ng.title.trim() || (s.ng.kind === 'w' && !s.ng.steps.length),
+      publishLabel: !s.ng.title.trim() ? 'Add a title'
+        : (s.ng.kind === 'w' && !s.ng.steps.length ? 'Add at least one step' : 'Publish to the room'),
+      publishGuide: () => {
+        const ng = s.ng;
+        if (!ng.title.trim() || (ng.kind === 'w' && !ng.steps.length)) return;
+        const id = 'ug' + Date.now();
+        const g = {
+          id, kicker: ng.kicker, title: ng.title.trim(), kind: ng.kind,
+          meta: ng.kind === 'v' ? 'Video · just posted' : 'Written · ' + ng.steps.length + ' step' + (ng.steps.length === 1 ? '' : 's') + ' · just posted',
+          slot: ng.kind === 'v' ? 'screen recording' : 'first screenshot',
+          length: '—',
+          intro: ng.intro.trim() || 'Posted by ' + me + '.',
+          credit: 'Written by ' + me + ' · just now',
+          steps: ng.steps.map((x, i) => ({ n: i + 1, title: x.title, body: x.body, shot: x.shot })),
+        };
+        this.setState(st => ({
+          extraGuides: [g].concat(st.extraGuides),
+          composeOpen: false, guideId: id,
+          ng: { title: '', kicker: 'Software', kind: 'w', intro: '', steps: [], stepTitle: '', stepBody: '', shots: 0, video: false },
+        }));
+        this.flash('Posted to How-tos. The whole room can see it.');
+      },
+
+      practiceOpen: s.practice,
+      practiceTitle: next ? next.session : 'Practice',
+      practiceProgress: pdoneCount + '/' + this.PRACTICE.length,
+      practicePct: Math.round((pdoneCount / this.PRACTICE.length) * 100) + '%',
+      practiceSteps: this.PRACTICE.map(p => {
+        const d = !!s.pdone[p.id];
+        return {
+          ...p, fill: d ? '#fff' : 'transparent', mark: d ? '\u2713' : '',
+          opacity: d ? '0.5' : '1', strike: d ? 'line-through' : 'none',
+          toggle: () => this.setState(st => ({ pdone: { ...st.pdone, [p.id]: !st.pdone[p.id] } })),
+        };
+      }),
+      startPractice: () => this.set('practice', true),
+      closePractice: () => this.set('practice', false),
+      endPractice: () => { this.setState({ practice: false, tab: 'tasks', bucket: 'post' }); this.flash('Practice closed. Post-practice list is up next.'); },
+
+      swapOpen: !!s.swapFor,
+      swapShiftLine: swapShift ? swapShift.session + ' · ' + swapShift.dow + ' ' + swapShift.time + ' · ' + swapShift.role : '',
+      swapCandidates: this.names().filter(n => n !== me).map(n => ({
+        name: n,
+        load: shifts.filter(x => x.who === n).length + ' shifts',
+        checked: s.swapPick === n,
+        pick: () => this.set('swapPick', n),
+      })),
+      swapDisabled: !s.swapPick,
+      closeSwap: () => this.setState({ swapFor: null }),
+      sendSwap: () => {
+        const who = s.swapPick, id = s.swapFor;
+        this.setState({ swapFor: null, swapPick: null });
+        this.setStatus(id, 'swap', 'Swap request sent to ' + who + '. Coaches copied.');
+      },
+
+      showSignIn: s.screen === 'signin',
+      showRegister: s.screen === 'register',
+      email: s.email, pass: s.pass,
+      typeEmail: e => this.set('email', e.target.value),
+      typePass: e => this.set('pass', e.target.value),
+      signIn: () => this.setState(st => ({ screen: 'app', tab: 'today', role: st.signAs, identity: st.signAs === 'Staff' ? 'Coach Vance' : st.identity })),
+      goRegister: () => this.set('screen', 'register'),
+      backToSignIn: () => this.set('screen', 'signin'),
+      signOut: () => this.setState({ screen: 'signin', alerts: false }),
+      regName: s.regName, regEmail: s.regEmail, regCode: s.regCode,
+      typeRegName: e => this.set('regName', e.target.value),
+      typeRegEmail: e => this.set('regEmail', e.target.value),
+      typeRegCode: e => this.set('regCode', e.target.value),
+      roleIntern: s.regRole === 'Intern', roleStaff: s.regRole === 'Staff', roleLead: s.regRole === 'Lead',
+      pickIntern: () => this.set('regRole', 'Intern'),
+      pickStaff: () => this.set('regRole', 'Staff'),
+      pickLead: () => this.set('regRole', 'Lead'),
+      createAccount: () => {
+        if (!s.regName.trim() || !s.regEmail.trim()) return;
+        const matched = this.matchRoster(s.regName);
+        const who = matched || s.regName.trim();
+        this.setState(st => ({
+          screen: 'app', tab: 'today',
+          role: st.regRole, identity: who, signAs: st.regRole,
+          registered: { ...st.registered, [who]: true },
+          emails: { ...st.emails, [who]: s.regEmail.trim() },
+          rosterExtra: matched ? st.rosterExtra : st.rosterExtra.concat([who]),
+        }));
+        this.flash(s.regRole !== 'Intern'
+          ? (s.regRole === 'Lead' ? 'Head intern admin account created for ' : 'Staff account created for ') + who + '. You can build the schedule.'
+          : matched
+            ? 'Registered as ' + who + ' (intern).'
+            : who + ' added to the crew — staff confirm you before shifts land.');
+      },
+      roleNote: s.regRole === 'Staff'
+        ? 'Staff build the schedule, assign shifts and post tasks, and see everyone\u2019s hours. Salaried — no timesheet of your own.'
+        : s.regRole === 'Lead'
+          ? 'Head intern: assign shifts, track the whole crew\u2019s hours, and keep your own timesheet.'
+          : 'Interns accept or decline shifts, log their own hours and work the task board.',
+
+      builderOpen: s.builderOpen,
+      openBuilder: () => this.set('builderOpen', true),
+      closeBuilder: () => this.set('builderOpen', false),
+      bDays: this.chips('day', this.DAYS),
+      bSessions: this.chips('session', this.SESSIONS),
+      timeOptions: this.timeOpts(),
+      endOptions: ['Open end'].concat(this.timeOpts()),
+      bStart: s.b.time,
+      bEnd: s.b.end,
+      setStart: e => this.setState(st => ({ b: { ...st.b, time: e.target.value } })),
+      setEnd: e => this.setState(st => ({ b: { ...st.b, end: e.target.value } })),
+      bNote: s.b.note,
+      setBNote: e => this.setState(st => ({ b: { ...st.b, note: e.target.value } })),
+      spanNote: s.b.end === 'Open end'
+        ? 'No end time — whoever works it clocks out when practice actually breaks.'
+        : 'Scheduled ' + this.spanLabel(s.b.time, s.b.end) + ' — hours still come from the clock.',
+      noteOpen: !!s.noteFor,
+      noteDraft: s.noteDraft,
+      noteTitle: s.noteMode === 'accept' ? 'Shift accepted' : 'Shift note',
+      noteBody: s.noteMode === 'accept'
+        ? 'Anything staff should know? Times you have to leave, who is covering the rest.'
+        : 'Everyone on the crew sees this, including staff.',
+      noteCancel: s.noteMode === 'accept' ? 'No note' : 'Cancel',
+      typeNote: e => this.set('noteDraft', e.target.value),
+      closeNote: () => this.setState({ noteFor: null, noteDraft: '' }),
+      saveNote: () => {
+        const id = s.noteFor, v = s.noteDraft.trim();
+        this.setState(st => ({ notes: { ...st.notes, [id]: v }, noteFor: null, noteDraft: '' }));
+        this.flash(v ? 'Note saved — staff and the crew can see it.' : 'Note cleared.');
+      },
+      bPeople: [{ name: 'Open', load: 'anyone can claim' }].concat(this.names().map(n => {
+        const cf = this.conflictFor(n, s.b.day, win);
+        return {
+          name: n,
+          load: cf ? cf.label + ' ' + cf.start + '–' + cf.end : (n === me ? 'you' : shifts.filter(x => x.who === n).length + ' this week'),
+          busy: !!cf,
+        };
+      })).map(p => {
+        const active = s.b.who === p.name;
+        return {
+          name: p.name === 'Open' ? 'Leave open' : p.name, load: p.load,
+          loadColor: p.busy ? (active ? '#fff' : 'var(--color-accent-900)') : (active ? '#fff' : 'inherit'),
+          loadWeight: p.busy ? '500' : '400',
+          bg: active ? 'var(--color-accent-800)' : 'transparent',
+          fg: active ? '#fff' : 'var(--color-text)',
+          border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+          pick: () => this.setState(st => ({ b: { ...st.b, who: p.name } })),
+        };
+      }),
+      builderLine: s.b.day + ' · ' + s.b.time + (s.b.end === 'Open end' ? ' · open end' : ' – ' + s.b.end),
+      builderLine2: s.b.session + ' · ' + (this.LOCS[s.b.session] || 'Practice court'),
+      builderWho: s.b.who === 'Open' ? 'Open slot — first to claim it' : 'Assigned to ' + s.b.who + ' — they must accept',
+      conflict: !!conflict,
+      conflictLine: conflict ? s.b.who + ' has ' + conflict.label + ' on ' + conflict.day + ', ' + conflict.start + '–' + conflict.end + '. That overlaps this shift.' : '',
+      override: s.override,
+      toggleOverride: () => this.set('override', !s.override),
+      postDisabled: !!conflict && !s.override,
+      postLabel: conflict && !s.override ? 'Conflict — check the box to override' : 'Post shift',
+      postShift: () => {
+        const b = s.b, n = s.nextSlot + 1, id = 'x' + n;
+        if (conflict && !s.override) return;
+        this.setState(st => ({
+          nextSlot: n, builderOpen: false, scope: 'all', day: 'all', tab: 'schedule', alerts: false,
+          extra: st.extra.concat([{ id, dow: b.day, num: this.DAYNUM[b.day], time: b.time, dur: this.spanLabel(b.time, b.end), session: b.session, role: '', loc: this.LOCS[b.session] || 'Practice court', who: b.who }]),
+          status: { ...st.status, [id]: b.who === 'Open' ? 'open' : 'pending' },
+          notes: (b.note || '').trim() ? { ...st.notes, [id]: b.note.trim() } : st.notes,
+          b: { ...st.b, note: '' },
+        }));
+        this.flash(b.who === 'Open' ? 'Open slot posted — ' + b.day + ' ' + b.time + '.' : b.who + ' assigned to ' + b.day + ' ' + b.time + '. Waiting on their reply.');
+      },
+
+      isStaff: this.isStaff(),
+      isIntern: !this.isStaff(),
+      roleBadge: this.ROLE_LABEL[s.role],
+      signAsStaff: s.signAs === 'Staff',
+      signAsLead: s.signAs === 'Lead',
+      signAsIntern: s.signAs === 'Intern',
+      pickSignStaff: () => this.set('signAs', 'Staff'),
+      pickSignLead: () => this.set('signAs', 'Lead'),
+      pickSignIntern: () => this.set('signAs', 'Intern'),
+      sixthLabel: this.isStaff() ? 'Crew' : 'Classes',
+
+      ownHours: this.logsHours(),
+      seesCrewHours: this.isStaff(),
+      hoursTabLabel: this.logsHours() ? 'Hours' : 'Crew hrs',
+      hoursHeading: this.logsHours() ? 'Timesheet' : 'Crew hours',
+      hoursSubhead: this.logsHours() ? 'Week of Aug 24 · target 10–15 hours' : 'Week of Aug 24 · interns owe 10–15 hours',
+      crewHours: this.names().filter(n => n !== me || this.logsHours()).map(n => {
+        const h = weekHours(n);
+        return {
+          name: n,
+          hoursLabel: this.fmtHours(h),
+          pct: Math.min(100, (h / 15) * 100).toFixed(1) + '%',
+          color: h >= 10 ? 'var(--color-accent)' : 'var(--color-accent-400)',
+          note: h >= 15 ? 'at cap' : h >= 10 ? 'in range' : this.fmtHours(10 - h) + ' short',
+          noteColor: h >= 10 ? 'color-mix(in srgb, var(--color-text) 45%, transparent)' : 'var(--color-accent-900)',
+          isMe: n === me,
+        };
+      }),
+      crewShortCount: this.names().filter(n => weekHours(n) < 10).length,
+
+      isMine: s.tab === 'mine' && !s.alerts,
+      goSixth: () => (this.isStaff() ? this.setState({ tab: 'schedule', alerts: false, crewOpen: true }) : this.setState({ tab: 'mine', alerts: false, availWho: me })),
+
+      myBlocks: this.blocksFor(me).slice().sort((a, b) => this.DAYS.indexOf(a.day) - this.DAYS.indexOf(b.day)).map(bl => ({
+        ...bl,
+        span: bl.allDay ? 'All day — cannot work' : bl.start + ' – ' + bl.end,
+        kindLabel: bl.allDay ? 'Day off' : 'Class',
+        tagClass: bl.allDay ? 'tag-outline' : 'tag-neutral',
+        remove: () => this.setState(st => ({ avail: { ...st.avail, [me]: this.blocksFor(me).filter(x => x.id !== bl.id) } })),
+      })),
+      myBlocksEmpty: this.blocksFor(me).length === 0,
+      editMyClasses: () => this.setState({ availOpen: true, availWho: me }),
+      offDays: this.DAYS.map(d => {
+        const active = s.offDraft.day === d;
+        return {
+          label: d,
+          bg: active ? 'var(--color-accent-800)' : 'transparent',
+          fg: active ? '#fff' : 'var(--color-text)',
+          border: active ? 'var(--color-accent-800)' : 'var(--color-divider)',
+          pick: () => this.setState(st => ({ offDraft: { ...st.offDraft, day: d } })),
+        };
+      }),
+      offLabel: s.offDraft.label,
+      typeOff: e => this.setState(st => ({ offDraft: { ...st.offDraft, label: e.target.value } })),
+      addOff: () => {
+        const d = s.offDraft;
+        const block = { id: 'o' + Date.now(), day: d.day, allDay: true, label: (d.label || '').trim() || 'Not available' };
+        this.setState(st => ({ avail: { ...st.avail, [me]: this.blocksFor(me).concat([block]) }, offDraft: { ...st.offDraft, label: '' } }));
+        this.flash(d.day + ' blocked off. Staff see it before they assign.');
+      },
+      myEmail: s.emails[me] || '—',
+
+      coverage: this.DAYS.map(d => {
+        const day = shifts.filter(x => x.dow === d);
+        const unanswered = day.filter(x => ['pending', 'open'].indexOf(s.status[x.id] || 'pending') > -1).length;
+        return {
+          dow: d,
+          count: day.length ? String(day.length) : '—',
+          note: day.length ? (unanswered ? unanswered + ' open' : 'set') : 'no shifts',
+          bg: day.length ? (unanswered ? 'transparent' : 'var(--color-accent-100)') : 'transparent',
+          border: unanswered && day.length ? 'var(--color-accent-900)' : 'var(--color-divider)',
+          pick: () => this.setState({ day: s.day === d ? 'all' : d, scope: 'all' }),
+        };
+      }),
+      openCount: shifts.filter(x => (s.status[x.id] || 'pending') === 'open').length,
+      awaitingCount: shifts.filter(x => (s.status[x.id] || 'pending') === 'pending').length,
+      unregistered: this.names().filter(n => !s.registered[n]).length,
+
+      isHours: s.tab === 'hours' && !s.alerts,
+      goHours: () => this.setState({ tab: 'hours', alerts: false }),
+      loggedTotal: this.fmtHours(logged),
+      hoursTotal: this.fmtHours(total),
+      hoursPct: Math.min(100, (total / 15) * 100).toFixed(1) + '%',
+      hoursBarColor: total >= 10 ? 'var(--color-accent)' : 'var(--color-accent-400)',
+      hoursVerdict: total >= 15 ? 'At the top of the range' : total >= 10 ? 'In range — you are good' : this.fmtHours(10 - total) + ' short of the 10 h minimum',
+      hoursVerdictColor: total >= 10 ? 'var(--color-accent-700)' : 'var(--color-accent-900)',
+      hoursRemaining: total >= 10 ? 'Room for ' + this.fmtHours(Math.max(0, 15 - total)) + ' more' : 'Minimum 10 h · cap 15 h',
+      clockedIn: !!s.clockIn,
+      clockLine: s.clockIn ? 'On the clock · ' + this.fmtHours(this.liveHours()) + ' · ' + (s.clockLabel || '') : 'Not clocked in',
+      clockAction: s.clockIn ? 'Clock out' : 'Clock in',
+      toggleClock: () => this.toggleClock(),
+      logRows: s.logs.slice().reverse().map(l => ({
+        ...l, hoursLabel: this.fmtHours(l.hours),
+        tagClass: l.src === 'Clocked' ? 'tag-accent' : 'tag-neutral',
+      })),
+      loggable: mineShifts
+        .filter(x => (s.status[x.id] || 'pending') === 'accepted')
+        .filter(x => !s.logs.some(l => l.session === x.session && l.dow === x.dow))
+        .map(x => {
+          const h = this.durHours(x.dur);
+          return {
+            label: x.dow + ' · ' + x.session,
+            sub: h ? x.time + ' · ' + x.dur : x.time + ' · no set end time',
+            btn: h ? 'Log ' + this.fmtHours(h) : 'Use the clock',
+            log: () => {
+              if (!h) {
+                this.setState({ clockIn: Date.now(), clockLabel: x.session, now: Date.now() });
+                this.flash('Open-ended shift — clocked in. Clock out when practice actually breaks.');
+                return;
+              }
+              this.setState(st => ({ logs: st.logs.concat([{ id: 'm' + x.id, dow: x.dow, date: 'Sep ' + x.num, session: x.session, hours: h, src: 'Manual' }]) }));
+              this.flash('Logged ' + this.fmtHours(h) + ' for ' + x.dow + '.');
+            },
+          };
+        }),
+      history: this.HISTORY.map(w => ({
+        ...w, hoursLabel: this.fmtHours(w.hours),
+        pct: Math.min(100, (w.hours / 15) * 100).toFixed(1) + '%',
+        color: w.hours >= 10 ? 'var(--color-accent)' : 'var(--color-accent-400)',
+        note: w.hours >= 10 ? 'met' : 'under',
+      })),
+
+      toast: s.toast,
+    };
+  }
+
+  addTaskNow() {
+    const title = (this.state.newTask || '').trim();
+    if (!title) return;
+    const id = 'n' + Date.now();
+    this.setState(s => ({
+      extra: s.extra.concat([{ id, bucket: s.bucket, title, by: this.me().split(' ')[0], due: 'Added just now', tag: 'New' }]),
+      newTask: '',
+    }));
+    this.flash('Added to ' + (this.BUCKETS.find(b => b.id === this.state.bucket) || {}).label + '.');
+  }
+}
+</script>
+</body>
+</html>
