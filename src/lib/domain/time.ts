@@ -4,10 +4,10 @@
 
 import type { DayOfWeek } from "@/lib/types";
 
-/** Every 15 minutes from 5:00 AM to 10:00 PM, ported from `timeOpts()`. */
+/** Every 5 minutes from 5:00 AM to 10:00 PM, adapted from `timeOpts()`. */
 export const TIME_OPTIONS: string[] = (() => {
   const out: string[] = [];
-  for (let m = 5 * 60; m <= 22 * 60; m += 15) {
+  for (let m = 5 * 60; m <= 22 * 60; m += 5) {
     const h = Math.floor(m / 60);
     const mm = m % 60;
     const ap = h < 12 ? "AM" : "PM";
