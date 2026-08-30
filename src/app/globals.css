@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+:root {
+  /* Duke navy accent ramp */
+  --color-accent: #00539b;
+  --color-accent-100: #e9f1fb;
+  --color-accent-200: #cbdff5;
+  --color-accent-300: #a2c4ea;
+  --color-accent-400: #6ea1d8;
+  --color-accent-500: #2e7dc2;
+  --color-accent-600: #00539b;
+  --color-accent-700: #013f7d;
+  --color-accent-800: #012169;
+  --color-accent-900: #00133f;
+
+  /* Ground */
+  --color-bg: #f3f3f2;
+  --color-surface: #eaeae9;
+  --color-text: #1d1f20;
+  --color-divider: color-mix(in srgb, var(--color-text) 12%, transparent);
+
+  /* Muted text steps, per handoff */
+  --color-text-42: color-mix(in srgb, var(--color-text) 42%, transparent);
+  --color-text-50: color-mix(in srgb, var(--color-text) 50%, transparent);
+  --color-text-55: color-mix(in srgb, var(--color-text) 55%, transparent);
+  --color-text-62: color-mix(in srgb, var(--color-text) 62%, transparent);
+  --color-text-78: color-mix(in srgb, var(--color-text) 78%, transparent);
+  --hairline: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  --font-heading: var(--font-barlow-condensed), "Barlow Condensed", sans-serif;
+  --font-body: var(--font-barlow), "Barlow", sans-serif;
+}
+
+@theme inline {
+  --color-accent: var(--color-accent);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-accent-900: var(--color-accent-900);
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+
+  /* Radius is zero everywhere — the visual system is load-bearing on square
+     corners, so no radius scale is exposed. */
+  --radius-none: 0px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #dcdcd9;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-radius: 0 !important;
+}
+
+a {
+  color: var(--color-accent-700);
+}
+a:hover {
+  color: var(--color-accent-900);
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- */
+/* Blueprint corner registration marks                                */
+/* ---------------------------------------------------------------- */
+.corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  pointer-events: none;
+}
+.corner::before,
+.corner::after {
+  content: "";
+  position: absolute;
+  background: var(--color-accent-600);
+}
+.corner::before {
+  width: 7px;
+  height: 1px;
+  top: 3px;
+  left: 0;
+}
+.corner::after {
+  width: 1px;
+  height: 7px;
+  top: 0;
+  left: 3px;
+}
+.corner.tl {
+  top: -1px;
+  left: -1px;
+}
+.corner.tr {
+  top: -1px;
+  right: -1px;
+}
+.corner.bl {
+  bottom: -1px;
+  left: -1px;
+}
+.corner.br {
+  bottom: -1px;
+  right: -1px;
+}
+
+/* ---------------------------------------------------------------- */
+/* Duotone image wash — photography goes through this                 */
+/* ---------------------------------------------------------------- */
+.duotone {
+  position: relative;
+}
+.duotone img {
+  filter: grayscale(1) contrast(1.1);
+  mix-blend-mode: luminosity;
+}
+.duotone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent-700);
+  mix-blend-mode: color;
+  pointer-events: none;
+}
