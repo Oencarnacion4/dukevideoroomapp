@@ -63,6 +63,19 @@ export function ScheduleView({
     });
   }, [shifts, selectedDay, scope, profile.id]);
 
+  // Shifts covering the same slot (same date/time/session/location) render
+  // as one card listing everyone on it, instead of a separate card each.
+  const groups = useMemo(() => {
+    const map = new Map<string, ShiftWithAssignee[]>();
+    for (const s of visible) {
+      const key = `${s.date}|${s.start_time}|${s.end_time ?? ""}|${s.session_type}|${s.location}`;
+      const group = map.get(key);
+      if (group) group.push(s);
+      else map.set(key, [s]);
+    }
+    return Array.from(map.values());
+  }, [visible]);
+
   const accepted = shifts.filter((s) => s.assignee_id === profile.id && s.status === "accepted").length;
   const pending = shifts.filter((s) => s.assignee_id === profile.id && s.status === "pending").length;
 
@@ -194,10 +207,10 @@ export function ScheduleView({
       />
 
       <div className="flex flex-col gap-3">
-        {visible.map((shift) => (
+        {groups.map((group) => (
           <ShiftCard
-            key={shift.id}
-            shift={shift}
+            key={group[0].id}
+            shifts={group}
             currentProfileId={profile.id}
             isAdmin={isAdmin}
             availability={availability}
@@ -206,7 +219,7 @@ export function ScheduleView({
             assignableCrew={assignableCrew}
           />
         ))}
-        {visible.length === 0 && (
+        {groups.length === 0 && (
           <p className="py-6 text-center text-[13px] text-(--color-text-50)">No shifts here.</p>
         )}
       </div>
