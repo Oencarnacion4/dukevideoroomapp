@@ -4,15 +4,21 @@ import { getCurrentProfile } from "@/lib/data/profiles";
 import { getAllProfiles } from "@/lib/data/profiles";
 import { listShifts } from "@/lib/data/shifts";
 import { getAppSettings } from "@/lib/data/settings";
-import { getWeekStart } from "@/lib/domain/time";
+import { resolveWeekParam } from "@/lib/domain/time";
 import { ScheduleView } from "@/components/schedule/ScheduleView";
 
-export default async function SchedulePage() {
+export default async function SchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
 
-  const weekStart = getWeekStart();
+  const { week } = await searchParams;
+  const weekStart = resolveWeekParam(week);
+
   const [shifts, crew, settings] = await Promise.all([
     listShifts(supabase, weekStart),
     getAllProfiles(supabase),

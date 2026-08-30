@@ -96,3 +96,11 @@ export function formatWeekLabel(weekStart: string): string {
   const month = d.toLocaleDateString("en-US", { month: "short" });
   return `Week of ${month} ${d.getDate()}`;
 }
+
+/** Resolves a "?week=YYYY-MM-DD" search param to a valid Monday, falling back to the current week. */
+export function resolveWeekParam(week: string | undefined): string {
+  if (week && /^\d{4}-\d{2}-\d{2}$/.test(week) && !Number.isNaN(new Date(`${week}T00:00:00`).getTime())) {
+    return getWeekStart(new Date(`${week}T00:00:00`));
+  }
+  return getWeekStart();
+}

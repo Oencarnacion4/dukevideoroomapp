@@ -62,6 +62,7 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
       postShiftAction({
         day,
         date,
+        weekStart,
         start,
         end: end === OPEN_END ? null : end,
         session,

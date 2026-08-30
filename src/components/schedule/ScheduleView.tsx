@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Seg } from "@/components/ui/Seg";
@@ -26,6 +27,8 @@ export function ScheduleView({ weekStart, shifts, profile, crew, requireSwapOnDe
   const [scope, setScope] = useState<"week" | "mine">("week");
 
   const dayDates = DAYS.map((_, i) => addDays(weekStart, i));
+  const prevWeek = addDays(weekStart, -7);
+  const nextWeek = addDays(weekStart, 7);
 
   const candidates = crew
     .filter((c) => c.id !== profile.id)
@@ -54,9 +57,25 @@ export function ScheduleView({ weekStart, shifts, profile, crew, requireSwapOnDe
   return (
     <div className="flex flex-1 flex-col gap-3.5 p-4">
       <div className="flex items-center justify-between">
-        <h4 className="font-(family-name:--font-heading) text-[21px] font-semibold">
-          {formatWeekLabel(weekStart)}
-        </h4>
+        <div className="flex items-center gap-1.5">
+          <Link
+            href={`/schedule?week=${prevWeek}`}
+            aria-label="Previous week"
+            className="flex h-8 w-8 items-center justify-center border border-(--color-divider)"
+          >
+            <ChevronLeft size={16} strokeWidth={1.5} />
+          </Link>
+          <h4 className="font-(family-name:--font-heading) text-[21px] font-semibold">
+            {formatWeekLabel(weekStart)}
+          </h4>
+          <Link
+            href={`/schedule?week=${nextWeek}`}
+            aria-label="Next week"
+            className="flex h-8 w-8 items-center justify-center border border-(--color-divider)"
+          >
+            <ChevronRight size={16} strokeWidth={1.5} />
+          </Link>
+        </div>
         {isAdmin && (
           <Link href="/crew" className="text-[13px] font-medium text-(--color-accent-700)">
             Crew · {crew.length}
@@ -174,10 +193,13 @@ export function ScheduleView({ weekStart, shifts, profile, crew, requireSwapOnDe
 
       {isAdmin && (
         <div className="flex gap-2 pt-1">
-          <Link href="/schedule/new" className={buttonClasses("primary", false, "flex-1")}>
+          <Link href={`/schedule/new?week=${weekStart}`} className={buttonClasses("primary", false, "flex-1")}>
             + New shift
           </Link>
-          <Link href="/schedule/new?open=1" className={buttonClasses("secondary", false, "flex-1")}>
+          <Link
+            href={`/schedule/new?week=${weekStart}&open=1`}
+            className={buttonClasses("secondary", false, "flex-1")}
+          >
             Quick open slot
           </Link>
         </div>

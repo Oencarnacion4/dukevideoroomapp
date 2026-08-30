@@ -12,6 +12,7 @@ import type { DayOfWeek, SessionType } from "@/lib/types";
 export async function postShiftAction(input: {
   day: DayOfWeek;
   date: string;
+  weekStart: string;
   start: string;
   end: string | null;
   session: SessionType;
@@ -48,5 +49,5 @@ export async function postShiftAction(input: {
 
   revalidatePath("/schedule");
   revalidatePath("/today");
-  redirect("/schedule");
+  redirect(`/schedule?week=${input.weekStart}`);
 }
