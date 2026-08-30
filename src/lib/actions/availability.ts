@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { addAvailabilityBlocks, addOneTimeBlock, removeAvailabilityBlock } from "@/lib/data/availability";
+import {
+  addAvailabilityBlocks,
+  addOneTimeBlock,
+  removeAvailabilityBlock,
+  updateAvailabilityBlock,
+} from "@/lib/data/availability";
 import { dayOfWeekFor, labelToPgTime } from "@/lib/domain/time";
 import type { DayOfWeek } from "@/lib/types";
 
@@ -60,6 +65,30 @@ export async function addOneTimeBlockAction(input: {
     input.allDay,
     input.label || "Day off",
   );
+  revalidateAll(input.profileId);
+  return {};
+}
+
+export async function updateClassBlockAction(input: {
+  id: string;
+  profileId: string;
+  day: DayOfWeek;
+  start: string;
+  end: string;
+  label: string;
+}): Promise<{ error?: string }> {
+  if (!input.label.trim()) return { error: "Give it a name." };
+  const startPg = labelToPgTime(input.start);
+  const endPg = labelToPgTime(input.end);
+  if (endPg <= startPg) return { error: "End time has to be after the start." };
+
+  const supabase = await createClient();
+  await updateAvailabilityBlock(supabase, input.id, {
+    day_of_week: input.day,
+    start_time: startPg,
+    end_time: endPg,
+    label: input.label.trim(),
+  });
   revalidateAll(input.profileId);
   return {};
 }

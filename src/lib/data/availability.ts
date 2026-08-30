@@ -62,6 +62,15 @@ export async function addOneTimeBlock(
   if (error) throw error;
 }
 
+export async function updateAvailabilityBlock(
+  supabase: SupabaseClient,
+  id: string,
+  patch: { day_of_week: DayOfWeek; start_time: string; end_time: string; label: string },
+): Promise<void> {
+  const { error } = await supabase.from("availability").update(patch).eq("id", id);
+  if (error) throw error;
+}
+
 export async function removeAvailabilityBlock(supabase: SupabaseClient, id: string): Promise<void> {
   const { error } = await supabase.from("availability").delete().eq("id", id);
   if (error) throw error;

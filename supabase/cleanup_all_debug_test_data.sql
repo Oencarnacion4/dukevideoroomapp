@@ -38,10 +38,13 @@ where title = 'New shift: Full practice'
   )
   and created_at > now() - interval '4 hours';
 
--- 3. Clear any class/availability blocks the test crew profiles picked up.
+-- 3. Clear any class/availability blocks the test profiles picked up.
 delete from availability
 where profile_id in (
-  select id from profiles where full_name like 'Debug Camper One%' or full_name like 'Debug Camper Two%'
+  select id from profiles
+  where full_name like 'Debug Admin%'
+     or full_name like 'Debug Camper One%'
+     or full_name like 'Debug Camper Two%'
 );
 
 -- 4. Delete every throwaway test profile. The FK guard means this only
