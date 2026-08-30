@@ -45,24 +45,25 @@ export async function registerAction(
     return { error: "Could not create an account — try again." };
   }
 
-  if (role === "intern") {
-    const unclaimed = await getUnclaimedRosterNames(supabase);
-    const matchedName = matchRoster(
-      fullName,
-      unclaimed.map((p) => p.full_name),
-    );
-    const target = unclaimed.find((p) => p.full_name === matchedName);
+  // A name match attaches the new account to its waiting roster entry —
+  // shifts, hours and classes already on file — regardless of which role
+  // the registrant picks: an admin can be pre-listed on the roster too.
+  const unclaimed = await getUnclaimedRosterNames(supabase);
+  const matchedName = matchRoster(
+    fullName,
+    unclaimed.map((p) => p.full_name),
+  );
+  const target = unclaimed.find((p) => p.full_name === matchedName);
 
-    if (target) {
-      const { error: claimError } = await supabase.rpc("claim_roster_profile", {
-        target_id: target.id,
-        p_email: email,
-      });
-      // Someone else claimed it between the match and the claim — fall back
-      // to a fresh, unconfirmed profile rather than failing registration.
-      if (!claimError) {
-        redirect("/today");
-      }
+  if (target) {
+    const { error: claimError } = await supabase.rpc("claim_roster_profile", {
+      target_id: target.id,
+      p_email: email,
+    });
+    // Someone else claimed it between the match and the claim — fall back
+    // to a fresh, unconfirmed profile rather than failing registration.
+    if (!claimError) {
+      redirect("/today");
     }
   }
 
