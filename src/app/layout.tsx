@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { ToastProvider } from "@/components/ui/Toast";
 import "./globals.css";
 
 const barlow = Barlow({
@@ -41,9 +42,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-[#dcdcd9]">
         <ServiceWorkerRegister />
-        <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col bg-(--color-bg)">
-          {children}
-        </div>
+        <ToastProvider>
+          <div className="mx-auto flex w-full max-w-[480px] flex-1 flex-col bg-(--color-bg)">
+            {children}
+          </div>
+        </ToastProvider>
       </body>
     </html>
   );
