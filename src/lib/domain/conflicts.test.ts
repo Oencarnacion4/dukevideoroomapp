@@ -43,6 +43,41 @@ describe("conflictFor — recurring weekly blocks (specific_date null)", () => {
     expect(conflictFor(blocks, "Thu", "2026-09-10", window)).toBeNull();
   });
 
+  it("flags a class that ends the exact minute the shift starts — no travel time", () => {
+    // Andrew Gray's real case: class 1:40 PM-2:30 PM, practice starts 2:30 PM open-ended.
+    const backToBack: AvailabilityBlock[] = [
+      {
+        id: "a7",
+        profile_id: "p1",
+        day_of_week: "Mon",
+        specific_date: null,
+        start_time: "1:40 PM",
+        end_time: "2:30 PM",
+        all_day: false,
+        label: "Class",
+      },
+    ];
+    const window = shiftWindow("2:30 PM", null);
+    expect(conflictFor(backToBack, "Mon", "2026-09-14", window)?.label).toBe("Class");
+  });
+
+  it("flags a class that starts the exact minute the shift ends", () => {
+    const window = shiftWindow("1:00 PM", "2:30 PM");
+    const backToBack: AvailabilityBlock[] = [
+      {
+        id: "a8",
+        profile_id: "p1",
+        day_of_week: "Wed",
+        specific_date: null,
+        start_time: "2:30 PM",
+        end_time: "4:00 PM",
+        all_day: false,
+        label: "Class",
+      },
+    ];
+    expect(conflictFor(backToBack, "Wed", "2026-09-09", window)?.label).toBe("Class");
+  });
+
   it("always flags an all-day block on the matching day", () => {
     const allDay: AvailabilityBlock[] = [
       {

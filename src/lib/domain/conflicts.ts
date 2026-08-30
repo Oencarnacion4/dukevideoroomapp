@@ -46,6 +46,11 @@ export function shiftWindow(start: string, end: string | null): [number, number]
  * occurrence of that day of week. Either way, a conflict requires the day
  * to match and either the block being all-day or the time ranges
  * overlapping.
+ *
+ * Touching at the exact boundary (a class ending the same minute a shift
+ * starts, or vice versa) counts as a conflict too — there's no real travel
+ * time between them, so it's flagged rather than treated as back-to-back
+ * and free.
  */
 export function conflictFor(
   blocks: AvailabilityBlock[],
@@ -61,7 +66,7 @@ export function conflictFor(
       const blStart = toMinutes(bl.start_time!);
       const blEnd = toMinutes(bl.end_time!);
       if (blStart == null || blEnd == null) return false;
-      return blStart < window[1] && blEnd > window[0];
+      return blStart <= window[1] && blEnd >= window[0];
     }) ?? null
   );
 }

@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { ShiftActions } from "@/components/schedule/ShiftActions";
 import { AddCoverPicker } from "@/components/schedule/AddCoverPicker";
+import { DeleteShiftGroupButton } from "@/components/schedule/DeleteShiftGroupButton";
 import { pgTimeToLabel, spanLabel } from "@/lib/domain/time";
 import { shiftStatusMeta, initialsFor } from "@/lib/domain/shift-view";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
@@ -44,11 +45,20 @@ export function ShiftCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-2.25">
-        <div>
-          <h3 className="font-(family-name:--font-heading) text-[17px] font-semibold">{first.session_type}</h3>
-          <p className="text-[12.5px] text-(--color-text)/62">
-            {[first.camera_role, first.location].filter(Boolean).join(" · ")}
-          </p>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h3 className="font-(family-name:--font-heading) text-[17px] font-semibold">{first.session_type}</h3>
+            <p className="text-[12.5px] text-(--color-text)/62">
+              {[first.camera_role, first.location].filter(Boolean).join(" · ")}
+            </p>
+          </div>
+          {isAdmin && shifts.length > 1 && (
+            <DeleteShiftGroupButton
+              shiftIds={shifts.map((s) => s.id)}
+              summary={`${first.session_type} · ${first.day_of_week} ${startLabel}`}
+              names={shifts.map((s) => s.assignee?.full_name).filter((n): n is string => !!n)}
+            />
+          )}
         </div>
 
         {shifts.map((shift, i) => {

@@ -28,13 +28,20 @@ where created_by in (
 );
 
 -- 2. Remove the stale "new shift" notifications those test assignments
---    sent to real crew members before their shifts were deleted.
+--    sent to Alex Karen (the real crew member my tests happened to add
+--    as cover each time) before those shifts were deleted. Scoped to
+--    Alex Karen specifically, not by title/body alone, so this can
+--    never touch a real notification meant for anyone else — e.g. the
+--    real head intern's own assignment notices to Daniel Marin, Charlie
+--    Garcia, or Olivia Encarnacion.
 delete from notifications
-where title = 'New shift: Full practice'
+where profile_id = (select id from profiles where full_name = 'Alex Karen')
+  and title = 'New shift: Full practice'
   and body in (
     'Wed 4:15 PM · Practice court',
     'Thu 9:00 AM · Practice court',
-    'Fri 8:00 AM · Practice court'
+    'Fri 8:00 AM · Practice court',
+    'Mon 2:30 PM · Practice court'
   )
   and created_at > now() - interval '4 hours';
 

@@ -109,6 +109,15 @@ export async function deleteShiftAction(shiftId: string): Promise<void> {
   revalidateSchedule();
 }
 
+/** Deletes every shift row in a group at once — e.g. when the whole slot was posted at the wrong time. */
+export async function deleteShiftGroupAction(shiftIds: string[]): Promise<void> {
+  const supabase = await createClient();
+  for (const id of shiftIds) {
+    await deleteShift(supabase, id);
+  }
+  revalidateSchedule();
+}
+
 export async function saveShiftNoteAction(shiftId: string, note: string): Promise<void> {
   const supabase = await createClient();
   await setShiftNote(supabase, shiftId, note.trim() || null);
