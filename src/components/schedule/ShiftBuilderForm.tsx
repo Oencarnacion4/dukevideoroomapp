@@ -41,16 +41,16 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
 
   const location = locationFor(session);
   const durationLabel = spanLabel(start, end === OPEN_END ? null : end);
+  const dayIndex = DAYS.indexOf(day);
+  const date = addDays(weekStart, dayIndex);
 
   const conflict = useMemo(() => {
     if (who === "open" || !who) return null;
     const window = shiftWindow(start, end === OPEN_END ? null : end);
-    return conflictFor(blocksFor(availability, who), day, window);
-  }, [who, availability, start, end, day]);
+    return conflictFor(blocksFor(availability, who), day, date, window);
+  }, [who, availability, start, end, day, date]);
 
   const blocked = !!conflict && !override;
-  const dayIndex = DAYS.indexOf(day);
-  const date = addDays(weekStart, dayIndex);
 
   const assignedPerson = crew.find((c) => c.id === who);
   const summary = assignedPerson
@@ -156,7 +156,7 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
             </button>
             {crew.map((c) => {
               const window = shiftWindow(start, end === OPEN_END ? null : end);
-              const personConflict = conflictFor(blocksFor(availability, c.id), day, window);
+              const personConflict = conflictFor(blocksFor(availability, c.id), day, date, window);
               return (
                 <button
                   key={c.id}
@@ -199,7 +199,8 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
               Class conflict
             </p>
             <p className="mb-2 text-[12.5px] text-(--color-text)">
-              {assignedPerson?.full_name} has {conflict.label} on {day}
+              {assignedPerson?.full_name} has {conflict.label}
+              {conflict.specific_date ? " that day" : ` on ${day}`}
               {!conflict.all_day && `, ${conflict.start_time}–${conflict.end_time}`}. That overlaps this shift.
             </p>
             <label className="flex items-center gap-2 text-[12.5px]">

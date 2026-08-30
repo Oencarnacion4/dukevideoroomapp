@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { addAvailabilityBlocks, removeAvailabilityBlock } from "@/lib/data/availability";
-import { labelToPgTime } from "@/lib/domain/time";
+import { addAvailabilityBlocks, addOneTimeBlock, removeAvailabilityBlock } from "@/lib/data/availability";
+import { dayOfWeekFor, labelToPgTime } from "@/lib/domain/time";
 import type { DayOfWeek } from "@/lib/types";
 
 function revalidateAll(profileId: string) {
@@ -31,14 +31,37 @@ export async function addClassBlockAction(input: {
   return {};
 }
 
-export async function addAllDayBlockAction(input: {
+export async function addOneTimeBlockAction(input: {
   profileId: string;
-  day: DayOfWeek;
+  date: string;
+  allDay: boolean;
+  start: string;
+  end: string;
   label: string;
-}): Promise<void> {
+}): Promise<{ error?: string }> {
+  if (!input.date) return { error: "Pick a date." };
+
+  let startPg: string | null = null;
+  let endPg: string | null = null;
+  if (!input.allDay) {
+    startPg = labelToPgTime(input.start);
+    endPg = labelToPgTime(input.end);
+    if (endPg <= startPg) return { error: "End time has to be after the start." };
+  }
+
   const supabase = await createClient();
-  await addAvailabilityBlocks(supabase, input.profileId, [input.day], null, null, true, input.label || "Day off");
+  await addOneTimeBlock(
+    supabase,
+    input.profileId,
+    input.date,
+    dayOfWeekFor(input.date),
+    startPg,
+    endPg,
+    input.allDay,
+    input.label || "Day off",
+  );
   revalidateAll(input.profileId);
+  return {};
 }
 
 export async function removeClassBlockAction(id: string, profileId: string): Promise<void> {

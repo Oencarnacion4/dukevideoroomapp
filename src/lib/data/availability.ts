@@ -39,6 +39,29 @@ export async function addAvailabilityBlocks(
   if (error) throw error;
 }
 
+/** A one-time block for a single calendar date — never recurs, unlike addAvailabilityBlocks(). */
+export async function addOneTimeBlock(
+  supabase: SupabaseClient,
+  profileId: string,
+  date: string,
+  dayOfWeek: DayOfWeek,
+  start: string | null,
+  end: string | null,
+  allDay: boolean,
+  label: string,
+): Promise<void> {
+  const { error } = await supabase.from("availability").insert({
+    profile_id: profileId,
+    day_of_week: dayOfWeek,
+    specific_date: date,
+    start_time: allDay ? null : start,
+    end_time: allDay ? null : end,
+    all_day: allDay,
+    label,
+  });
+  if (error) throw error;
+}
+
 export async function removeAvailabilityBlock(supabase: SupabaseClient, id: string): Promise<void> {
   const { error } = await supabase.from("availability").delete().eq("id", id);
   if (error) throw error;

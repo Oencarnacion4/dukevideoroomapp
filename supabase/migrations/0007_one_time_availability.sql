@@ -1,0 +1,11 @@
+-- Class times are a recurring weekly pattern (day_of_week, no calendar
+-- date — "every Tuesday"). But "something came up" needs the opposite:
+-- a one-time block tied to one specific date ("this coming Tuesday, the
+-- 12th"), that never recurs. The table had no way to express that — an
+-- all-day "something came up" block was silently recurring forever,
+-- matching every future week on that day of the week, which is wrong.
+--
+-- specific_date is nullable: null means "recurring, matched by
+-- day_of_week" (the existing class-block behavior, untouched); set means
+-- "this exact date only."
+alter table availability add column if not exists specific_date date;

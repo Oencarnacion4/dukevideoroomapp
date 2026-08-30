@@ -61,6 +61,8 @@ export interface Availability {
   id: string;
   profile_id: string;
   day_of_week: DayOfWeek;
+  /** Set for a one-time block (this exact date only); null means recurring weekly by day_of_week. */
+  specific_date: string | null;
   start_time: string | null;
   end_time: string | null;
   all_day: boolean;

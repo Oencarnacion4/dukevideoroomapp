@@ -5,6 +5,7 @@ import { listAvailabilityFor } from "@/lib/data/availability";
 import { getAppSettings } from "@/lib/data/settings";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
 import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor";
+import { DayOffCard } from "@/components/availability/DayOffCard";
 
 export default async function ClassesEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,6 +36,7 @@ export default async function ClassesEditorPage({ params }: { params: Promise<{ 
             : `You are entering these for ${target.full_name}. Pick every day the class meets, then Block.`}
         </p>
         <AvailabilityEditor profileId={id} blocks={blocks} canEdit={canEdit} />
+        {canEdit && <DayOffCard profileId={id} />}
       </div>
     </div>
   );

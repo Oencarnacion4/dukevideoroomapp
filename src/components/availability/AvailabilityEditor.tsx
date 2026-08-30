@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { addClassBlockAction, removeClassBlockAction } from "@/lib/actions/availability";
-import { TIME_OPTIONS, pgTimeToLabel } from "@/lib/domain/time";
+import { TIME_OPTIONS, formatShortDate, pgTimeToLabel } from "@/lib/domain/time";
 import { DAYS } from "@/lib/domain/time";
 import { Select, Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
@@ -49,8 +49,8 @@ export function AvailabilityEditor({ profileId, blocks, canEdit }: AvailabilityE
       <div className="flex flex-col">
         {sorted.map((b) => (
           <div key={b.id} className="flex items-center gap-3 border-b border-(--color-divider) py-2.5 last:border-b-0">
-            <span className="w-10 shrink-0 font-(family-name:--font-heading) text-[12px] font-medium uppercase text-(--color-accent-700)">
-              {b.day_of_week}
+            <span className="w-11 shrink-0 font-(family-name:--font-heading) text-[12px] font-medium uppercase text-(--color-accent-700)">
+              {b.specific_date ? formatShortDate(b.specific_date) : b.day_of_week}
             </span>
             <div className="flex-1">
               <p className="text-[14px]">{b.label}</p>

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
 import { listAvailabilityFor } from "@/lib/data/availability";
-import { pgTimeToLabel } from "@/lib/domain/time";
+import { formatShortDate, pgTimeToLabel } from "@/lib/domain/time";
 import { Tag } from "@/components/ui/Tag";
 import { DayOffCard } from "@/components/availability/DayOffCard";
 
@@ -34,8 +34,8 @@ export default async function ClassesPage() {
         <div className="flex flex-col">
           {blocks.map((b) => (
             <div key={b.id} className="flex items-center gap-3 border-b border-(--color-divider) py-2.5 last:border-b-0">
-              <span className="w-10 shrink-0 font-(family-name:--font-heading) text-[12px] font-medium uppercase text-(--color-accent-700)">
-                {b.day_of_week}
+              <span className="w-11 shrink-0 font-(family-name:--font-heading) text-[12px] font-medium uppercase text-(--color-accent-700)">
+                {b.specific_date ? formatShortDate(b.specific_date) : b.day_of_week}
               </span>
               <div className="flex-1">
                 <p className="text-[14px]">{b.label}</p>
@@ -43,7 +43,7 @@ export default async function ClassesPage() {
                   {b.all_day ? "All day — cannot work" : `${pgTimeToLabel(b.start_time!)} – ${pgTimeToLabel(b.end_time!)}`}
                 </p>
               </div>
-              <Tag variant="neutral">{b.all_day ? "Day off" : "Class"}</Tag>
+              <Tag variant="neutral">{b.specific_date ? "One-time" : b.all_day ? "Day off" : "Class"}</Tag>
             </div>
           ))}
           {blocks.length === 0 && (

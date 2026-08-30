@@ -2,6 +2,8 @@
 // (design/Video Room.dc.html), operating on the "3:00 PM" label format
 // used throughout the UI and builder <select> options.
 
+import type { DayOfWeek } from "@/lib/types";
+
 /** Every 15 minutes from 5:00 AM to 10:00 PM, ported from `timeOpts()`. */
 export const TIME_OPTIONS: string[] = (() => {
   const out: string[] = [];
@@ -74,7 +76,13 @@ export function durationHours(start: string, end: string | null): number | null 
   return (b - a) / 60;
 }
 
-export const DAYS: readonly string[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+export const DAYS: readonly DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/** The DAYS abbreviation for a "YYYY-MM-DD" date, e.g. "2026-09-08" -> "Tue". */
+export function dayOfWeekFor(dateStr: string): DayOfWeek {
+  const jsDay = new Date(`${dateStr}T00:00:00`).getDay(); // 0 = Sunday
+  return DAYS[(jsDay + 6) % 7];
+}
 
 /** Monday of the week containing `date`, as "YYYY-MM-DD". */
 export function getWeekStart(date: Date = new Date()): string {
@@ -89,6 +97,12 @@ export function addDays(dateStr: string, days: number): string {
   const d = new Date(`${dateStr}T00:00:00`);
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
+}
+
+/** "2026-09-08" -> "Sep 8" */
+export function formatShortDate(dateStr: string): string {
+  const d = new Date(`${dateStr}T00:00:00`);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export function formatWeekLabel(weekStart: string): string {
