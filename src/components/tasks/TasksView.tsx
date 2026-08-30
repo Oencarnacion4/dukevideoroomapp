@@ -103,7 +103,7 @@ export function TasksView({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={`Add to ${bucketLabel}…`}
-          className="h-11 flex-1 border border-(--color-divider) bg-transparent px-3 text-[14px] placeholder:text-(--color-text-50)"
+          className="h-11 flex-1 border border-(--color-divider) bg-transparent px-3 text-[16px] placeholder:text-(--color-text-50)"
         />
         <button
           type="submit"

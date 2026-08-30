@@ -8,8 +8,12 @@ import type {
 } from "react";
 import { cn } from "@/lib/utils";
 
+// 16px, not the design system's 15px: anything smaller makes iOS Safari
+// auto-zoom the viewport on focus, which is jarring in an installed PWA
+// and doesn't zoom back out on its own. The 1px difference is invisible
+// in practice.
 const controlBase =
-  "w-full border border-(--color-divider) bg-transparent px-3 h-11 text-[15px] text-(--color-text) placeholder:text-(--color-text-50) focus-visible:border-(--color-accent-600)";
+  "w-full border border-(--color-divider) bg-transparent px-3 h-11 text-[16px] text-(--color-text) placeholder:text-(--color-text-50) focus-visible:border-(--color-accent-600)";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (

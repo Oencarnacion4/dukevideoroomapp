@@ -30,7 +30,7 @@ export function AddRosterForm() {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Add a name to the roster"
-        className="h-11 flex-1 border border-(--color-divider) bg-transparent px-3 text-[14px] placeholder:text-(--color-text-50)"
+        className="h-11 flex-1 border border-(--color-divider) bg-transparent px-3 text-[16px] placeholder:text-(--color-text-50)"
       />
       <Button type="submit" disabled={pending}>
         Add

@@ -21,7 +21,7 @@ export function OverlayHeader({ eyebrow, title, variant = "back", onDismiss }: O
         type="button"
         onClick={dismiss}
         aria-label={variant === "close" ? "Close" : "Back"}
-        className="flex h-9 w-9 shrink-0 items-center justify-center border border-white/28"
+        className="flex h-11 w-11 shrink-0 items-center justify-center border border-white/28"
       >
         <Icon size={18} strokeWidth={1.5} />
       </button>
