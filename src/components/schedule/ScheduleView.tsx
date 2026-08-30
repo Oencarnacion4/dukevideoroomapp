@@ -11,6 +11,7 @@ import { ShiftCard } from "@/components/schedule/ShiftCard";
 import { DAYS, addDays, formatWeekLabel } from "@/lib/domain/time";
 import { cn } from "@/lib/utils";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
+import type { AvailabilityBlock } from "@/lib/domain/conflicts";
 import type { DayOfWeek, Profile } from "@/lib/types";
 
 interface ScheduleViewProps {
@@ -18,10 +19,18 @@ interface ScheduleViewProps {
   shifts: ShiftWithAssignee[];
   profile: Profile;
   crew: Profile[];
+  availability: AvailabilityBlock[];
   requireSwapOnDecline: boolean;
 }
 
-export function ScheduleView({ weekStart, shifts, profile, crew, requireSwapOnDecline }: ScheduleViewProps) {
+export function ScheduleView({
+  weekStart,
+  shifts,
+  profile,
+  crew,
+  availability,
+  requireSwapOnDecline,
+}: ScheduleViewProps) {
   const isAdmin = profile.role === "lead" || profile.role === "staff";
   const [selectedDay, setSelectedDay] = useState<DayOfWeek | null>(null);
   const [scope, setScope] = useState<"week" | "mine">("week");
@@ -183,6 +192,7 @@ export function ScheduleView({ weekStart, shifts, profile, crew, requireSwapOnDe
             shift={shift}
             currentProfileId={profile.id}
             isAdmin={isAdmin}
+            availability={availability}
             requireSwapOnDecline={requireSwapOnDecline}
             candidates={candidates}
           />

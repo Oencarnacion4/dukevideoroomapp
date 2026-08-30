@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import {
   acceptShiftAction,
+  assignShiftAction,
   claimShiftAction,
   declineShiftAction,
   deleteShiftAction,
@@ -11,10 +12,13 @@ import {
 } from "@/lib/actions/shifts";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
+import { Select } from "@/components/ui/Field";
 import { SwapDialog } from "@/components/schedule/SwapDialog";
 import { ShiftNoteDialog } from "@/components/schedule/ShiftNoteDialog";
 import { useToast } from "@/components/ui/Toast";
-import type { ShiftStatus } from "@/lib/types";
+import { conflictFor, nextCommitmentAfter, shiftWindow, type AvailabilityBlock } from "@/lib/domain/conflicts";
+import { toMinutes } from "@/lib/domain/time";
+import type { DayOfWeek, ShiftStatus } from "@/lib/types";
 
 interface ShiftActionsProps {
   shiftId: string;
@@ -26,6 +30,13 @@ interface ShiftActionsProps {
   requireSwapOnDecline: boolean;
   candidates: { id: string; full_name: string; shiftCount: number }[];
   noteButtonClassName?: string;
+  day?: DayOfWeek;
+  date?: string;
+  startLabel?: string;
+  endLabel?: string | null;
+  session?: string;
+  location?: string;
+  availability?: AvailabilityBlock[];
 }
 
 export function ShiftActions({
@@ -38,12 +49,33 @@ export function ShiftActions({
   requireSwapOnDecline,
   candidates,
   noteButtonClassName,
+  day,
+  date,
+  startLabel,
+  endLabel,
+  session,
+  location,
+  availability,
 }: ShiftActionsProps) {
   const [pending, startTransition] = useTransition();
   const [swapOpen, setSwapOpen] = useState(false);
   const [noteDialog, setNoteDialog] = useState<"accept" | "edit" | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [assignTarget, setAssignTarget] = useState("");
   const { show } = useToast();
+
+  const assignCandidates = useMemo(() => {
+    if (!day || !date || !startLabel || !availability) return [];
+    const win = shiftWindow(startLabel, endLabel ?? null);
+    return candidates.map((c) => {
+      const blocks = availability.filter((b) => b.profile_id === c.id);
+      const conflict = conflictFor(blocks, day, date, win);
+      const nextCommitment = !conflict
+        ? nextCommitmentAfter(blocks, day, date, toMinutes(startLabel) ?? 0)
+        : null;
+      return { ...c, conflict, nextCommitment };
+    });
+  }, [candidates, availability, day, date, startLabel, endLabel]);
 
   const accept = () =>
     startTransition(async () => {
@@ -89,6 +121,20 @@ export function ShiftActions({
       show(`Deleted — ${shiftSummary}.`);
     });
 
+  const assign = () =>
+    startTransition(async () => {
+      if (!assignTarget) return;
+      const person = candidates.find((c) => c.id === assignTarget);
+      await assignShiftAction(
+        shiftId,
+        assignTarget,
+        `New shift: ${session ?? ""}`,
+        `${day ?? ""} ${startLabel ?? ""} · ${location ?? ""}`,
+      );
+      show(`Assigned to ${person?.full_name ?? "them"} — they must accept.`);
+      setAssignTarget("");
+    });
+
   return (
     <>
       {isMine && status === "pending" && (
@@ -114,9 +160,40 @@ export function ShiftActions({
       )}
 
       {status === "open" && (
-        <Button className="w-full" disabled={pending} onClick={claim}>
-          Claim this slot
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button className="w-full" disabled={pending} onClick={claim}>
+            Claim this slot
+          </Button>
+          {isAdmin && assignCandidates.length > 0 && (
+            <div className="flex flex-col gap-1.5 border-t border-(--color-divider) pt-2">
+              <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-(--color-text-55)">
+                Or assign someone
+              </p>
+              <div className="flex gap-2">
+                <Select
+                  value={assignTarget}
+                  onChange={(e) => setAssignTarget(e.target.value)}
+                  className="flex-1"
+                >
+                  <option value="">Choose crew…</option>
+                  {assignCandidates.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.full_name}
+                      {c.conflict
+                        ? ` — conflict: ${c.conflict.label}`
+                        : c.nextCommitment
+                          ? ` — free until ${c.nextCommitment.start_time}`
+                          : ""}
+                    </option>
+                  ))}
+                </Select>
+                <Button variant="secondary" disabled={!assignTarget || pending} onClick={assign}>
+                  Assign
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {isMine && (status === "accepted" || status === "pending") && (

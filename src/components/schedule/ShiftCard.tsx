@@ -4,6 +4,7 @@ import { ShiftActions } from "@/components/schedule/ShiftActions";
 import { pgTimeToLabel, spanLabel } from "@/lib/domain/time";
 import { shiftStatusMeta, initialsFor } from "@/lib/domain/shift-view";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
+import type { AvailabilityBlock } from "@/lib/domain/conflicts";
 
 interface ShiftCardProps {
   shift: ShiftWithAssignee;
@@ -11,9 +12,17 @@ interface ShiftCardProps {
   isAdmin: boolean;
   requireSwapOnDecline: boolean;
   candidates: { id: string; full_name: string; shiftCount: number }[];
+  availability: AvailabilityBlock[];
 }
 
-export function ShiftCard({ shift, currentProfileId, isAdmin, requireSwapOnDecline, candidates }: ShiftCardProps) {
+export function ShiftCard({
+  shift,
+  currentProfileId,
+  isAdmin,
+  requireSwapOnDecline,
+  candidates,
+  availability,
+}: ShiftCardProps) {
   const startLabel = pgTimeToLabel(shift.start_time);
   const endLabel = shift.end_time ? pgTimeToLabel(shift.end_time) : null;
   const isMine = shift.assignee_id === currentProfileId;
@@ -71,6 +80,13 @@ export function ShiftCard({ shift, currentProfileId, isAdmin, requireSwapOnDecli
           shiftSummary={shiftSummary}
           requireSwapOnDecline={requireSwapOnDecline}
           candidates={candidates}
+          day={shift.day_of_week}
+          date={shift.date}
+          startLabel={startLabel}
+          endLabel={endLabel}
+          session={shift.session_type}
+          location={shift.location}
+          availability={availability}
         />
       </div>
     </Card>

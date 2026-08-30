@@ -31,6 +31,20 @@ export async function claimShiftAction(shiftId: string): Promise<void> {
   revalidateSchedule();
 }
 
+export async function assignShiftAction(
+  shiftId: string,
+  assigneeId: string,
+  title: string,
+  body: string,
+): Promise<void> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) throw new Error("Not allowed");
+  await respondToShift(supabase, shiftId, { status: "pending", assignee_id: assigneeId });
+  await notify(supabase, assigneeId, title, body);
+  revalidateSchedule();
+}
+
 export async function proposeSwapAction(
   shiftId: string,
   toProfileId: string,
