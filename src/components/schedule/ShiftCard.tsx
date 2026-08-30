@@ -8,11 +8,12 @@ import type { ShiftWithAssignee } from "@/lib/data/shifts";
 interface ShiftCardProps {
   shift: ShiftWithAssignee;
   currentProfileId: string;
+  isAdmin: boolean;
   requireSwapOnDecline: boolean;
   candidates: { id: string; full_name: string; shiftCount: number }[];
 }
 
-export function ShiftCard({ shift, currentProfileId, requireSwapOnDecline, candidates }: ShiftCardProps) {
+export function ShiftCard({ shift, currentProfileId, isAdmin, requireSwapOnDecline, candidates }: ShiftCardProps) {
   const startLabel = pgTimeToLabel(shift.start_time);
   const endLabel = shift.end_time ? pgTimeToLabel(shift.end_time) : null;
   const isMine = shift.assignee_id === currentProfileId;
@@ -65,6 +66,7 @@ export function ShiftCard({ shift, currentProfileId, requireSwapOnDecline, candi
           shiftId={shift.id}
           status={shift.status}
           isMine={isMine}
+          isAdmin={isAdmin}
           note={shift.note ?? ""}
           shiftSummary={shiftSummary}
           requireSwapOnDecline={requireSwapOnDecline}

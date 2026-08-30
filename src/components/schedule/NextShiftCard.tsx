@@ -43,6 +43,7 @@ export function NextShiftCard({ shift, requireSwapOnDecline, candidates }: NextS
         shiftId={shift.id}
         status={shift.status}
         isMine
+        isAdmin={false}
         note={shift.note ?? ""}
         shiftSummary={shiftSummary}
         requireSwapOnDecline={requireSwapOnDecline}

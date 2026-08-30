@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
-import { createSwapRequest, respondToShift, setShiftNote } from "@/lib/data/shifts";
+import { createSwapRequest, deleteShift, respondToShift, setShiftNote } from "@/lib/data/shifts";
 import { notify } from "@/lib/data/notifications";
 
 function revalidateSchedule() {
@@ -47,6 +47,12 @@ export async function proposeSwapAction(
     `${profile.full_name} asked you to cover a shift`,
     shiftSummary,
   );
+  revalidateSchedule();
+}
+
+export async function deleteShiftAction(shiftId: string): Promise<void> {
+  const supabase = await createClient();
+  await deleteShift(supabase, shiftId);
   revalidateSchedule();
 }
 

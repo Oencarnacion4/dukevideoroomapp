@@ -50,6 +50,11 @@ export async function respondToShift(
   if (error) throw error;
 }
 
+export async function deleteShift(supabase: SupabaseClient, shiftId: string): Promise<void> {
+  const { error } = await supabase.from("shifts").delete().eq("id", shiftId);
+  if (error) throw error;
+}
+
 export async function setShiftNote(supabase: SupabaseClient, shiftId: string, note: string | null): Promise<void> {
   const { error } = await supabase.from("shifts").update({ note }).eq("id", shiftId);
   if (error) throw error;

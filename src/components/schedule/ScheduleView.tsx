@@ -182,6 +182,7 @@ export function ScheduleView({ weekStart, shifts, profile, crew, requireSwapOnDe
             key={shift.id}
             shift={shift}
             currentProfileId={profile.id}
+            isAdmin={isAdmin}
             requireSwapOnDecline={requireSwapOnDecline}
             candidates={candidates}
           />
