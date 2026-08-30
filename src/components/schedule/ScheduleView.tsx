@@ -47,6 +47,14 @@ export function ScheduleView({
       shiftCount: shifts.filter((s) => s.assignee_id === c.id).length,
     }));
 
+  // Unlike swap candidates, assigning an open slot can include yourself —
+  // the head intern works shifts too.
+  const assignableCrew = crew.map((c) => ({
+    id: c.id,
+    full_name: c.id === profile.id ? `${c.full_name} (you)` : c.full_name,
+    shiftCount: shifts.filter((s) => s.assignee_id === c.id).length,
+  }));
+
   const visible = useMemo(() => {
     return shifts.filter((s) => {
       if (selectedDay && s.day_of_week !== selectedDay) return false;
@@ -195,6 +203,7 @@ export function ScheduleView({
             availability={availability}
             requireSwapOnDecline={requireSwapOnDecline}
             candidates={candidates}
+            assignableCrew={assignableCrew}
           />
         ))}
         {visible.length === 0 && (

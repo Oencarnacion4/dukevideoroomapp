@@ -7,6 +7,10 @@
 --   3. The "assign someone to an open shift" feature ("Debug Admin
 --      Four" through "Debug Admin Seven", plus two stale notifications
 --      those runs sent to the real Alex Karen)
+--   4. Letting the head intern appear in the shift builder, and the
+--      "add another person to this shift" feature ("Debug Admin Eight"
+--      through "Debug Admin Ten", plus one more stale notification sent
+--      to the real Alex Karen)
 --
 -- This replaces cleanup_debug_crash_test_data.sql,
 -- cleanup_shift_builder_test_data.sql, and cleanup_assign_flow_test_data.sql
@@ -31,7 +35,7 @@ where profile_id in (
 -- test shifts that were already deleted through the app itself.
 delete from notifications
 where title = 'New shift: Full practice'
-  and body = 'Wed 4:15 PM · Practice court'
+  and body in ('Wed 4:15 PM · Practice court', 'Thu 9:00 AM · Practice court')
   and created_at > now() - interval '2 hours';
 
 -- Delete every throwaway test profile from these three rounds of testing.
@@ -49,6 +53,9 @@ where (
     or p.full_name like 'Debug Admin Five%'
     or p.full_name like 'Debug Admin Six%'
     or p.full_name like 'Debug Admin Seven%'
+    or p.full_name like 'Debug Admin Eight%'
+    or p.full_name like 'Debug Admin Nine%'
+    or p.full_name like 'Debug Admin Ten%'
   )
   and not exists (select 1 from shifts s where s.assignee_id = p.id)
   and not exists (select 1 from shifts s where s.created_by = p.id)

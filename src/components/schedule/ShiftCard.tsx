@@ -12,6 +12,7 @@ interface ShiftCardProps {
   isAdmin: boolean;
   requireSwapOnDecline: boolean;
   candidates: { id: string; full_name: string; shiftCount: number }[];
+  assignableCrew: { id: string; full_name: string; shiftCount: number }[];
   availability: AvailabilityBlock[];
 }
 
@@ -21,6 +22,7 @@ export function ShiftCard({
   isAdmin,
   requireSwapOnDecline,
   candidates,
+  assignableCrew,
   availability,
 }: ShiftCardProps) {
   const startLabel = pgTimeToLabel(shift.start_time);
@@ -80,6 +82,9 @@ export function ShiftCard({
           shiftSummary={shiftSummary}
           requireSwapOnDecline={requireSwapOnDecline}
           candidates={candidates}
+          assignableCrew={assignableCrew}
+          assigneeId={shift.assignee_id}
+          cameraRole={shift.camera_role}
           day={shift.day_of_week}
           date={shift.date}
           startLabel={startLabel}

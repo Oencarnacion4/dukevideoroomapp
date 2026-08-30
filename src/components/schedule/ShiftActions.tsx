@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import {
   acceptShiftAction,
+  addCoverAction,
   assignShiftAction,
   claimShiftAction,
   declineShiftAction,
@@ -18,7 +19,7 @@ import { ShiftNoteDialog } from "@/components/schedule/ShiftNoteDialog";
 import { useToast } from "@/components/ui/Toast";
 import { conflictFor, nextCommitmentAfter, shiftWindow, type AvailabilityBlock } from "@/lib/domain/conflicts";
 import { toMinutes } from "@/lib/domain/time";
-import type { DayOfWeek, ShiftStatus } from "@/lib/types";
+import type { DayOfWeek, SessionType, ShiftStatus } from "@/lib/types";
 
 interface ShiftActionsProps {
   shiftId: string;
@@ -29,12 +30,15 @@ interface ShiftActionsProps {
   shiftSummary: string;
   requireSwapOnDecline: boolean;
   candidates: { id: string; full_name: string; shiftCount: number }[];
+  assignableCrew?: { id: string; full_name: string; shiftCount: number }[];
+  assigneeId?: string | null;
   noteButtonClassName?: string;
   day?: DayOfWeek;
   date?: string;
   startLabel?: string;
   endLabel?: string | null;
-  session?: string;
+  session?: SessionType;
+  cameraRole?: string | null;
   location?: string;
   availability?: AvailabilityBlock[];
 }
@@ -48,12 +52,15 @@ export function ShiftActions({
   shiftSummary,
   requireSwapOnDecline,
   candidates,
+  assignableCrew,
+  assigneeId,
   noteButtonClassName,
   day,
   date,
   startLabel,
   endLabel,
   session,
+  cameraRole,
   location,
   availability,
 }: ShiftActionsProps) {
@@ -62,12 +69,13 @@ export function ShiftActions({
   const [noteDialog, setNoteDialog] = useState<"accept" | "edit" | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [assignTarget, setAssignTarget] = useState("");
+  const [coverTarget, setCoverTarget] = useState("");
   const { show } = useToast();
 
-  const assignCandidates = useMemo(() => {
-    if (!day || !date || !startLabel || !availability) return [];
+  const crewWithHints = useMemo(() => {
+    if (!day || !date || !startLabel || !availability || !assignableCrew) return [];
     const win = shiftWindow(startLabel, endLabel ?? null);
-    return candidates.map((c) => {
+    return assignableCrew.map((c) => {
       const blocks = availability.filter((b) => b.profile_id === c.id);
       const conflict = conflictFor(blocks, day, date, win);
       const nextCommitment = !conflict
@@ -75,7 +83,13 @@ export function ShiftActions({
         : null;
       return { ...c, conflict, nextCommitment };
     });
-  }, [candidates, availability, day, date, startLabel, endLabel]);
+  }, [assignableCrew, availability, day, date, startLabel, endLabel]);
+
+  const assignCandidates = crewWithHints;
+  const coverCandidates = useMemo(
+    () => crewWithHints.filter((c) => c.id !== assigneeId),
+    [crewWithHints, assigneeId],
+  );
 
   const accept = () =>
     startTransition(async () => {
@@ -124,7 +138,7 @@ export function ShiftActions({
   const assign = () =>
     startTransition(async () => {
       if (!assignTarget) return;
-      const person = candidates.find((c) => c.id === assignTarget);
+      const person = assignableCrew?.find((c) => c.id === assignTarget);
       await assignShiftAction(
         shiftId,
         assignTarget,
@@ -133,6 +147,25 @@ export function ShiftActions({
       );
       show(`Assigned to ${person?.full_name ?? "them"} — they must accept.`);
       setAssignTarget("");
+    });
+
+  const addCover = () =>
+    startTransition(async () => {
+      if (!coverTarget || !day || !date || !startLabel || !session || !location) return;
+      const person = assignableCrew?.find((c) => c.id === coverTarget);
+      await addCoverAction({
+        day,
+        date,
+        startLabel,
+        endLabel: endLabel ?? null,
+        session,
+        cameraRole: cameraRole ?? null,
+        location,
+        note: note.trim() || null,
+        assigneeId: coverTarget,
+      });
+      show(`Added ${person?.full_name ?? "them"} to cover this shift too — they must accept.`);
+      setCoverTarget("");
     });
 
   return (
@@ -204,6 +237,32 @@ export function ShiftActions({
         >
           {note ? "Edit note" : "Add a note"}
         </button>
+      )}
+
+      {isAdmin && status !== "open" && coverCandidates.length > 0 && (
+        <div className="flex flex-col gap-1.5 border-t border-(--color-divider) pt-2">
+          <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-(--color-text-55)">
+            Need another person on this shift too?
+          </p>
+          <div className="flex gap-2">
+            <Select value={coverTarget} onChange={(e) => setCoverTarget(e.target.value)} className="flex-1">
+              <option value="">Choose crew…</option>
+              {coverCandidates.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.full_name}
+                  {c.conflict
+                    ? ` — conflict: ${c.conflict.label}`
+                    : c.nextCommitment
+                      ? ` — free until ${c.nextCommitment.start_time}`
+                      : ""}
+                </option>
+              ))}
+            </Select>
+            <Button variant="secondary" disabled={!coverTarget || pending} onClick={addCover}>
+              Add
+            </Button>
+          </div>
+        </div>
       )}
 
       {isAdmin && (

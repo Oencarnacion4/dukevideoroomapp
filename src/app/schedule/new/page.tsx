@@ -24,7 +24,11 @@ export default async function NewShiftPage({
     listShifts(supabase, weekStart),
   ]);
 
-  const crew = allProfiles.filter((p) => p.id !== profile.id);
+  // Include yourself — the head intern works shifts too, so you should be
+  // pickable alongside everyone else when building one.
+  const crew = allProfiles.map((p) =>
+    p.id === profile.id ? { ...p, full_name: `${p.full_name} (you)` } : p,
+  );
   const shiftCounts: Record<string, number> = {};
   for (const s of shifts) {
     if (s.assignee_id) shiftCounts[s.assignee_id] = (shiftCounts[s.assignee_id] ?? 0) + 1;
