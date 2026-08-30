@@ -9,6 +9,7 @@ import { initialsFor } from "@/lib/domain/shift-view";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
 import { Tag } from "@/components/ui/Tag";
 import { AddRosterForm } from "@/components/crew/AddRosterForm";
+import { RemoveCrewButton } from "@/components/crew/RemoveCrewButton";
 
 export default async function CrewPage() {
   const supabase = await createClient();
@@ -39,26 +40,30 @@ export default async function CrewPage() {
             const shiftCount = shifts.filter((s) => s.assignee_id === c.id).length;
             const blockCount = availability.filter((a) => a.profile_id === c.id).length;
             return (
-              <Link
+              <div
                 key={c.id}
-                href={`/crew/${c.id}/classes`}
                 className="flex items-center gap-3 border-b border-(--color-divider) py-3 last:border-b-0"
               >
-                <span className="flex h-7 w-7 items-center justify-center bg-(--color-accent-100) font-(family-name:--font-heading) text-[11px] text-(--color-accent-800)">
-                  {initialsFor(c.full_name)}
-                </span>
-                <div className="flex-1">
-                  <p className="text-[14px] font-medium">{c.full_name}</p>
-                  <p className="text-[12px] text-(--color-text-50)">{c.email ?? "no email yet"}</p>
-                  <p className="text-[11px] text-(--color-text-50)">
-                    {shiftCount} shift{shiftCount === 1 ? "" : "s"} this week · {blockCount} block
-                    {blockCount === 1 ? "" : "s"} on file
-                  </p>
+                <Link href={`/crew/${c.id}/classes`} className="flex flex-1 items-center gap-3">
+                  <span className="flex h-7 w-7 items-center justify-center bg-(--color-accent-100) font-(family-name:--font-heading) text-[11px] text-(--color-accent-800)">
+                    {initialsFor(c.full_name)}
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-[14px] font-medium">{c.full_name}</p>
+                    <p className="text-[12px] text-(--color-text-50)">{c.email ?? "no email yet"}</p>
+                    <p className="text-[11px] text-(--color-text-50)">
+                      {shiftCount} shift{shiftCount === 1 ? "" : "s"} this week · {blockCount} block
+                      {blockCount === 1 ? "" : "s"} on file
+                    </p>
+                  </div>
+                </Link>
+                <div className="flex flex-col items-end gap-1.5">
+                  <Tag variant={c.auth_user_id ? "accent" : "outline"}>
+                    {c.auth_user_id ? "Registered" : "Invite pending"}
+                  </Tag>
+                  {c.id !== profile.id && <RemoveCrewButton profileId={c.id} fullName={c.full_name} />}
                 </div>
-                <Tag variant={c.auth_user_id ? "accent" : "outline"}>
-                  {c.auth_user_id ? "Registered" : "Invite pending"}
-                </Tag>
-              </Link>
+              </div>
             );
           })}
         </div>

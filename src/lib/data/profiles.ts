@@ -41,3 +41,21 @@ export async function getAllProfiles(supabase: SupabaseClient): Promise<Profile[
   if (error) throw error;
   return data;
 }
+
+/**
+ * Deletes a crew member's profile. Postgres's own constraints (no cascade
+ * on shifts.created_by / swap_requests, and the shifts open-slot check)
+ * block removing anyone with real history on record, surfaced here as a
+ * friendly error instead of a raw constraint-violation message.
+ */
+export async function removeProfile(supabase: SupabaseClient, profileId: string): Promise<{ error?: string }> {
+  const { data, error } = await supabase.from("profiles").delete().eq("id", profileId).select("id");
+  if (error) {
+    return { error: "Can't remove — they have shifts, hours, or other history on record." };
+  }
+  if (!data || data.length === 0) {
+    // RLS can silently filter a delete to zero rows instead of erroring.
+    return { error: "Couldn't remove them — you may not have permission, or they're already gone." };
+  }
+  return {};
+}
