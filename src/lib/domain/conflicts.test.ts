@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { conflictFor, shiftWindow, type AvailabilityBlock } from "./conflicts";
+import { conflictFor, nextCommitmentAfter, shiftWindow, type AvailabilityBlock } from "./conflicts";
+import { toMinutes } from "./time";
 
 describe("shiftWindow", () => {
   it("uses the actual end time when the shift has one", () => {
@@ -87,5 +88,73 @@ describe("conflictFor — one-time blocks (specific_date set)", () => {
   it("does not flag a non-overlapping time on the exact date", () => {
     const window = shiftWindow("1:00 PM", "3:00 PM");
     expect(conflictFor(oneTime, "Tue", "2026-09-08", window)).toBeNull();
+  });
+});
+
+describe("nextCommitmentAfter", () => {
+  // Free at 2:30 PM for practice, but has ECON 101 at 4:30 PM the same day.
+  const blocks: AvailabilityBlock[] = [
+    {
+      id: "a4",
+      profile_id: "p1",
+      day_of_week: "Tue",
+      specific_date: null,
+      start_time: "4:30 PM",
+      end_time: "5:30 PM",
+      all_day: false,
+      label: "ECON 101",
+    },
+  ];
+
+  it("finds the next timed block that starts at or after the given time", () => {
+    const result = nextCommitmentAfter(blocks, "Tue", "2026-09-08", toMinutes("2:30 PM")!);
+    expect(result?.label).toBe("ECON 101");
+    expect(result?.start_time).toBe("4:30 PM");
+  });
+
+  it("ignores blocks that already started before the given time", () => {
+    const result = nextCommitmentAfter(blocks, "Tue", "2026-09-08", toMinutes("5:00 PM")!);
+    expect(result).toBeNull();
+  });
+
+  it("ignores a different day of week", () => {
+    const result = nextCommitmentAfter(blocks, "Wed", "2026-09-09", toMinutes("2:30 PM")!);
+    expect(result).toBeNull();
+  });
+
+  it("ignores all-day blocks (those are hard conflicts, not a free-until hint)", () => {
+    const allDay: AvailabilityBlock[] = [
+      {
+        id: "a5",
+        profile_id: "p1",
+        day_of_week: "Sat",
+        specific_date: null,
+        start_time: null,
+        end_time: null,
+        all_day: true,
+        label: "Travel",
+      },
+    ];
+    const result = nextCommitmentAfter(allDay, "Sat", "2026-09-12", toMinutes("10:00 AM")!);
+    expect(result).toBeNull();
+  });
+
+  it("matches a one-time block only on its exact date", () => {
+    const oneTime: AvailabilityBlock[] = [
+      {
+        id: "a6",
+        profile_id: "p1",
+        day_of_week: "Tue",
+        specific_date: "2026-09-08",
+        start_time: "6:00 PM",
+        end_time: "8:00 PM",
+        all_day: false,
+        label: "Club meeting",
+      },
+    ];
+    expect(nextCommitmentAfter(oneTime, "Tue", "2026-09-08", toMinutes("2:30 PM")!)?.label).toBe(
+      "Club meeting",
+    );
+    expect(nextCommitmentAfter(oneTime, "Tue", "2026-09-15", toMinutes("2:30 PM")!)).toBeNull();
   });
 });

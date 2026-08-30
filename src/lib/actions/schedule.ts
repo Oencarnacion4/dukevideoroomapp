@@ -18,33 +18,40 @@ export async function postShiftAction(input: {
   session: SessionType;
   cameraRole: string | null;
   location: string;
-  assigneeId: string | null;
+  assigneeIds: string[];
+  alsoOpen: boolean;
   note: string;
 }): Promise<void> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile || (profile.role !== "lead" && profile.role !== "staff")) throw new Error("Not allowed");
 
-  await createShift(supabase, {
-    day_of_week: input.day,
-    date: input.date,
-    start_time: labelToPgTime(input.start),
-    end_time: input.end ? labelToPgTime(input.end) : null,
-    session_type: input.session,
-    camera_role: input.cameraRole,
-    location: input.location,
-    assignee_id: input.assigneeId,
-    note: input.note.trim() || null,
-    created_by: profile.id,
-  });
+  const note = input.note.trim() || null;
+  const slots: (string | null)[] = [...input.assigneeIds];
+  if (input.alsoOpen || slots.length === 0) slots.push(null);
 
-  if (input.assigneeId) {
-    await notify(
-      supabase,
-      input.assigneeId,
-      `New shift: ${input.session}`,
-      `${input.day} ${input.start} · ${input.location}`,
-    );
+  for (const assigneeId of slots) {
+    await createShift(supabase, {
+      day_of_week: input.day,
+      date: input.date,
+      start_time: labelToPgTime(input.start),
+      end_time: input.end ? labelToPgTime(input.end) : null,
+      session_type: input.session,
+      camera_role: input.cameraRole,
+      location: input.location,
+      assignee_id: assigneeId,
+      note,
+      created_by: profile.id,
+    });
+
+    if (assigneeId) {
+      await notify(
+        supabase,
+        assigneeId,
+        `New shift: ${input.session}`,
+        `${input.day} ${input.start} · ${input.location}`,
+      );
+    }
   }
 
   revalidatePath("/schedule");

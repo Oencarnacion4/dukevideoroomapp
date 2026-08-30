@@ -65,3 +65,30 @@ export function conflictFor(
     }) ?? null
   );
 }
+
+/**
+ * The earliest timed (non-all-day) block on this day/date that starts at
+ * or after `afterMinutes` — i.e. what a person has to leave for later that
+ * same day. Used to show "free until 4:30 PM" for someone who is clear of
+ * the shift itself but has something coming up, not just a yes/no check.
+ */
+export function nextCommitmentAfter(
+  blocks: AvailabilityBlock[],
+  day: DayOfWeek,
+  date: string,
+  afterMinutes: number,
+): AvailabilityBlock | null {
+  let best: AvailabilityBlock | null = null;
+  let bestStart = Infinity;
+  for (const bl of blocks) {
+    const dayMatches = bl.specific_date ? bl.specific_date === date : bl.day_of_week === day;
+    if (!dayMatches || bl.all_day || !bl.start_time) continue;
+    const start = toMinutes(bl.start_time);
+    if (start == null || start < afterMinutes) continue;
+    if (start < bestStart) {
+      bestStart = start;
+      best = bl;
+    }
+  }
+  return best;
+}
