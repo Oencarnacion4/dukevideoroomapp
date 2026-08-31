@@ -26,7 +26,10 @@ export function Seg<T extends string>({ options, value, onChange, className }: S
   const groupName = useId();
 
   return (
-    <div className={cn("grid border border-(--color-divider)", className)} style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}>
+    <div
+      className={cn("grid select-none border border-(--color-divider)", className)}
+      style={{ gridTemplateColumns: `repeat(${options.length}, 1fr)` }}
+    >
       {options.map((opt, i) => {
         const active = opt.value === value;
         const id = `${groupName}-${opt.value}`;
@@ -35,7 +38,7 @@ export function Seg<T extends string>({ options, value, onChange, className }: S
             key={opt.value}
             htmlFor={id}
             className={cn(
-              "flex h-11 cursor-pointer touch-manipulation items-center justify-center text-[13px] font-medium transition-colors",
+              "flex h-11 cursor-pointer touch-manipulation select-none items-center justify-center text-[13px] font-medium transition-colors",
               i > 0 && "border-l border-(--color-divider)",
               active
                 ? "bg-(--color-accent-800) text-white"
