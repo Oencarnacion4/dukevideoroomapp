@@ -17,10 +17,10 @@ interface SegProps<T extends string> {
 
 /**
  * Built on real `<input type="radio">` elements (visually hidden, one per
- * option) rather than plain buttons with a click handler — native radio
- * inputs are the most reliably-handled interactive element across every
- * browser, so selecting an option never depends on a custom click
- * listener actually firing.
+ * option) for correct semantics, but the label also has its own onClick —
+ * Safari has a known quirk where a `display:flex` label can fail to
+ * forward a click to its associated hidden input, so selection can't rely
+ * on that native label-to-input delegation alone.
  */
 export function Seg<T extends string>({ options, value, onChange, className }: SegProps<T>) {
   const groupName = useId();
@@ -37,6 +37,7 @@ export function Seg<T extends string>({ options, value, onChange, className }: S
           <label
             key={opt.value}
             htmlFor={id}
+            onClick={() => onChange(opt.value)}
             className={cn(
               "flex h-11 cursor-pointer touch-manipulation select-none items-center justify-center text-[13px] font-medium transition-colors",
               i > 0 && "border-l border-(--color-divider)",
