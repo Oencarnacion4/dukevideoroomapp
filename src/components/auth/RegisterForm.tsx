@@ -31,6 +31,7 @@ export function RegisterForm({ rosterNames }: { rosterNames: string[] }) {
       <Field label="Full name" helper={helper}>
         <Input
           name="fullName"
+          autoComplete="name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="e.g. Maya P."
@@ -45,6 +46,7 @@ export function RegisterForm({ rosterNames }: { rosterNames: string[] }) {
         <Input
           type="email"
           name="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@gmail.com"
@@ -53,7 +55,14 @@ export function RegisterForm({ rosterNames }: { rosterNames: string[] }) {
       </Field>
 
       <Field label="Password">
-        <Input type="password" name="password" placeholder="Choose a password" required minLength={6} />
+        <Input
+          type="password"
+          name="password"
+          autoComplete="new-password"
+          placeholder="Choose a password"
+          required
+          minLength={6}
+        />
       </Field>
 
       <Field label="Crew code from staff — optional">

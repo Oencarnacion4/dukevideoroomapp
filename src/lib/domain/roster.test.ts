@@ -30,13 +30,13 @@ describe("matchRoster", () => {
 });
 
 describe("registerButtonState", () => {
-  it("disables when name or email is empty", () => {
+  it("hints to fill in name and email but leaves the button clickable — native `required` blocks an empty submit instead", () => {
     expect(registerButtonState("", "a@b.com", "intern", null)).toEqual({
-      disabled: true,
+      disabled: false,
       label: "Add your name and email",
     });
     expect(registerButtonState("Jordan R.", "", "intern", null)).toEqual({
-      disabled: true,
+      disabled: false,
       label: "Add your name and email",
     });
   });

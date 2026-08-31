@@ -32,7 +32,15 @@ interface RegisterButtonState {
   label: string;
 }
 
-/** Ported from the README's "Registration button states". */
+/**
+ * Ported from the README's "Registration button states". The button is
+ * never actually disabled for a blank name/email — the label just hints
+ * at it — because the inputs' own `required` attribute already blocks a
+ * genuinely empty submit via native browser validation, which reads the
+ * real DOM value at submit time. Gating on the React state here instead
+ * risked a stuck-disabled button if a browser's autofill ever wrote into
+ * the fields without firing a React-visible change event.
+ */
 export function registerButtonState(
   name: string,
   email: string,
@@ -40,7 +48,7 @@ export function registerButtonState(
   matchedName: string | null,
 ): RegisterButtonState {
   if (!name.trim() || !email.trim()) {
-    return { disabled: true, label: "Add your name and email" };
+    return { disabled: false, label: "Add your name and email" };
   }
   if (role === "intern" && !matchedName) {
     return { disabled: false, label: "Join and request access" };
