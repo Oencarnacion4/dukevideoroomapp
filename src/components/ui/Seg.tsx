@@ -31,7 +31,7 @@ export function Seg<T extends string>({ options, value, onChange, className }: S
             aria-checked={active}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "h-9 text-[13px] font-medium transition-colors",
+              "h-11 touch-manipulation text-[13px] font-medium transition-colors",
               i > 0 && "border-l border-(--color-divider)",
               active
                 ? "bg-(--color-accent-800) text-white"
