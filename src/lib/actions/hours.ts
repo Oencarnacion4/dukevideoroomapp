@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
-import { logTimeEntry } from "@/lib/data/time-entries";
+import { deleteTimeEntry, logTimeEntry, updateTimeEntry } from "@/lib/data/time-entries";
 import { roundClockedHours } from "@/lib/domain/hours";
 
 export async function toggleClockAction(defaultLabel: string): Promise<void> {
@@ -55,5 +55,49 @@ export async function logManualHoursAction(input: {
     source: "manual",
   });
 
+  revalidatePath("/hours");
+}
+
+export async function updateTimeEntryAction(input: {
+  id: string;
+  date: string;
+  sessionLabel: string;
+  hours: number;
+}): Promise<{ error?: string }> {
+  if (!input.sessionLabel.trim()) return { error: "Give it a label." };
+  if (!(input.hours > 0)) return { error: "Hours has to be more than zero." };
+
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || profile.role === "staff") return { error: "Not allowed." };
+
+  await updateTimeEntry(supabase, input.id, {
+    date: input.date,
+    session_label: input.sessionLabel.trim(),
+    hours: input.hours,
+  });
+  revalidatePath("/hours");
+  return {};
+}
+
+export async function deleteTimeEntryAction(id: string): Promise<void> {
+  const supabase = await createClient();
+  await deleteTimeEntry(supabase, id);
+  revalidatePath("/hours");
+}
+
+/** Bails out of a forgotten/mistaken clock-in without logging any hours for it. */
+export async function cancelClockAction(): Promise<void> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ clock_in_at: null, clock_label: null })
+    .eq("id", profile.id);
+  if (error) throw error;
+
+  revalidatePath("/today");
   revalidatePath("/hours");
 }

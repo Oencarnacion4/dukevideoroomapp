@@ -31,9 +31,14 @@ export default async function CrewPage() {
           Add names now, no email needed. When someone signs up with that name, their account attaches to
           this roster entry — shifts, hours and classes already waiting.
         </p>
-        <Link href={`/crew/${profile.id}/classes`} className="text-[13px] font-medium text-(--color-accent-700)">
-          My class schedule
-        </Link>
+        <div className="flex gap-4">
+          <Link href={`/crew/${profile.id}/classes`} className="text-[13px] font-medium text-(--color-accent-700)">
+            My class schedule
+          </Link>
+          <Link href="/crew/calendar" className="text-[13px] font-medium text-(--color-accent-700)">
+            Who&apos;s busy when
+          </Link>
+        </div>
 
         <div className="flex flex-col">
           {crew.map((c) => {

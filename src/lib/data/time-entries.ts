@@ -30,3 +30,17 @@ export async function logTimeEntry(
   const { error } = await supabase.from("time_entries").insert(input);
   if (error) throw error;
 }
+
+export async function updateTimeEntry(
+  supabase: SupabaseClient,
+  id: string,
+  patch: { date: string; session_label: string; hours: number },
+): Promise<void> {
+  const { error } = await supabase.from("time_entries").update(patch).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteTimeEntry(supabase: SupabaseClient, id: string): Promise<void> {
+  const { error } = await supabase.from("time_entries").delete().eq("id", id);
+  if (error) throw error;
+}

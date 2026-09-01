@@ -8,8 +8,8 @@ import { fmtHours, hoursVerdict, WEEKLY_CAP_HOURS, WEEKLY_MIN_HOURS } from "@/li
 import { ClockControl } from "@/components/hours/ClockControl";
 import { ProgressBar } from "@/components/hours/ProgressBar";
 import { LogShiftRow } from "@/components/hours/LogShiftRow";
+import { EntriesList } from "@/components/hours/EntriesList";
 import { Card } from "@/components/ui/Card";
-import { Tag } from "@/components/ui/Tag";
 
 export default async function HoursPage() {
   const supabase = await createClient();
@@ -79,25 +79,7 @@ export default async function HoursPage() {
       {!isStaff && (
         <div>
           <h5 className="mb-2 font-(family-name:--font-heading) text-[16px] font-semibold">Entries</h5>
-          <div className="flex flex-col">
-            {myEntries
-              .filter((e) => e.date >= weekStart && e.date < weekEnd)
-              .map((e) => (
-                <div key={e.id} className="flex items-center justify-between border-b border-(--color-divider) py-2 last:border-b-0">
-                  <div className="w-13 text-[11px] uppercase text-(--color-text-50)">
-                    {new Date(`${e.date}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" })}
-                  </div>
-                  <div className="flex-1 text-[13.5px]">{e.session_label}</div>
-                  <Tag variant="neutral" className="mr-2">
-                    {e.source === "clocked" ? "Clocked" : "Manual"}
-                  </Tag>
-                  <div className="font-(family-name:--font-heading) text-[15px] font-semibold">{fmtHours(Number(e.hours))}</div>
-                </div>
-              ))}
-            {myEntries.filter((e) => e.date >= weekStart && e.date < weekEnd).length === 0 && (
-              <p className="py-3 text-[13px] text-(--color-text-50)">No entries yet this week.</p>
-            )}
-          </div>
+          <EntriesList entries={myEntries.filter((e) => e.date >= weekStart && e.date < weekEnd)} />
         </div>
       )}
 
