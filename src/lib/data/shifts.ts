@@ -41,6 +41,35 @@ export async function createShift(
   if (error) throw error;
 }
 
+/** An intern proposing their own extra shift, distinct from an admin-built one — starts 'proposed', not 'pending'. */
+export async function proposeShift(
+  supabase: SupabaseClient,
+  input: {
+    day_of_week: DayOfWeek;
+    date: string;
+    start_time: string;
+    end_time: string | null;
+    location: string;
+    note: string | null;
+    profile_id: string;
+  },
+): Promise<void> {
+  const { error } = await supabase.from("shifts").insert({
+    day_of_week: input.day_of_week,
+    date: input.date,
+    start_time: input.start_time,
+    end_time: input.end_time,
+    session_type: "Extra time" satisfies SessionType,
+    camera_role: null,
+    location: input.location,
+    assignee_id: input.profile_id,
+    created_by: input.profile_id,
+    note: input.note,
+    status: "proposed" satisfies ShiftStatus,
+  });
+  if (error) throw error;
+}
+
 export async function respondToShift(
   supabase: SupabaseClient,
   shiftId: string,

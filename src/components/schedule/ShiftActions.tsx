@@ -3,12 +3,15 @@
 import { useMemo, useState, useTransition } from "react";
 import {
   acceptShiftAction,
+  approveProposedShiftAction,
   assignShiftAction,
   claimShiftAction,
+  declineProposedShiftAction,
   declineShiftAction,
   deleteShiftAction,
   proposeSwapAction,
   saveShiftNoteAction,
+  withdrawProposedShiftAction,
 } from "@/lib/actions/shifts";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
@@ -25,6 +28,7 @@ interface ShiftActionsProps {
   status: ShiftStatus;
   isMine: boolean;
   isAdmin: boolean;
+  assigneeId?: string | null;
   note: string;
   shiftSummary: string;
   requireSwapOnDecline: boolean;
@@ -45,6 +49,7 @@ export function ShiftActions({
   status,
   isMine,
   isAdmin,
+  assigneeId,
   note,
   shiftSummary,
   requireSwapOnDecline,
@@ -113,6 +118,26 @@ export function ShiftActions({
       await deleteShiftAction(shiftId);
       setDeleteOpen(false);
       show(`Deleted — ${shiftSummary}.`);
+    });
+
+  const approveProposed = () =>
+    startTransition(async () => {
+      if (!assigneeId) return;
+      await approveProposedShiftAction(shiftId, assigneeId, shiftSummary);
+      show(`Approved — ${shiftSummary}.`);
+    });
+
+  const declineProposed = () =>
+    startTransition(async () => {
+      if (!assigneeId) return;
+      await declineProposedShiftAction(shiftId, assigneeId, shiftSummary);
+      show(`Declined — ${shiftSummary}.`);
+    });
+
+  const withdrawProposed = () =>
+    startTransition(async () => {
+      await withdrawProposedShiftAction(shiftId);
+      show("Proposal withdrawn.");
     });
 
   const assign = () =>
@@ -190,6 +215,31 @@ export function ShiftActions({
         </div>
       )}
 
+      {status === "proposed" && isAdmin && (
+        <div className="flex flex-col gap-2">
+          <p className="text-[12.5px] text-(--color-text-62)">Self-proposed extra time — needs your sign-off.</p>
+          <div className="flex gap-2">
+            <Button className="flex-1" disabled={pending} onClick={approveProposed}>
+              Approve
+            </Button>
+            <Button variant="secondary" className="flex-1" disabled={pending} onClick={declineProposed}>
+              Decline
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {status === "proposed" && isMine && !isAdmin && (
+        <button
+          type="button"
+          onClick={withdrawProposed}
+          disabled={pending}
+          className="self-end text-[13px] font-medium text-(--color-accent-700)"
+        >
+          Withdraw proposal
+        </button>
+      )}
+
       {isMine && (status === "accepted" || status === "pending") && (
         <button
           type="button"
@@ -200,7 +250,7 @@ export function ShiftActions({
         </button>
       )}
 
-      {isAdmin && (
+      {isAdmin && status !== "proposed" && (
         <button
           type="button"
           onClick={() => setDeleteOpen(true)}

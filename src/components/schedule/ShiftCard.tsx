@@ -102,6 +102,7 @@ export function ShiftCard({
                 status={shift.status}
                 isMine={isMine}
                 isAdmin={isAdmin}
+                assigneeId={shift.assignee_id}
                 note={shift.note ?? ""}
                 shiftSummary={shiftSummary}
                 requireSwapOnDecline={requireSwapOnDecline}

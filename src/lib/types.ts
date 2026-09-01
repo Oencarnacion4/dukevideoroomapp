@@ -2,7 +2,7 @@ export type Role = "intern" | "lead" | "staff";
 
 export type DayOfWeek = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
-export type ShiftStatus = "pending" | "accepted" | "declined" | "swap_sent" | "open";
+export type ShiftStatus = "pending" | "accepted" | "declined" | "swap_sent" | "open" | "proposed";
 
 export type SessionType =
   | "Full practice"
@@ -11,7 +11,8 @@ export type SessionType =
   | "Individual workouts"
   | "Early lift"
   | "Live scrimmage"
-  | "Film session prep";
+  | "Film session prep"
+  | "Extra time";
 
 export type TaskBucket = "assigned" | "daily" | "practice" | "post" | "game" | "personal";
 

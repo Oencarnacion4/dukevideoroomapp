@@ -8,6 +8,7 @@ export const SESSIONS: SessionType[] = [
   "Early lift",
   "Live scrimmage",
   "Film session prep",
+  "Extra time",
 ];
 
 /** Session type -> auto-derived location, ported verbatim from `LOCS`. */
@@ -17,6 +18,7 @@ export const SESSION_LOCATIONS: Partial<Record<SessionType, string>> = {
   "Live scrimmage": "Main arena",
   "Individual workouts": "Auxiliary gym",
   "Film session prep": "Video room",
+  "Extra time": "Video room",
 };
 export const DEFAULT_LOCATION = "Practice court";
 

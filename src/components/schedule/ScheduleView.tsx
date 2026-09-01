@@ -237,6 +237,17 @@ export function ScheduleView({
           </Link>
         </div>
       )}
+
+      {!isAdmin && (
+        <div className="pt-1">
+          <Link
+            href={`/schedule/propose?week=${weekStart}`}
+            className={buttonClasses("secondary", false, "w-full")}
+          >
+            + Propose extra time
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
-import { createShift, createSwapRequest, deleteShift, respondToShift, setShiftNote } from "@/lib/data/shifts";
+import { createShift, createSwapRequest, deleteShift, proposeShift, respondToShift, setShiftNote } from "@/lib/data/shifts";
+import { getAllProfiles } from "@/lib/data/profiles";
 import { notify } from "@/lib/data/notifications";
 import { labelToPgTime } from "@/lib/domain/time";
 import type { DayOfWeek, SessionType } from "@/lib/types";
@@ -121,5 +123,68 @@ export async function deleteShiftGroupAction(shiftIds: string[]): Promise<void> 
 export async function saveShiftNoteAction(shiftId: string, note: string): Promise<void> {
   const supabase = await createClient();
   await setShiftNote(supabase, shiftId, note.trim() || null);
+  revalidateSchedule();
+}
+
+export async function proposeShiftAction(input: {
+  day: DayOfWeek;
+  date: string;
+  weekStart: string;
+  startLabel: string;
+  endLabel: string | null;
+  location: string;
+  note: string | null;
+}): Promise<void> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+
+  await proposeShift(supabase, {
+    day_of_week: input.day,
+    date: input.date,
+    start_time: labelToPgTime(input.startLabel),
+    end_time: input.endLabel ? labelToPgTime(input.endLabel) : null,
+    location: input.location,
+    note: input.note,
+    profile_id: profile.id,
+  });
+
+  const allProfiles = await getAllProfiles(supabase);
+  const admins = allProfiles.filter((p) => p.id !== profile.id && (p.role === "lead" || p.role === "staff"));
+  for (const admin of admins) {
+    await notify(
+      supabase,
+      admin.id,
+      `${profile.full_name} proposed extra time`,
+      `${input.day} ${input.startLabel} · ${input.location} — needs your approval`,
+    );
+  }
+  revalidateSchedule();
+  redirect(`/schedule?week=${input.weekStart}`);
+}
+
+export async function approveProposedShiftAction(shiftId: string, assigneeId: string, shiftSummary: string): Promise<void> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) throw new Error("Not allowed");
+
+  await respondToShift(supabase, shiftId, { status: "accepted" });
+  await notify(supabase, assigneeId, "Extra time approved", shiftSummary);
+  revalidateSchedule();
+}
+
+export async function declineProposedShiftAction(shiftId: string, assigneeId: string, shiftSummary: string): Promise<void> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) throw new Error("Not allowed");
+
+  await respondToShift(supabase, shiftId, { status: "declined" });
+  await notify(supabase, assigneeId, "Extra time declined", shiftSummary);
+  revalidateSchedule();
+}
+
+export async function withdrawProposedShiftAction(shiftId: string): Promise<void> {
+  const supabase = await createClient();
+  await deleteShift(supabase, shiftId);
   revalidateSchedule();
 }

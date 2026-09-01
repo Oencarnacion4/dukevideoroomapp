@@ -10,6 +10,8 @@ export function shiftStatusMeta(status: ShiftStatus): { label: string; variant: 
       return { label: "Swap sent", variant: "outline" };
     case "open":
       return { label: "Open slot", variant: "outline" };
+    case "proposed":
+      return { label: "Awaiting approval", variant: "outline" };
     default:
       return { label: "Needs reply", variant: "outline" };
   }
