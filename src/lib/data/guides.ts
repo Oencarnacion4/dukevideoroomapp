@@ -42,21 +42,35 @@ export async function createGuide(
     steps: { title: string; body: string; image_url: string | null }[];
   },
 ): Promise<string> {
-  const { data: guide, error: guideError } = await supabase
-    .from("guides")
-    .insert({
-      author_id: input.author_id,
-      kicker: input.kicker,
-      title: input.title,
-      format: input.format,
-      intro: input.intro,
-      video_url: input.video_url,
-      document_url: input.document_url,
-      document_name: input.document_name,
-    })
-    .select("id")
-    .single();
+  const payload = {
+    author_id: input.author_id,
+    kicker: input.kicker,
+    title: input.title,
+    format: input.format,
+    intro: input.intro,
+    video_url: input.video_url,
+    document_url: input.document_url,
+    document_name: input.document_name,
+  };
+
+  let { data: guide, error: guideError } = await supabase.from("guides").insert(payload).select("id").single();
+
+  // document_url/document_name were added in migration 0010. If it hasn't
+  // run yet, inserting them fails — as a raw SQL "column does not exist"
+  // (42703) or PostgREST's schema-cache-miss error (PGRST204) — retry
+  // without them so a written/video guide still publishes.
+  if (
+    guideError &&
+    (guideError.code === "42703" || guideError.code === "PGRST204") &&
+    guideError.message.includes("document")
+  ) {
+    const { document_url: _u, document_name: _n, ...fallbackPayload } = payload;
+    const retry = await supabase.from("guides").insert(fallbackPayload).select("id").single();
+    guide = retry.data;
+    guideError = retry.error;
+  }
   if (guideError) throw guideError;
+  if (!guide) throw new Error("Guide insert returned no row.");
 
   const stepRows = input.steps.map((s, i) => ({ guide_id: guide.id, position: i + 1, ...s }));
   const { error: stepsError } = await supabase.from("guide_steps").insert(stepRows);
