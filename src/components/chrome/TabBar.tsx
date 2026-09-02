@@ -32,7 +32,7 @@ function tabsFor(role: Role): Tab[] {
       match: (p) => p.startsWith("/hours"),
     },
     { href: "/tasks", label: "Tasks", icon: CheckSquare, match: (p) => p.startsWith("/tasks") },
-    { href: "/how-tos", label: "How-tos", icon: FileText, match: (p) => p.startsWith("/how-tos") },
+    { href: "/how-tos", label: "Resources", icon: FileText, match: (p) => p.startsWith("/how-tos") },
     {
       href: isAdmin ? "/crew" : "/classes",
       label: isAdmin ? "Crew" : "Classes",

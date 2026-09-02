@@ -18,7 +18,7 @@ export type TaskBucket = "assigned" | "daily" | "practice" | "post" | "game" | "
 
 export type TimeEntrySource = "clocked" | "manual";
 
-export type GuideFormat = "written" | "video";
+export type GuideFormat = "written" | "video" | "document";
 
 export interface Profile {
   id: string;
@@ -58,6 +58,8 @@ export interface SwapRequest {
   created_at: string;
 }
 
+export type AvailabilityKind = "busy" | "planned";
+
 export interface Availability {
   id: string;
   profile_id: string;
@@ -68,6 +70,8 @@ export interface Availability {
   end_time: string | null;
   all_day: boolean;
   label: string;
+  /** "busy" = can't work (class, day off) — feeds shift-conflict checks. "planned" = informational, coming in outside a shift. */
+  kind: AvailabilityKind;
 }
 
 export interface TimeEntry {
@@ -106,6 +110,10 @@ export interface Guide {
   format: GuideFormat;
   intro: string;
   video_url: string | null;
+  /** For format "document": the uploaded file's storage URL, or a pasted external link (Google Docs, etc.). */
+  document_url: string | null;
+  /** For format "document": the original filename, or a friendly label when it's an external link. */
+  document_name: string | null;
   created_at: string;
   updated_at: string;
 }

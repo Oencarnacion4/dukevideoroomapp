@@ -12,7 +12,7 @@ export default function SignInPage() {
           Room
         </>
       }
-      tagline="Shifts, hours, task board and how-tos for the practice video crew."
+      tagline="Shifts, hours, task board and resources for the practice video crew."
     >
       <SignInForm />
     </AuthShell>

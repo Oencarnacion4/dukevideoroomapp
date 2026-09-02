@@ -24,6 +24,7 @@ describe("conflictFor — recurring weekly blocks (specific_date null)", () => {
       end_time: "5:30 PM",
       all_day: false,
       label: "ECON 101",
+      kind: "busy",
     },
   ];
 
@@ -55,6 +56,7 @@ describe("conflictFor — recurring weekly blocks (specific_date null)", () => {
         end_time: "2:30 PM",
         all_day: false,
         label: "Class",
+        kind: "busy",
       },
     ];
     const window = shiftWindow("2:30 PM", null);
@@ -73,6 +75,7 @@ describe("conflictFor — recurring weekly blocks (specific_date null)", () => {
         end_time: "4:00 PM",
         all_day: false,
         label: "Class",
+        kind: "busy",
       },
     ];
     expect(conflictFor(backToBack, "Wed", "2026-09-09", window)?.label).toBe("Class");
@@ -89,6 +92,7 @@ describe("conflictFor — recurring weekly blocks (specific_date null)", () => {
         end_time: null,
         all_day: true,
         label: "Travel",
+        kind: "busy",
       },
     ];
     const window = shiftWindow("10:00 AM", "1:00 PM");
@@ -107,6 +111,7 @@ describe("conflictFor — one-time blocks (specific_date set)", () => {
       end_time: "8:00 PM",
       all_day: false,
       label: "Club meeting",
+      kind: "busy",
     },
   ];
 
@@ -138,6 +143,7 @@ describe("nextCommitmentAfter", () => {
       end_time: "5:30 PM",
       all_day: false,
       label: "ECON 101",
+      kind: "busy",
     },
   ];
 
@@ -168,6 +174,7 @@ describe("nextCommitmentAfter", () => {
         end_time: null,
         all_day: true,
         label: "Travel",
+        kind: "busy",
       },
     ];
     const result = nextCommitmentAfter(allDay, "Sat", "2026-09-12", toMinutes("10:00 AM")!);
@@ -185,6 +192,7 @@ describe("nextCommitmentAfter", () => {
         end_time: "8:00 PM",
         all_day: false,
         label: "Club meeting",
+        kind: "busy",
       },
     ];
     expect(nextCommitmentAfter(oneTime, "Tue", "2026-09-08", toMinutes("2:30 PM")!)?.label).toBe(

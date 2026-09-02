@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { FileText, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getGuideWithSteps } from "@/lib/data/guides";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
@@ -19,6 +20,24 @@ export default async function GuideDetailPage({ params }: { params: Promise<{ id
           <StripedPlaceholder label="screen recording" className="aspect-video w-full" />
         )}
         <p className="text-[14px] leading-relaxed">{guide.intro}</p>
+
+        {guide.format === "document" && guide.document_url && (
+          <a
+            href={guide.document_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 border border-(--color-accent-800) p-3.5"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-(--color-accent-100)">
+              <FileText size={18} strokeWidth={1.5} className="text-(--color-accent-700)" />
+            </span>
+            <span className="flex-1">
+              <span className="block text-[14px] font-medium">{guide.document_name ?? "Open document"}</span>
+              <span className="block text-[12px] text-(--color-text-50)">Opens in a new tab</span>
+            </span>
+            <ExternalLink size={16} strokeWidth={1.5} className="text-(--color-accent-700)" />
+          </a>
+        )}
 
         <div className="flex flex-col gap-4">
           {steps.map((step) => (

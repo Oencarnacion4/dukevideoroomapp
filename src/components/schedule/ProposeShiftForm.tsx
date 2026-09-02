@@ -104,7 +104,7 @@ export function ProposeShiftForm({ weekStart }: ProposeShiftFormProps) {
           <Textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Catching up on editing, prepping a how-to, fixing a camera issue…"
+            placeholder="Catching up on editing, prepping a resource, fixing a camera issue…"
           />
         </div>
       </div>

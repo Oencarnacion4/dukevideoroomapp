@@ -18,11 +18,17 @@ export async function publishGuideAction(input: {
   format: GuideFormat;
   intro: string;
   video_url: string | null;
+  document_url: string | null;
+  document_name: string | null;
   steps: ComposeStepInput[];
 }): Promise<void> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) throw new Error("Not signed in");
+
+  if (input.format === "document" && !input.document_url) {
+    throw new Error("Attach a file or paste a link first.");
+  }
 
   const guideId = await createGuide(supabase, { ...input, author_id: profile.id });
   redirect(`/how-tos/${guideId}`);

@@ -37,6 +37,8 @@ export async function createGuide(
     format: GuideFormat;
     intro: string;
     video_url: string | null;
+    document_url: string | null;
+    document_name: string | null;
     steps: { title: string; body: string; image_url: string | null }[];
   },
 ): Promise<string> {
@@ -49,6 +51,8 @@ export async function createGuide(
       format: input.format,
       intro: input.intro,
       video_url: input.video_url,
+      document_url: input.document_url,
+      document_name: input.document_name,
     })
     .select("id")
     .single();

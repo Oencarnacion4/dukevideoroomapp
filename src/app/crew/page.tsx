@@ -36,7 +36,7 @@ export default async function CrewPage() {
             My class schedule
           </Link>
           <Link href="/crew/calendar" className="text-[13px] font-medium text-(--color-accent-700)">
-            Who&apos;s busy when
+            Who&apos;s busy &amp; coming in
           </Link>
         </div>
 

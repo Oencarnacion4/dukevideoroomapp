@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Availability, DayOfWeek } from "@/lib/types";
+import type { Availability, AvailabilityKind, DayOfWeek } from "@/lib/types";
 
 export async function listAvailabilityFor(supabase: SupabaseClient, profileId: string): Promise<Availability[]> {
   const { data, error } = await supabase
@@ -12,7 +12,15 @@ export async function listAvailabilityFor(supabase: SupabaseClient, profileId: s
   return data;
 }
 
+/** "busy" blocks only (classes, days off) — what shift-conflict checking should ever see. */
 export async function listAllAvailability(supabase: SupabaseClient): Promise<Availability[]> {
+  const { data, error } = await supabase.from("availability").select("*").eq("kind", "busy");
+  if (error) throw error;
+  return data;
+}
+
+/** Every block, busy and planned — for the crew calendar, which shows both. */
+export async function listAllAvailabilityAnyKind(supabase: SupabaseClient): Promise<Availability[]> {
   const { data, error } = await supabase.from("availability").select("*");
   if (error) throw error;
   return data;
@@ -26,6 +34,7 @@ export async function addAvailabilityBlocks(
   end: string | null,
   allDay: boolean,
   label: string,
+  kind: AvailabilityKind = "busy",
 ): Promise<void> {
   const rows = days.map((day) => ({
     profile_id: profileId,
@@ -34,6 +43,7 @@ export async function addAvailabilityBlocks(
     end_time: allDay ? null : end,
     all_day: allDay,
     label,
+    kind,
   }));
   const { error } = await supabase.from("availability").insert(rows);
   if (error) throw error;
@@ -49,6 +59,7 @@ export async function addOneTimeBlock(
   end: string | null,
   allDay: boolean,
   label: string,
+  kind: AvailabilityKind = "busy",
 ): Promise<void> {
   const { error } = await supabase.from("availability").insert({
     profile_id: profileId,
@@ -58,6 +69,7 @@ export async function addOneTimeBlock(
     end_time: allDay ? null : end,
     all_day: allDay,
     label,
+    kind,
   });
   if (error) throw error;
 }

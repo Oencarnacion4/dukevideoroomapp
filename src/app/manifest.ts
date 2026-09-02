@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Duke Men's Basketball Video Room",
     short_name: "Video Room",
     description:
-      "Shifts, hours, task board and how-tos for the practice video crew.",
+      "Shifts, hours, task board and resources for the practice video crew.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

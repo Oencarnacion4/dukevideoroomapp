@@ -20,7 +20,8 @@ export default async function ClassesPage() {
         <h4 className="font-(family-name:--font-heading) text-[21px] font-semibold">My availability</h4>
         <p className="text-[12px] text-(--color-text-50)">{profile.email}</p>
         <p className="mt-1 text-[13px] text-(--color-text-62)">
-          Classes and days you cannot work. Staff see a conflict warning before they assign you.
+          Classes and days you cannot work, plus when you plan to come in outside a scheduled shift. Staff see a
+          conflict warning before they assign you, and see your planned time on the crew calendar.
         </p>
       </div>
 
@@ -43,7 +44,9 @@ export default async function ClassesPage() {
                   {b.all_day ? "All day — cannot work" : `${pgTimeToLabel(b.start_time!)} – ${pgTimeToLabel(b.end_time!)}`}
                 </p>
               </div>
-              <Tag variant="neutral">{b.specific_date ? "One-time" : b.all_day ? "Day off" : "Class"}</Tag>
+              <Tag variant={b.kind === "planned" ? "accent" : "neutral"}>
+                {b.kind === "planned" ? "Coming in" : b.specific_date ? "One-time" : b.all_day ? "Day off" : "Class"}
+              </Tag>
             </div>
           ))}
           {blocks.length === 0 && (

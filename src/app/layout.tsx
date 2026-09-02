@@ -19,7 +19,7 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   title: "Video Room",
   description:
-    "Shifts, hours, task board and how-tos for the Duke men's basketball practice video crew.",
+    "Shifts, hours, task board and resources for the Duke men's basketball practice video crew.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

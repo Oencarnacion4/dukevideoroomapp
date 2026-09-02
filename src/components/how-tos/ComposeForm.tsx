@@ -23,6 +23,10 @@ export function ComposeForm() {
   const [format, setFormat] = useState<GuideFormat>("written");
   const [intro, setIntro] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [docMode, setDocMode] = useState<"file" | "link">("file");
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docLink, setDocLink] = useState("");
+  const [docName, setDocName] = useState("");
   const [steps, setSteps] = useState<DraftStep[]>([]);
   const [stepTitle, setStepTitle] = useState("");
   const [stepBody, setStepBody] = useState("");
@@ -39,26 +43,58 @@ export function ComposeForm() {
 
   const removeStep = (i: number) => setSteps((s) => s.filter((_, idx) => idx !== i));
 
-  const label = !title.trim() ? "Add a title" : steps.length === 0 ? "Add at least one step" : "Publish to the room";
-  const disabled = !title.trim() || steps.length === 0 || publishing;
+  const isDocument = format === "document";
+  const hasDocSource = docMode === "file" ? !!docFile : !!docLink.trim();
+
+  const label = !title.trim()
+    ? "Add a title"
+    : isDocument
+      ? !hasDocSource
+        ? docMode === "file"
+          ? "Attach a file"
+          : "Paste a link"
+        : "Publish to the room"
+      : steps.length === 0
+        ? "Add at least one step"
+        : "Publish to the room";
+  const disabled = !title.trim() || publishing || (isDocument ? !hasDocSource : steps.length === 0);
 
   const publish = () => {
     startTransition(async () => {
-      const video_url = videoFile ? await uploadGuideMedia(videoFile, "videos") : null;
-      const resolvedSteps = await Promise.all(
-        steps.map(async (s) => ({
-          title: s.title,
-          body: s.body,
-          image_url: s.imageFile ? await uploadGuideMedia(s.imageFile, "steps") : null,
-        })),
-      );
-      await publishGuideAction({ kicker, title: title.trim(), format, intro: intro.trim(), video_url, steps: resolvedSteps });
+      const video_url = format === "video" && videoFile ? await uploadGuideMedia(videoFile, "videos") : null;
+
+      let document_url: string | null = null;
+      let document_name: string | null = null;
+      if (isDocument) {
+        document_url = docMode === "file" && docFile ? await uploadGuideMedia(docFile, "documents") : docLink.trim();
+        document_name = docName.trim() || (docMode === "file" ? docFile?.name ?? null : "Linked document");
+      }
+
+      const resolvedSteps = isDocument
+        ? []
+        : await Promise.all(
+            steps.map(async (s) => ({
+              title: s.title,
+              body: s.body,
+              image_url: s.imageFile ? await uploadGuideMedia(s.imageFile, "steps") : null,
+            })),
+          );
+      await publishGuideAction({
+        kicker,
+        title: title.trim(),
+        format,
+        intro: intro.trim(),
+        video_url,
+        document_url,
+        document_name,
+        steps: resolvedSteps,
+      });
     });
   };
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-(--color-bg)">
-      <OverlayHeader eyebrow="New how-to" title="Write it once" variant="close" />
+      <OverlayHeader eyebrow="New resource" title="Write it once" variant="close" />
       <div className="flex flex-1 flex-col gap-3.5 p-4 pb-24">
         <Field label="Title">
           <Input
@@ -93,6 +129,7 @@ export function ComposeForm() {
             options={[
               { value: "written", label: "Written steps" },
               { value: "video", label: "Screen recording" },
+              { value: "document", label: "Document / link" },
             ]}
             value={format}
             onChange={setFormat}
@@ -119,7 +156,45 @@ export function ComposeForm() {
           </label>
         )}
 
-        <div>
+        {isDocument && (
+          <div className="flex flex-col gap-3">
+            <Field label="Name shown on the card">
+              <Input
+                value={docName}
+                onChange={(e) => setDocName(e.target.value)}
+                placeholder="e.g. Editing Style Guide"
+              />
+            </Field>
+            <Seg
+              options={[
+                { value: "file", label: "Upload a file" },
+                { value: "link", label: "Paste a link" },
+              ]}
+              value={docMode}
+              onChange={setDocMode}
+            />
+            {docMode === "file" ? (
+              <label className="flex h-11 w-full cursor-pointer items-center justify-center border border-(--color-accent-800) text-[14px] font-medium text-(--color-accent-800)">
+                {docFile ? `Attached: ${docFile.name}` : "Attach a Word doc or PDF"}
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="hidden"
+                  onChange={(e) => setDocFile(e.target.files?.[0] ?? null)}
+                />
+              </label>
+            ) : (
+              <Input
+                type="url"
+                value={docLink}
+                onChange={(e) => setDocLink(e.target.value)}
+                placeholder="https://docs.google.com/…"
+              />
+            )}
+          </div>
+        )}
+
+        {!isDocument && <div>
           <p className="mb-1.5 font-(family-name:--font-heading) text-[10px] font-medium uppercase tracking-[0.08em] text-(--color-text-55)">
             Steps · {steps.length}
           </p>
@@ -173,7 +248,7 @@ export function ComposeForm() {
               Add step
             </Button>
           </div>
-        </div>
+        </div>}
       </div>
 
       <div className="fixed right-0 bottom-0 left-0 mx-auto max-w-[480px] border-t border-(--color-divider) bg-(--color-bg) p-4">

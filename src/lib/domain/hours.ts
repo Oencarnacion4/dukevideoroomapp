@@ -27,7 +27,17 @@ export function hoursVerdict(totalHours: number): string {
   return `${fmtHours(WEEKLY_MIN_HOURS - totalHours)} short of the 10 h minimum`;
 }
 
-/** Clock-out rounding: nearest quarter hour, 0.25h floor. */
+/** Clock-out rounding: nearest minute, not the old quarter-hour/15-min-floor. */
 export function roundClockedHours(rawHours: number): number {
-  return Math.max(0.25, Math.round(rawHours * 4) / 4);
+  return Math.max(0, Math.round(rawHours * 60) / 60);
+}
+
+/** A precise "3 min" / "1h 12m" label for a live or just-logged clock session. */
+export function liveDurationLabel(hours: number): string {
+  const totalMinutes = Math.round(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m} min`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
 }

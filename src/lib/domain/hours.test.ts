@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fmtHours, hoursVerdict, progressPct, roundClockedHours } from "./hours";
+import { fmtHours, hoursVerdict, liveDurationLabel, progressPct, roundClockedHours } from "./hours";
 
 describe("fmtHours", () => {
   it("rounds to the quarter hour and trims trailing zeros", () => {
@@ -35,12 +35,28 @@ describe("hoursVerdict", () => {
 });
 
 describe("roundClockedHours", () => {
-  it("floors at a quarter hour", () => {
-    expect(roundClockedHours(0.05)).toBe(0.25);
+  it("rounds to the nearest minute, no 15-minute floor", () => {
+    expect(roundClockedHours(5 / 3600)).toBe(0); // 5 seconds -> 0 min, not 0.25h
+    expect(roundClockedHours(8 / 60)).toBeCloseTo(8 / 60, 5); // 8 minutes
   });
 
-  it("rounds to the nearest quarter hour", () => {
-    expect(roundClockedHours(1.32)).toBe(1.25);
-    expect(roundClockedHours(1.4)).toBe(1.5);
+  it("rounds to the nearest minute for longer sessions", () => {
+    expect(roundClockedHours(1.32)).toBeCloseTo(79 / 60, 5); // 1h 19m 12s -> 1h 19m
+    expect(roundClockedHours(1.4)).toBeCloseTo(84 / 60, 5); // 1h 24m
+  });
+});
+
+describe("liveDurationLabel", () => {
+  it("shows minutes under an hour", () => {
+    expect(liveDurationLabel(8 / 60)).toBe("8 min");
+    expect(liveDurationLabel(0)).toBe("0 min");
+  });
+
+  it("shows whole hours without a minutes remainder", () => {
+    expect(liveDurationLabel(2)).toBe("2h");
+  });
+
+  it("shows hours and minutes together", () => {
+    expect(liveDurationLabel(1.25)).toBe("1h 15m");
   });
 });

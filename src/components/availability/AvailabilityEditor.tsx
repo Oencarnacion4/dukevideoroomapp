@@ -6,6 +6,7 @@ import { TIME_OPTIONS, formatShortDate, pgTimeToLabel } from "@/lib/domain/time"
 import { DAYS } from "@/lib/domain/time";
 import { Select, Input } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { Tag } from "@/components/ui/Tag";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
 import type { Availability, DayOfWeek } from "@/lib/types";
@@ -145,6 +146,9 @@ export function AvailabilityEditor({ profileId, blocks, canEdit }: AvailabilityE
                   {b.all_day ? "All day — cannot work" : `${pgTimeToLabel(b.start_time!)} – ${pgTimeToLabel(b.end_time!)}`}
                 </p>
               </div>
+              <Tag variant={b.kind === "planned" ? "accent" : "neutral"}>
+                {b.kind === "planned" ? "Coming in" : "Busy"}
+              </Tag>
               {canEditThis && (
                 <button
                   onClick={() => startEdit(b)}

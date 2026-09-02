@@ -6,6 +6,7 @@ import { getAppSettings } from "@/lib/data/settings";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
 import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor";
 import { DayOffCard } from "@/components/availability/DayOffCard";
+import { ComingInCard } from "@/components/availability/ComingInCard";
 
 export default async function ClassesEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -37,6 +38,7 @@ export default async function ClassesEditorPage({ params }: { params: Promise<{ 
         </p>
         <AvailabilityEditor profileId={id} blocks={blocks} canEdit={canEdit} />
         {canEdit && <DayOffCard profileId={id} />}
+        {canEdit && <ComingInCard profileId={id} />}
       </div>
     </div>
   );
