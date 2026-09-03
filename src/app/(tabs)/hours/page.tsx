@@ -9,6 +9,7 @@ import { ClockControl } from "@/components/hours/ClockControl";
 import { ProgressBar } from "@/components/hours/ProgressBar";
 import { LogShiftRow } from "@/components/hours/LogShiftRow";
 import { EntriesList } from "@/components/hours/EntriesList";
+import { AddEntryCard } from "@/components/hours/AddEntryCard";
 import { Card } from "@/components/ui/Card";
 
 export default async function HoursPage() {
@@ -75,6 +76,8 @@ export default async function HoursPage() {
           />
         </Card>
       )}
+
+      {!isStaff && <AddEntryCard />}
 
       {!isStaff && (
         <div>

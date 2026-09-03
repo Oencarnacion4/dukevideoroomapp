@@ -48,20 +48,25 @@ export async function logManualHoursAction(input: {
   date: string;
   sessionLabel: string;
   hours: number;
-}): Promise<void> {
+}): Promise<{ error?: string }> {
+  if (!input.date) return { error: "Pick a date." };
+  if (!input.sessionLabel.trim()) return { error: "Give it a label." };
+  if (!(input.hours > 0)) return { error: "Hours has to be more than zero." };
+
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+  if (!profile || profile.role === "staff") return { error: "Not allowed." };
 
   await logTimeEntry(supabase, {
     profile_id: profile.id,
     date: input.date,
-    session_label: input.sessionLabel,
+    session_label: input.sessionLabel.trim(),
     hours: input.hours,
     source: "manual",
   });
 
   revalidatePath("/hours");
+  return {};
 }
 
 export async function updateTimeEntryAction(input: {

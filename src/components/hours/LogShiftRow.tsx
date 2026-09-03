@@ -20,8 +20,12 @@ export function LogShiftRow({ date, sessionLabel, startLabel, hours }: LogShiftR
   const onLog = () =>
     startTransition(async () => {
       if (hours !== null) {
-        await logManualHoursAction({ date, sessionLabel, hours });
-        show(`Logged ${fmtHours(hours)} for ${sessionLabel}.`);
+        const result = await logManualHoursAction({ date, sessionLabel, hours });
+        if (result.error) {
+          show(result.error);
+        } else {
+          show(`Logged ${fmtHours(hours)} for ${sessionLabel}.`);
+        }
       } else {
         await toggleClockAction(sessionLabel);
         show("Clocked in. Timer runs until you clock out.");
