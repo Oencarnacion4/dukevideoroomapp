@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { addComingInBlockAction, addOneTimeComingInBlockAction } from "@/lib/actions/availability";
-import { DAYS, TIME_OPTIONS } from "@/lib/domain/time";
+import { DAYS, TIME_OPTIONS, formatShortDate, spanLabel, toMinutes } from "@/lib/domain/time";
 import { Card } from "@/components/ui/Card";
 import { Input, Select } from "@/components/ui/Field";
 import { Seg } from "@/components/ui/Seg";
@@ -14,6 +14,12 @@ import type { DayOfWeek } from "@/lib/types";
 function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
+
+// The preview bar always spans the same 5 AM–10 PM window as the time
+// pickers themselves, so any selection lands somewhere on it.
+const PREVIEW_START_MIN = 5 * 60;
+const PREVIEW_END_MIN = 22 * 60;
+const PREVIEW_SPAN_MIN = PREVIEW_END_MIN - PREVIEW_START_MIN;
 
 export function ComingInCard({ profileId }: { profileId: string }) {
   const [mode, setMode] = useState<"weekly" | "once">("weekly");
@@ -27,6 +33,19 @@ export function ComingInCard({ profileId }: { profileId: string }) {
 
   const toggleDay = (day: DayOfWeek) =>
     setDays((d) => (d.includes(day) ? d.filter((x) => x !== day) : [...d, day]));
+
+  const previewRange = useMemo(() => {
+    const s = toMinutes(start);
+    const e = toMinutes(end);
+    return s != null && e != null && e > s ? { s, e } : null;
+  }, [start, end]);
+
+  const previewWhen =
+    mode === "weekly"
+      ? days.length > 0
+        ? days.join(", ")
+        : "Pick a day"
+      : formatShortDate(date);
 
   const submit = () => {
     startTransition(async () => {
@@ -100,6 +119,30 @@ export function ComingInCard({ profileId }: { profileId: string }) {
       </div>
 
       <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="What you'll be doing — optional" />
+
+      <div className="border border-(--color-divider) p-2.5">
+        <p className="mb-1.5 text-[11.5px] font-medium text-(--color-text-62)">
+          {previewWhen}
+          {previewRange && ` · ${start}–${end} · ${spanLabel(start, end)}`}
+        </p>
+        <div className="relative h-6 border border-(--color-divider) bg-(--color-accent-100)/40">
+          {previewRange && (
+            <div
+              className="absolute inset-y-0 bg-(--color-accent-600)"
+              style={{
+                left: `${((previewRange.s - PREVIEW_START_MIN) / PREVIEW_SPAN_MIN) * 100}%`,
+                width: `${((previewRange.e - previewRange.s) / PREVIEW_SPAN_MIN) * 100}%`,
+              }}
+            />
+          )}
+        </div>
+        <div className="mt-0.5 flex justify-between text-[9px] text-(--color-text-42)">
+          <span>5 AM</span>
+          <span>2 PM</span>
+          <span>10 PM</span>
+        </div>
+      </div>
+
       <Button disabled={pending || (mode === "weekly" && days.length === 0)} onClick={submit}>
         Add
       </Button>
