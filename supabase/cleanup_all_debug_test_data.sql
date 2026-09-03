@@ -2,14 +2,15 @@
 -- left behind while I verified recent scheduling features against the
 -- live database: the ToastProvider crash fix, the multi-person shift
 -- picker, the "assign someone to an open shift" feature, letting the
--- head intern appear in crew pickers, and the "add another person to
--- this shift" feature (which also introduced grouping multiple people
--- on the same slot into one card).
+-- head intern appear in crew pickers, the "add another person to this
+-- shift" feature (which also introduced grouping multiple people on the
+-- same slot into one card), self-proposed shifts, the "coming in"
+-- planner, manually-logged hours, and Resources documents.
 --
 -- None of it touches real crew names, real shifts, or anyone's real
 -- data — every delete below is scoped to exact test names, the
 -- '@example.com' email domain (only these throwaway accounts use it),
--- or shifts a test account itself created.
+-- or rows a test account itself created/authored.
 --
 -- Wrapped in a transaction — safe to run more than once.
 
@@ -19,7 +20,7 @@ begin;
 --    covers every stray test shift from any round of testing regardless
 --    of who it ended up assigned to (a test admin assigning it to a real
 --    crew member as "another person to cover this shift" still shows up
---    as created_by that test admin) — and it must run before step 3
+--    as created_by that test admin) — and it must run before step 7
 --    below, since a leftover shift would otherwise block that profile
 --    delete's own "no real data" guard.
 delete from shifts
@@ -45,7 +46,10 @@ where profile_id = (select id from profiles where full_name = 'Alex Karen')
   )
   and created_at > now() - interval '4 hours';
 
--- 3. Clear any class/availability blocks the test profiles picked up.
+-- 3. Clear any class/availability/"coming in" blocks the test profiles
+--    picked up (both kinds — the 'kind' column may not exist until
+--    migration 0010 has run, in which case this still deletes every
+--    row for these profiles regardless of kind).
 delete from availability
 where profile_id in (
   select id from profiles
@@ -54,7 +58,31 @@ where profile_id in (
      or full_name like 'Debug Camper Two%'
 );
 
--- 4. Delete every throwaway test profile. The FK guard means this only
+-- 4. Delete any time entries (clocked or manually logged) test profiles
+--    left behind.
+delete from time_entries
+where profile_id in (
+  select id from profiles where full_name like 'Debug Admin%'
+);
+
+-- 5. Delete any swap requests a test profile sent or received.
+delete from swap_requests
+where from_profile in (select id from profiles where full_name like 'Debug Admin%')
+   or to_profile in (select id from profiles where full_name like 'Debug Admin%');
+
+-- 6. Delete any Resources guides a test profile authored (guide_steps
+--    cascade automatically) and any task completions they logged.
+delete from guides
+where author_id in (
+  select id from profiles where full_name like 'Debug Admin%'
+);
+
+delete from task_completions
+where profile_id in (
+  select id from profiles where full_name like 'Debug Admin%'
+);
+
+-- 7. Delete every throwaway test profile. The FK guard means this only
 --    removes a profile with zero real data anywhere a foreign key could
 --    point to it — if any of these names is ever reused by a real
 --    person with real data attached, this simply skips that row.
@@ -75,9 +103,12 @@ where (
   and not exists (select 1 from swap_requests sr where sr.from_profile = p.id or sr.to_profile = p.id)
   and not exists (select 1 from notifications n where n.profile_id = p.id);
 
--- 5. Delete the matching test auth users (Supabase Auth) now that
---    nothing in profiles references them.
+-- 8. Delete the matching test auth users (Supabase Auth) now that
+--    nothing in profiles references them. Matches every throwaway
+--    email prefix used this session (debug.admin, debug.lead,
+--    debug.intern, ...), not just "debug.admin" — still scoped to the
+--    '@example.com' domain, which only these test accounts ever use.
 delete from auth.users
-where email like 'debug.admin%@example.com';
+where email like 'debug.%@example.com';
 
 commit;
