@@ -14,7 +14,7 @@ export default async function CrewCalendarPage({
 }) {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) redirect("/today");
+  if (!profile) redirect("/sign-in");
 
   const { week } = await searchParams;
   const weekStart = resolveWeekParam(week);

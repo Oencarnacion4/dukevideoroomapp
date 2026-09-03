@@ -3,15 +3,23 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
 import { listAvailabilityFor } from "@/lib/data/availability";
-import { formatShortDate, pgTimeToLabel } from "@/lib/domain/time";
+import { formatShortDate, pgTimeToLabel, resolveWeekParam } from "@/lib/domain/time";
+import { toAvailabilityBlock } from "@/lib/domain/conflicts";
 import { Tag } from "@/components/ui/Tag";
+import { PersonalCalendarView } from "@/components/availability/PersonalCalendarView";
 import { DayOffCard } from "@/components/availability/DayOffCard";
 
-export default async function ClassesPage() {
+export default async function ClassesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
 
+  const { week } = await searchParams;
+  const weekStart = resolveWeekParam(week);
   const blocks = await listAvailabilityFor(supabase, profile.id);
 
   return (
@@ -25,13 +33,19 @@ export default async function ClassesPage() {
         </p>
       </div>
 
+      <div className="flex gap-4">
+        <Link href={`/crew/${profile.id}/classes`} className="text-[13px] font-medium text-(--color-accent-700)">
+          Add classes
+        </Link>
+        <Link href="/crew/calendar" className="text-[13px] font-medium text-(--color-accent-700)">
+          Who else is coming in
+        </Link>
+      </div>
+
+      <PersonalCalendarView weekStart={weekStart} blocks={blocks.map(toAvailabilityBlock)} basePath="/classes" />
+
       <div>
-        <div className="mb-2 flex items-baseline justify-between">
-          <h5 className="font-(family-name:--font-heading) text-[16px] font-semibold">Blocked time</h5>
-          <Link href={`/crew/${profile.id}/classes`} className="text-[13px] font-medium text-(--color-accent-700)">
-            Add classes
-          </Link>
-        </div>
+        <h5 className="mb-2 font-(family-name:--font-heading) text-[16px] font-semibold">Blocked time</h5>
         <div className="flex flex-col">
           {blocks.map((b) => (
             <div key={b.id} className="flex items-center gap-3 border-b border-(--color-divider) py-2.5 last:border-b-0">
