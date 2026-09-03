@@ -13,6 +13,12 @@
   --color-accent-800: #012169;
   --color-accent-900: #00133f;
 
+  /* Semantic red — busy/can't-work blocks on the crew calendar only,
+     never the brand accent */
+  --color-danger: #b3261e;
+  --color-danger-100: #fbeae8;
+  --color-danger-700: #8a1a14;
+
   /* Ground */
   --color-bg: #f3f3f2;
   --color-surface: #eaeae9;

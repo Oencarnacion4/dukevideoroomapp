@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DAYS, addDays, formatShortDate, formatWeekLabel, minutesToLabel, toMinutes } from "@/lib/domain/time";
+import { DAYS, addDays, formatWeekLabel, minutesToLabel, toMinutes } from "@/lib/domain/time";
 import { initialsFor } from "@/lib/domain/shift-view";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ interface TimedBlock {
   label: string;
   startMin: number;
   endMin: number;
+  kind: "planned" | "busy";
 }
 
 interface LanedBlock extends TimedBlock {
@@ -98,13 +99,14 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
   const nameFor = (profileId: string) => crew.find((c) => c.id === profileId)?.full_name ?? "Unknown";
 
   const planned = useMemo(() => availability.filter((b) => b.kind === "planned"), [availability]);
-  const busy = useMemo(() => availability.filter((b) => b.kind === "busy"), [availability]);
 
   const dayPlans = useMemo(() => {
     return DAYS.map((day, i) => {
       const date = dayDates[i];
-      const timed = planned
-        .filter((b) => (b.specific_date ? b.specific_date === date : b.day_of_week === day))
+      const blocksForDay = availability.filter((b) =>
+        b.specific_date ? b.specific_date === date : b.day_of_week === day,
+      );
+      const timed = blocksForDay
         .filter((b) => b.start_time && b.end_time)
         .map((b) => ({
           id: b.id,
@@ -112,11 +114,15 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
           label: b.label,
           startMin: toMinutes(b.start_time!) ?? 0,
           endMin: toMinutes(b.end_time!) ?? 0,
+          kind: b.kind,
         }));
-      return { day: day as DayOfWeek, date, blocks: packLanes(timed) };
+      const allDayBusy = blocksForDay
+        .filter((b) => b.all_day)
+        .map((b) => ({ id: b.id, name: nameFor(b.profile_id) }));
+      return { day: day as DayOfWeek, date, blocks: packLanes(timed), allDayBusy };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [planned, weekStart]);
+  }, [availability, weekStart]);
 
   const [windowStart, windowEnd] = useMemo(() => {
     const allMinutes = dayPlans.flatMap((d) => d.blocks.flatMap((b) => [b.startMin, b.endMin]));
@@ -136,6 +142,7 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
     (best, d) => (d.blocks.length > best.count ? { day: d.day, count: d.blocks.length } : best),
     { day: "—", count: 0 },
   );
+  const hasAnyBlocksThisWeek = dayPlans.some((d) => d.blocks.length > 0 || d.allDayBusy.length > 0);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -177,12 +184,20 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
       </div>
 
       <Card blueprint className="flex flex-col p-0">
-        <div className="flex items-baseline justify-between p-2.5">
+        <div className="flex items-center justify-between p-2.5">
           <span className="font-(family-name:--font-heading) text-[11px] font-medium uppercase tracking-[0.09em] text-(--color-accent-700)">
-            Planning to come in
+            This week
           </span>
-          <span className="text-[10.5px] text-(--color-text-50)">Scroll for more days →</span>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-[10px] text-(--color-text-55)">
+              <span className="h-2 w-2 bg-(--color-accent-700)" /> Coming in
+            </span>
+            <span className="flex items-center gap-1 text-[10px] text-(--color-text-55)">
+              <span className="h-2 w-2 bg-(--color-danger-700)" /> Busy
+            </span>
+          </div>
         </div>
+        <p className="px-2.5 pb-1.5 text-[10.5px] text-(--color-text-50)">Scroll for more days →</p>
         <div className="overflow-x-auto border-t border-(--color-divider)">
           <div className="w-max min-w-full">
             <div className="grid" style={{ gridTemplateColumns: "40px repeat(7, 92px)" }}>
@@ -218,6 +233,25 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
               })}
             </div>
 
+            {dayPlans.some((d) => d.allDayBusy.length > 0) && (
+              <div className="grid border-b border-(--color-divider)" style={{ gridTemplateColumns: "40px repeat(7, 92px)" }}>
+                <div className="border-r border-(--color-divider)" />
+                {dayPlans.map(({ day, allDayBusy }) => (
+                  <div key={day} className="flex flex-col gap-0.5 border-r border-(--color-divider) p-1 last:border-r-0">
+                    {allDayBusy.map((b) => (
+                      <span
+                        key={b.id}
+                        className="truncate border-l-[2.5px] border-(--color-danger-700) bg-(--color-danger-100) px-1 py-0.5 text-[8px] font-medium text-(--color-danger-700)"
+                        title={`${b.name} · All day`}
+                      >
+                        {b.name}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="relative grid" style={{ gridTemplateColumns: "40px repeat(7, 92px)", height: gridHeight }}>
               <div className="border-r border-(--color-divider)" style={{ backgroundImage: GRIDLINES }}>
                 {hours.map((m) => (
@@ -246,25 +280,46 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
                       const top = ((b.startMin - windowStart) / 60) * HOUR_PX;
                       const height = Math.max(20, ((b.endMin - b.startMin) / 60) * HOUR_PX);
                       const widthPct = 100 / b.totalLanes;
+                      const isBusy = b.kind === "busy";
                       return (
                         <div
                           key={b.id}
-                          className="absolute overflow-hidden border-l-[2.5px] border-(--color-accent-700) bg-(--color-accent-100) px-1 py-0.5"
+                          className={cn(
+                            "absolute overflow-hidden border-l-[2.5px] px-1 py-0.5",
+                            isBusy
+                              ? "border-(--color-danger-700) bg-(--color-danger-100)"
+                              : "border-(--color-accent-700) bg-(--color-accent-100)",
+                          )}
                           style={{
                             top,
                             height,
                             left: `calc(${b.lane * widthPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
                           }}
-                          title={`${b.name} · ${minutesToLabel(b.startMin)}–${minutesToLabel(b.endMin)}${b.label ? ` · ${b.label}` : ""}`}
+                          title={`${b.name} · ${minutesToLabel(b.startMin)}–${minutesToLabel(b.endMin)}${b.label ? ` · ${b.label}` : ""}${isBusy ? " · Busy" : ""}`}
                         >
-                          <div className="flex items-center gap-1 font-(family-name:--font-heading) text-[9.5px] leading-tight font-semibold text-(--color-accent-900)">
-                            <span className="flex h-3 w-3 shrink-0 items-center justify-center bg-(--color-accent-800) text-[6px] font-bold text-white">
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 font-(family-name:--font-heading) text-[9.5px] leading-tight font-semibold",
+                              isBusy ? "text-(--color-danger-700)" : "text-(--color-accent-900)",
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "flex h-3 w-3 shrink-0 items-center justify-center text-[6px] font-bold text-white",
+                                isBusy ? "bg-(--color-danger-700)" : "bg-(--color-accent-800)",
+                              )}
+                            >
                               {initialsFor(b.name)}
                             </span>
                             <span className="truncate">{b.name}</span>
                           </div>
-                          <div className="text-[8px] leading-tight text-(--color-accent-700)">
+                          <div
+                            className={cn(
+                              "text-[8px] leading-tight",
+                              isBusy ? "text-(--color-danger-700)" : "text-(--color-accent-700)",
+                            )}
+                          >
                             {b.totalLanes > 1
                               ? `${compactTimeLabel(b.startMin)}–${compactTimeLabel(b.endMin)}`
                               : `${minutesToLabel(b.startMin)}–${minutesToLabel(b.endMin)}`}
@@ -287,57 +342,15 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
                 );
               })}
 
-              {totalPlanned === 0 && (
+              {!hasAnyBlocksThisWeek && (
                 <div className="pointer-events-none absolute inset-0 col-start-2 col-end-9 flex items-center justify-center">
-                  <p className="text-[12px] text-(--color-text-50)">Nobody&apos;s added plans yet this week.</p>
+                  <p className="text-[12px] text-(--color-text-50)">Nothing on the calendar this week.</p>
                 </div>
               )}
             </div>
           </div>
         </div>
       </Card>
-
-      <div>
-        <h5 className="mb-1.5 font-(family-name:--font-heading) text-[13px] font-semibold uppercase tracking-[0.06em] text-(--color-text-55)">
-          Busy / can&apos;t work
-        </h5>
-        <div className="flex flex-col gap-3">
-          {DAYS.map((day, i) => {
-            const date = dayDates[i];
-            const dayBusy = busy
-              .filter((b) => (b.specific_date ? b.specific_date === date : b.day_of_week === day))
-              .map((b) => ({ ...b, name: nameFor(b.profile_id) }))
-              .sort((a, b) => (toMinutes(a.start_time ?? "") ?? -1) - (toMinutes(b.start_time ?? "") ?? -1));
-            if (dayBusy.length === 0) return null;
-            return (
-              <div key={day}>
-                <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.06em] text-(--color-text-50)">
-                  {day} · {formatShortDate(date)}
-                </p>
-                <div className="flex flex-col">
-                  {dayBusy.map((b) => (
-                    <div
-                      key={b.id}
-                      className="flex items-center gap-3 border-b border-(--color-divider) py-2 last:border-b-0"
-                    >
-                      <span className="flex-1 text-[13px] font-medium">{b.name}</span>
-                      <span className="text-[12px] text-(--color-text-62)">{b.label}</span>
-                      <span className="w-24 shrink-0 text-right text-[11px] text-(--color-text-50)">
-                        {b.all_day ? "All day" : `${b.start_time} – ${b.end_time}`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-          {busy.length === 0 && (
-            <div className="border border-(--color-divider) p-4 text-center text-[13px] text-(--color-text-50)">
-              Nobody&apos;s blocked out this week.
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
