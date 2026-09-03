@@ -3,12 +3,21 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
 import { listAvailabilityFor } from "@/lib/data/availability";
 import { getAppSettings } from "@/lib/data/settings";
+import { resolveWeekParam } from "@/lib/domain/time";
+import { toAvailabilityBlock } from "@/lib/domain/conflicts";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
+import { PersonalCalendarView } from "@/components/availability/PersonalCalendarView";
 import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor";
 import { DayOffCard } from "@/components/availability/DayOffCard";
 import { ComingInCard } from "@/components/availability/ComingInCard";
 
-export default async function ClassesEditorPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClassesEditorPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ week?: string }>;
+}) {
   const { id } = await params;
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
@@ -17,6 +26,9 @@ export default async function ClassesEditorPage({ params }: { params: Promise<{ 
   const isSelf = id === profile.id;
   const isAdmin = profile.role === "lead" || profile.role === "staff";
   if (!isSelf && !isAdmin) redirect("/today");
+
+  const { week } = await searchParams;
+  const weekStart = resolveWeekParam(week);
 
   const [target, blocks, settings] = await Promise.all([
     isSelf ? profile : supabase.from("profiles").select("*").eq("id", id).maybeSingle().then((r) => r.data),
@@ -36,6 +48,11 @@ export default async function ClassesEditorPage({ params }: { params: Promise<{ 
             ? "Add every class and anything else you cannot miss. Staff see the conflict before they assign you, not after."
             : `You are entering these for ${target.full_name}. Pick every day the class meets, then Block.`}
         </p>
+        <PersonalCalendarView
+          weekStart={weekStart}
+          blocks={blocks.map(toAvailabilityBlock)}
+          basePath={`/crew/${id}/classes`}
+        />
         <AvailabilityEditor profileId={id} blocks={blocks} canEdit={canEdit} />
         {canEdit && <DayOffCard profileId={id} />}
         {canEdit && <ComingInCard profileId={id} />}
