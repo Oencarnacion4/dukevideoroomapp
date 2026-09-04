@@ -19,6 +19,12 @@ export function SignInForm() {
       <Field label="Password">
         <Input type="password" name="password" placeholder="Your password" required />
       </Field>
+      <Link
+        href="/forgot-password"
+        className="self-end text-[12.5px] font-medium text-(--color-accent-700) hover:text-(--color-accent-900)"
+      >
+        Forgot password?
+      </Link>
       {state.error && <p className="text-[12.5px] text-(--color-accent-900)">{state.error}</p>}
       <Button type="submit" fullWidth disabled={pending} className="mt-1">
         {pending ? "Signing in…" : "Sign in"}
