@@ -33,6 +33,7 @@ export interface Profile {
   clock_in_at: string | null;
   clock_label: string | null;
   clock_source: "clocked" | "tap" | null;
+  clock_location_verified: boolean | null;
   created_at: string;
 }
 

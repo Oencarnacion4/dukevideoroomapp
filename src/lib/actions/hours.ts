@@ -36,7 +36,7 @@ async function clockOutAndLog(
   }
   const { error } = await supabase
     .from("profiles")
-    .update({ clock_in_at: null, clock_label: null, clock_source: null })
+    .update({ clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null })
     .eq("id", profile.id);
   if (error) throw error;
   return hours > 0 ? hours : null;
@@ -74,9 +74,14 @@ export async function toggleClockAction(defaultLabel: string): Promise<{ loggedH
  * available, but it isn't required — once a phone denies location there's
  * no way to re-prompt it short of digging through Settings, which isn't
  * reasonable to expect from the whole crew. So: a real GPS reading that
- * clearly places someone elsewhere still blocks the tap (that's a strong
- * signal), but no reading at all (denied, or just unavailable indoors)
- * lets the tap through — just marked unverified for a lead to see.
+ * clearly places someone elsewhere still blocks *tapping in* (that's a
+ * strong signal at the moment that matters), but no reading at all (denied,
+ * or just unavailable indoors) lets it through — just marked unverified.
+ *
+ * Tapping OUT never checks location at all: someone who forgot to tap out
+ * and has already left needs to be able to close their session out from
+ * wherever they are, not get stuck with a runaway timer until they walk
+ * back. The entry's location_verified reflects the tap-IN's result instead.
  */
 export async function tapClockAction(
   location: GeoPoint | null,
@@ -84,15 +89,6 @@ export async function tapClockAction(
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile || profile.role === "staff") throw new Error("Not allowed");
-
-  if (location && !isNearVideoRoom(location, location.accuracy)) {
-    return {
-      clockedIn: !!profile.clock_in_at && profile.clock_source === "tap",
-      loggedHours: null,
-      error: "That doesn't look like the Video Room — tap in once you're actually there.",
-    };
-  }
-  const locationVerified = !!location;
 
   if (profile.clock_in_at) {
     if (profile.clock_source !== "tap") {
@@ -102,15 +98,28 @@ export async function tapClockAction(
         error: "You're already clocked in from the app — clock out there first, then tap in here.",
       };
     }
-    const loggedHours = await clockOutAndLog(supabase, profile, "tap", locationVerified);
+    const loggedHours = await clockOutAndLog(supabase, profile, "tap", profile.clock_location_verified ?? false);
     revalidatePath("/today");
     revalidatePath("/hours");
     return { clockedIn: false, loggedHours };
   }
 
+  if (location && !isNearVideoRoom(location, location.accuracy)) {
+    return {
+      clockedIn: false,
+      loggedHours: null,
+      error: "That doesn't look like the Video Room — tap in once you're actually there.",
+    };
+  }
+
   const { error } = await supabase
     .from("profiles")
-    .update({ clock_in_at: new Date().toISOString(), clock_label: VIDEO_ROOM_LABEL, clock_source: "tap" })
+    .update({
+      clock_in_at: new Date().toISOString(),
+      clock_label: VIDEO_ROOM_LABEL,
+      clock_source: "tap",
+      clock_location_verified: !!location,
+    })
     .eq("id", profile.id);
   if (error) throw error;
 
@@ -214,7 +223,7 @@ export async function cancelClockAction(): Promise<void> {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ clock_in_at: null, clock_label: null, clock_source: null })
+    .update({ clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null })
     .eq("id", profile.id);
   if (error) throw error;
 
