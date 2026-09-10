@@ -33,7 +33,7 @@ export function HoursStrip({ baseHours, clockInAt, clockLabel, defaultLabel }: H
         <span className="font-(family-name:--font-heading) text-[19px] font-semibold">
           {fmtHours(total)}{" "}
           <span className="font-(family-name:--font-body) text-[11px] font-normal text-(--color-text-50)">
-            of 10–15
+            of 10–{WEEKLY_CAP_HOURS}
           </span>
         </span>
       </div>

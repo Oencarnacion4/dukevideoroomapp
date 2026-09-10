@@ -10,13 +10,13 @@ describe("fmtHours", () => {
 });
 
 describe("progressPct", () => {
-  it("caps at 100% for anything at or above the 15h cap", () => {
-    expect(progressPct(15)).toBe(100);
+  it("caps at 100% for anything at or above the 20h cap", () => {
     expect(progressPct(20)).toBe(100);
+    expect(progressPct(25)).toBe(100);
   });
 
-  it("puts the 10h minimum at two-thirds of the bar", () => {
-    expect(progressPct(10)).toBeCloseTo(66.67, 1);
+  it("puts the 10h minimum at half the bar", () => {
+    expect(progressPct(10)).toBeCloseTo(50, 1);
   });
 });
 
@@ -25,12 +25,12 @@ describe("hoursVerdict", () => {
     expect(hoursVerdict(8)).toBe("2 h short of the 10 h minimum");
   });
 
-  it("says in range between 10 and 15", () => {
+  it("says in range between 10 and 20", () => {
     expect(hoursVerdict(12)).toBe("In range — you are good");
   });
 
-  it("says at the top of the range at or above 15", () => {
-    expect(hoursVerdict(15)).toBe("At the top of the range");
+  it("says at the top of the range at or above 20", () => {
+    expect(hoursVerdict(20)).toBe("At the top of the range");
   });
 });
 

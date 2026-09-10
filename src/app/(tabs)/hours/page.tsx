@@ -48,7 +48,7 @@ export default async function HoursPage() {
           {isStaff ? "Crew hours" : "Timesheet"}
         </h4>
         <p className="text-[13px] text-(--color-text-62)">
-          {formatWeekLabel(weekStart)} · {isStaff ? "interns owe 10–15 hours" : "target 10–15 hours"}
+          {formatWeekLabel(weekStart)} · {isStaff ? "interns owe 10–20 hours" : "target 10–20 hours"}
         </p>
       </div>
 
@@ -59,7 +59,7 @@ export default async function HoursPage() {
               {fmtHours(total)}
             </span>
             <span className="pb-1 text-[12px] text-(--color-text-50)">
-              {total < WEEKLY_CAP_HOURS ? `Room for ${fmtHours(WEEKLY_CAP_HOURS - total)} more` : "Minimum 10 h · cap 15 h"}
+              {total < WEEKLY_CAP_HOURS ? `Room for ${fmtHours(WEEKLY_CAP_HOURS - total)} more` : `Minimum 10 h · cap ${WEEKLY_CAP_HOURS} h`}
             </span>
           </div>
           <ProgressBar hours={total} className="h-3" />

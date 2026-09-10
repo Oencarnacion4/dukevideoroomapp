@@ -2,8 +2,8 @@
 // bar / verdict logic described under "Hours math" in the handoff).
 
 export const WEEKLY_MIN_HOURS = 10;
-export const WEEKLY_CAP_HOURS = 15;
-/** Where the 10-hour minimum tick sits on a 0-15 bar. */
+export const WEEKLY_CAP_HOURS = 20;
+/** Where the 10-hour minimum tick sits on a 0-cap bar. */
 export const MIN_TICK_PCT = (WEEKLY_MIN_HOURS / WEEKLY_CAP_HOURS) * 100;
 
 /** Rounds to the quarter hour and formats as "2.5 h", "3 h", etc. */
