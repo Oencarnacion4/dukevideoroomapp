@@ -5,7 +5,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
 import { deleteTimeEntry, logTimeEntry, reviewTimeEntry, updateTimeEntry } from "@/lib/data/time-entries";
 import { roundClockedHours } from "@/lib/domain/hours";
+import { isNearVideoRoom } from "@/lib/domain/geo";
 import type { Profile } from "@/lib/types";
+
+export interface GeoPoint {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+}
 
 const VIDEO_ROOM_LABEL = "Video room";
 
@@ -60,11 +67,33 @@ export async function toggleClockAction(defaultLabel: string): Promise<{ loggedH
   return { loggedHours: null };
 }
 
-/** The QR tap station at the Video Room — physically verified, so it's auto-approved. */
-export async function tapClockAction(): Promise<{ clockedIn: boolean; loggedHours: number | null; error?: string }> {
+/**
+ * The QR tap station at the Video Room — auto-approved, but only because
+ * it's backed by the browser's actual GPS reading, not just knowledge of
+ * the URL. A screenshot of the QR code scanned from elsewhere still fails
+ * this check.
+ */
+export async function tapClockAction(
+  location: GeoPoint | null,
+): Promise<{ clockedIn: boolean; loggedHours: number | null; error?: string }> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile || profile.role === "staff") throw new Error("Not allowed");
+
+  if (!location) {
+    return {
+      clockedIn: !!profile.clock_in_at && profile.clock_source === "tap",
+      loggedHours: null,
+      error: "Turn on location for this site so we can confirm you're at the Video Room, then try again.",
+    };
+  }
+  if (!isNearVideoRoom(location, location.accuracy)) {
+    return {
+      clockedIn: !!profile.clock_in_at && profile.clock_source === "tap",
+      loggedHours: null,
+      error: "That doesn't look like the Video Room — tap in once you're actually there.",
+    };
+  }
 
   if (profile.clock_in_at) {
     if (profile.clock_source !== "tap") {
