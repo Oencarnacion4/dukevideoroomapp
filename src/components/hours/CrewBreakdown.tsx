@@ -20,7 +20,9 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
     <div className="flex flex-col gap-2">
       {crew.map((c) => {
         const mine = entries.filter((e) => e.profile_id === c.id);
-        const total = mine.filter((e) => e.status === "approved").reduce((sum, e) => sum + Number(e.hours), 0);
+        const total = mine
+          .filter((e) => e.status !== "pending" && e.status !== "rejected")
+          .reduce((sum, e) => sum + Number(e.hours), 0);
         const status =
           total >= capHours ? "at cap" : total >= minHours ? "in range" : `${fmtHours(minHours - total)} short`;
         const isOpen = openId === c.id;

@@ -28,10 +28,15 @@ export function sumHours(entries: TimeEntry[], weekStart: string, weekEnd: strin
     .reduce((total, e) => total + Number(e.hours), 0);
 }
 
-/** What actually counts toward the target as far as a lead/staff can trust — approved only. */
+/**
+ * What actually counts toward the target as far as a lead/staff can trust —
+ * approved only. Entries with no status at all (pre-migration 0011 rows,
+ * before the column existed) count as approved rather than silently
+ * vanishing from admin totals — they predate the review workflow entirely.
+ */
 export function sumApprovedHours(entries: TimeEntry[], weekStart: string, weekEnd: string): number {
   return entries
-    .filter((e) => e.date >= weekStart && e.date < weekEnd && e.status === "approved")
+    .filter((e) => e.date >= weekStart && e.date < weekEnd && e.status !== "pending" && e.status !== "rejected")
     .reduce((total, e) => total + Number(e.hours), 0);
 }
 
