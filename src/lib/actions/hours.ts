@@ -16,6 +16,35 @@ export interface GeoPoint {
 
 const VIDEO_ROOM_LABEL = "Video room";
 
+/**
+ * Migrations 0011-0013 added status/reviewed_by/reviewed_at/location_verified
+ * (time_entries) and clock_source/clock_location_verified (profiles). A code
+ * deploy can land before someone's had a chance to run the matching SQL in
+ * the Supabase dashboard — when that happens, writing one of these columns
+ * throws a hard "column not found" error that would otherwise crash the
+ * whole clock in/out flow for everyone. Retry once without the columns
+ * PostgREST says it can't find, so the core clock action still succeeds
+ * even mid-migration-gap; the extra tracking just doesn't get recorded yet.
+ */
+const OPTIONAL_COLUMNS = ["location_verified", "clock_location_verified", "clock_source", "status"];
+
+async function writeTolerant<T extends Record<string, unknown>>(
+  run: (payload: T) => PromiseLike<{ error: { message?: string } | null }>,
+  payload: T,
+): Promise<void> {
+  let current = { ...payload };
+  for (let i = 0; i < OPTIONAL_COLUMNS.length + 1; i++) {
+    const { error } = await run(current);
+    if (!error) return;
+    const missingKey = Object.keys(current).find(
+      (key) => OPTIONAL_COLUMNS.includes(key) && error.message?.includes(`'${key}'`),
+    );
+    if (!missingKey) throw error;
+    current = { ...current };
+    delete current[missingKey];
+  }
+}
+
 async function clockOutAndLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
   profile: Profile,
@@ -25,20 +54,22 @@ async function clockOutAndLog(
   const rawHours = (Date.now() - new Date(profile.clock_in_at!).getTime()) / 3_600_000;
   const hours = roundClockedHours(rawHours);
   if (hours > 0) {
-    await logTimeEntry(supabase, {
-      profile_id: profile.id,
-      date: new Date().toISOString().slice(0, 10),
-      session_label: profile.clock_label ?? (source === "tap" ? VIDEO_ROOM_LABEL : "Working remotely"),
-      hours,
-      source,
-      ...(locationVerified !== undefined ? { location_verified: locationVerified } : {}),
-    });
+    await writeTolerant(
+      (payload) => logTimeEntry(supabase, payload).then(() => ({ error: null })).catch((error) => ({ error })),
+      {
+        profile_id: profile.id,
+        date: new Date().toISOString().slice(0, 10),
+        session_label: profile.clock_label ?? (source === "tap" ? VIDEO_ROOM_LABEL : "Working remotely"),
+        hours,
+        source,
+        ...(locationVerified !== undefined ? { location_verified: locationVerified } : {}),
+      },
+    );
   }
-  const { error } = await supabase
-    .from("profiles")
-    .update({ clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null })
-    .eq("id", profile.id);
-  if (error) throw error;
+  await writeTolerant(
+    (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
+    { clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null },
+  );
   return hours > 0 ? hours : null;
 }
 
@@ -58,11 +89,10 @@ export async function toggleClockAction(defaultLabel: string): Promise<{ loggedH
     return { loggedHours };
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({ clock_in_at: new Date().toISOString(), clock_label: defaultLabel, clock_source: "clocked" })
-    .eq("id", profile.id);
-  if (error) throw error;
+  await writeTolerant(
+    (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
+    { clock_in_at: new Date().toISOString(), clock_label: defaultLabel, clock_source: "clocked" },
+  );
 
   revalidatePath("/today");
   revalidatePath("/hours");
@@ -112,16 +142,15 @@ export async function tapClockAction(
     };
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
+  await writeTolerant(
+    (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
+    {
       clock_in_at: new Date().toISOString(),
       clock_label: VIDEO_ROOM_LABEL,
       clock_source: "tap",
       clock_location_verified: !!location,
-    })
-    .eq("id", profile.id);
-  if (error) throw error;
+    },
+  );
 
   revalidatePath("/today");
   revalidatePath("/hours");
@@ -141,13 +170,16 @@ export async function logManualHoursAction(input: {
   const profile = await getCurrentProfile(supabase);
   if (!profile || profile.role === "staff") return { error: "Not allowed." };
 
-  await logTimeEntry(supabase, {
-    profile_id: profile.id,
-    date: input.date,
-    session_label: input.sessionLabel.trim(),
-    hours: input.hours,
-    source: "manual",
-  });
+  await writeTolerant(
+    (payload) => logTimeEntry(supabase, payload).then(() => ({ error: null })).catch((error) => ({ error })),
+    {
+      profile_id: profile.id,
+      date: input.date,
+      session_label: input.sessionLabel.trim(),
+      hours: input.hours,
+      source: "manual" as const,
+    },
+  );
 
   revalidatePath("/hours");
   return {};
@@ -221,11 +253,10 @@ export async function cancelClockAction(): Promise<void> {
   const profile = await getCurrentProfile(supabase);
   if (!profile || profile.role === "staff") throw new Error("Not allowed");
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({ clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null })
-    .eq("id", profile.id);
-  if (error) throw error;
+  await writeTolerant(
+    (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
+    { clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null },
+  );
 
   revalidatePath("/today");
   revalidatePath("/hours");
