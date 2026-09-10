@@ -3,9 +3,10 @@
 import { useEffect, useState, useTransition } from "react";
 import { cancelClockAction, editClockInAction, toggleClockAction } from "@/lib/actions/hours";
 import { liveDurationLabel } from "@/lib/domain/hours";
+import { CLOCK_LOCATIONS } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { Input } from "@/components/ui/Field";
+import { Input, Select } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 
 const MINUTES_AGO_PRESETS = [5, 10, 15, 30, 45, 60];
@@ -23,7 +24,10 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
   const [cancelOpen, setCancelOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [customMinutes, setCustomMinutes] = useState("");
+  const [location, setLocation] = useState(defaultLabel);
   const { show } = useToast();
+
+  const locationOptions = Array.from(new Set([defaultLabel, ...CLOCK_LOCATIONS]));
 
   useEffect(() => {
     if (!clockInAt) return;
@@ -37,7 +41,7 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
   const onToggle = () => {
     const wasClockedIn = !!clockInAt;
     startTransition(async () => {
-      const result = await toggleClockAction(defaultLabel);
+      const result = await toggleClockAction(wasClockedIn ? defaultLabel : location);
       if (!wasClockedIn) {
         show("Clocked in. Timer runs until you clock out.");
       } else if (result.loggedHours) {
@@ -123,6 +127,20 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
   if (variant === "strip") {
     return (
       <div className="flex flex-col gap-1">
+        {!clockInAt && (
+          <Select
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="h-9 text-[13px]"
+            aria-label="Where you're clocking in from"
+          >
+            {locationOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </Select>
+        )}
         <Button variant="secondary" fullWidth onClick={onToggle} disabled={pending} className="h-11">
           {clockInAt ? `Clock out · ${statusLine}` : `Clock in · ${statusLine}`}
         </Button>
@@ -152,6 +170,20 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
 
   return (
     <div className="flex flex-col items-center gap-2">
+      {!clockInAt && (
+        <Select
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="w-full"
+          aria-label="Where you're clocking in from"
+        >
+          {locationOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </Select>
+      )}
       <Button onClick={onToggle} disabled={pending} className="h-[42px] w-full">
         {clockInAt ? "Clock out" : "Clock in"}
       </Button>

@@ -26,6 +26,9 @@ export function locationFor(session: SessionType): string {
   return SESSION_LOCATIONS[session] ?? DEFAULT_LOCATION;
 }
 
+/** Where someone can say they're clocking in from — shown as a picker before starting the clock. */
+export const CLOCK_LOCATIONS = ["Video room", "Practice court", "Main arena", "Weight room", "Working remotely"];
+
 export const TASK_BUCKETS: { id: TaskBucket; label: string }[] = [
   { id: "assigned", label: "From coaches" },
   { id: "daily", label: "Daily" },

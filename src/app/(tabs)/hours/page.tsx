@@ -10,6 +10,7 @@ import { ProgressBar } from "@/components/hours/ProgressBar";
 import { LogShiftRow } from "@/components/hours/LogShiftRow";
 import { EntriesList } from "@/components/hours/EntriesList";
 import { AddEntryCard } from "@/components/hours/AddEntryCard";
+import { CrewBreakdown } from "@/components/hours/CrewBreakdown";
 import { Card } from "@/components/ui/Card";
 
 export default async function HoursPage() {
@@ -111,24 +112,13 @@ export default async function HoursPage() {
               {crew.filter((c) => c.role !== "staff" && sumHours(allEntries.filter((e) => e.profile_id === c.id), weekStart, weekEnd) < WEEKLY_MIN_HOURS).length} under 10
             </span>
           </div>
-          <div className="flex flex-col gap-2.5">
-            {crew
-              .filter((c) => c.role !== "staff")
-              .map((c) => {
-                const t = sumHours(allEntries.filter((e) => e.profile_id === c.id), weekStart, weekEnd);
-                const status = t >= WEEKLY_CAP_HOURS ? "at cap" : t >= WEEKLY_MIN_HOURS ? "in range" : `${fmtHours(WEEKLY_MIN_HOURS - t)} short`;
-                return (
-                  <div key={c.id} className="flex items-center gap-2">
-                    <span className="flex-1 text-[13.5px]">{c.full_name}</span>
-                    <span className="font-(family-name:--font-heading) text-[15px] font-semibold">{fmtHours(t)}</span>
-                    <span className={`w-14 text-right text-[11px] ${t < WEEKLY_MIN_HOURS ? "text-(--color-accent-900)" : "text-(--color-text-55)"}`}>
-                      {status}
-                    </span>
-                    <ProgressBar hours={t} className="h-[7px] w-16" />
-                  </div>
-                );
-              })}
-          </div>
+          <p className="mb-2 text-[11.5px] text-(--color-text-50)">Tap a name to see where their hours came from.</p>
+          <CrewBreakdown
+            crew={crew.filter((c) => c.role !== "staff")}
+            entries={allEntries.filter((e) => e.date >= weekStart && e.date < weekEnd)}
+            minHours={WEEKLY_MIN_HOURS}
+            capHours={WEEKLY_CAP_HOURS}
+          />
         </div>
       )}
 
