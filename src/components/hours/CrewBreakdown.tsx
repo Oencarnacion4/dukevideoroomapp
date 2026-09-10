@@ -62,6 +62,9 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
                         <Tag variant="neutral">
                           {e.source === "tap" ? "Tap" : e.source === "clocked" ? "Clocked" : "Manual"}
                         </Tag>
+                        {e.source === "tap" && e.location_verified === false && (
+                          <Tag variant="outline">No location</Tag>
+                        )}
                         {e.status === "pending" && <Tag variant="outline">Pending</Tag>}
                         {e.status === "rejected" && <Tag variant="accent">Rejected</Tag>}
                         <span className="w-10 text-right font-(family-name:--font-heading) font-semibold">

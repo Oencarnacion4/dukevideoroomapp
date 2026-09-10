@@ -87,6 +87,7 @@ export interface TimeEntry {
   status: TimeEntryStatus;
   reviewed_by: string | null;
   reviewed_at: string | null;
+  location_verified: boolean | null;
   clock_in_at: string | null;
 }
 

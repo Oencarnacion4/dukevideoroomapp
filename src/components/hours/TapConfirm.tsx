@@ -11,33 +11,23 @@ interface TapConfirmProps {
   clockSource: "clocked" | "tap" | null;
 }
 
-type LocationResult = { point: GeoPoint } | { point: null; deniedPermission: boolean };
-
-function getPosition(options: PositionOptions): Promise<LocationResult> {
+/**
+ * Best-effort only — a tap-in/out still goes through even without a
+ * reading (see tapClockAction), so there's no reason to make someone wait
+ * long or retry for it. One quick, low-accuracy attempt (works far better
+ * indoors than high-accuracy GPS, which often can't get a satellite lock
+ * in a steel/concrete building at all) and a generous cache window so a
+ * recent reading counts instead of forcing a fresh one every time.
+ */
+function getLocation(): Promise<GeoPoint | null> {
+  if (!("geolocation" in navigator)) return Promise.resolve(null);
   return new Promise((resolve) => {
     navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        resolve({ point: { lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy } }),
-      (err) => resolve({ point: null, deniedPermission: err.code === err.PERMISSION_DENIED }),
-      options,
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+      () => resolve(null),
+      { enableHighAccuracy: false, timeout: 8_000, maximumAge: 300_000 },
     );
   });
-}
-
-/**
- * Indoors (the K Center is a big steel/concrete building), asking for GPS
- * precision up front often makes phones wait for a satellite lock that
- * never comes. Try the fast, network-based reading first — it's plenty
- * precise for a ~150m radius and works far more reliably indoors — and
- * only fall back to a high-accuracy GPS attempt if that fails outright.
- */
-async function getLocation(): Promise<LocationResult> {
-  if (!("geolocation" in navigator)) return { point: null, deniedPermission: false };
-
-  const fast = await getPosition({ enableHighAccuracy: false, timeout: 15_000, maximumAge: 120_000 });
-  if (fast.point || fast.deniedPermission) return fast;
-
-  return getPosition({ enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 });
 }
 
 export function TapConfirm({ clockInAt, clockLabel, clockSource }: TapConfirmProps) {
@@ -50,20 +40,10 @@ export function TapConfirm({ clockInAt, clockLabel, clockSource }: TapConfirmPro
 
   const onTap = () => {
     setLocating(true);
-    getLocation().then((located) => {
+    getLocation().then((location) => {
       setLocating(false);
-
-      if (!located.point) {
-        setMessage(
-          located.deniedPermission
-            ? "Location is turned off for this site. Enable it in your browser's site settings and try again."
-            : "Couldn't get a location fix — try again, or move closer to a window and retry.",
-        );
-        return;
-      }
-
       startTransition(async () => {
-        const result = await tapClockAction(located.point);
+        const result = await tapClockAction(location);
         setTappedIn(result.clockedIn);
         if (result.error) {
           setMessage(result.error);
@@ -73,7 +53,7 @@ export function TapConfirm({ clockInAt, clockLabel, clockSource }: TapConfirmPro
           result.clockedIn
             ? "Tapped in. Timer's running until you tap out."
             : result.loggedHours
-              ? `Tapped out — ${liveDurationLabel(result.loggedHours)} logged and verified.`
+              ? `Tapped out — ${liveDurationLabel(result.loggedHours)} logged.`
               : "Tapped out — under a minute, nothing logged.",
         );
       });
@@ -97,7 +77,7 @@ export function TapConfirm({ clockInAt, clockLabel, clockSource }: TapConfirmPro
     <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 text-center">
       <p className="text-[15px] text-white/80">
         {locating
-          ? "Checking your location…"
+          ? "One sec…"
           : (message ?? (tappedIn ? "You're tapped in." : "Tap to confirm you're here in the Video Room."))}
       </p>
       <Button

@@ -20,6 +20,7 @@ async function clockOutAndLog(
   supabase: Awaited<ReturnType<typeof createClient>>,
   profile: Profile,
   source: "clocked" | "tap",
+  locationVerified?: boolean,
 ): Promise<number | null> {
   const rawHours = (Date.now() - new Date(profile.clock_in_at!).getTime()) / 3_600_000;
   const hours = roundClockedHours(rawHours);
@@ -30,6 +31,7 @@ async function clockOutAndLog(
       session_label: profile.clock_label ?? (source === "tap" ? VIDEO_ROOM_LABEL : "Working remotely"),
       hours,
       source,
+      ...(locationVerified !== undefined ? { location_verified: locationVerified } : {}),
     });
   }
   const { error } = await supabase
@@ -68,10 +70,13 @@ export async function toggleClockAction(defaultLabel: string): Promise<{ loggedH
 }
 
 /**
- * The QR tap station at the Video Room — auto-approved, but only because
- * it's backed by the browser's actual GPS reading, not just knowledge of
- * the URL. A screenshot of the QR code scanned from elsewhere still fails
- * this check.
+ * The QR tap station at the Video Room. GPS confirms presence when it's
+ * available, but it isn't required — once a phone denies location there's
+ * no way to re-prompt it short of digging through Settings, which isn't
+ * reasonable to expect from the whole crew. So: a real GPS reading that
+ * clearly places someone elsewhere still blocks the tap (that's a strong
+ * signal), but no reading at all (denied, or just unavailable indoors)
+ * lets the tap through — just marked unverified for a lead to see.
  */
 export async function tapClockAction(
   location: GeoPoint | null,
@@ -80,20 +85,14 @@ export async function tapClockAction(
   const profile = await getCurrentProfile(supabase);
   if (!profile || profile.role === "staff") throw new Error("Not allowed");
 
-  if (!location) {
-    return {
-      clockedIn: !!profile.clock_in_at && profile.clock_source === "tap",
-      loggedHours: null,
-      error: "Turn on location for this site so we can confirm you're at the Video Room, then try again.",
-    };
-  }
-  if (!isNearVideoRoom(location, location.accuracy)) {
+  if (location && !isNearVideoRoom(location, location.accuracy)) {
     return {
       clockedIn: !!profile.clock_in_at && profile.clock_source === "tap",
       loggedHours: null,
       error: "That doesn't look like the Video Room — tap in once you're actually there.",
     };
   }
+  const locationVerified = !!location;
 
   if (profile.clock_in_at) {
     if (profile.clock_source !== "tap") {
@@ -103,7 +102,7 @@ export async function tapClockAction(
         error: "You're already clocked in from the app — clock out there first, then tap in here.",
       };
     }
-    const loggedHours = await clockOutAndLog(supabase, profile, "tap");
+    const loggedHours = await clockOutAndLog(supabase, profile, "tap", locationVerified);
     revalidatePath("/today");
     revalidatePath("/hours");
     return { clockedIn: false, loggedHours };

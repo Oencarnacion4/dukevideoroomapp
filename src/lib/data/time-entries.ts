@@ -40,10 +40,17 @@ export function sumApprovedHours(entries: TimeEntry[], weekStart: string, weekEn
     .reduce((total, e) => total + Number(e.hours), 0);
 }
 
-/** A QR tap at the Video Room is the only source that's physically verified, so it's auto-approved. Everything else is self-reported and needs a lead/staff sign-off. */
+/** A QR tap at the Video Room is auto-approved regardless of whether GPS confirmed it — see location_verified. Everything else is self-reported and needs a lead/staff sign-off. */
 export async function logTimeEntry(
   supabase: SupabaseClient,
-  input: { profile_id: string; date: string; session_label: string; hours: number; source: TimeEntrySource },
+  input: {
+    profile_id: string;
+    date: string;
+    session_label: string;
+    hours: number;
+    source: TimeEntrySource;
+    location_verified?: boolean;
+  },
 ): Promise<void> {
   const { error } = await supabase.from("time_entries").insert({
     ...input,
