@@ -23,6 +23,7 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
         const total = mine
           .filter((e) => e.status !== "pending" && e.status !== "rejected")
           .reduce((sum, e) => sum + Number(e.hours), 0);
+        const pendingHours = mine.filter((e) => e.status === "pending").reduce((sum, e) => sum + Number(e.hours), 0);
         const status =
           total >= capHours ? "at cap" : total >= minHours ? "in range" : `${fmtHours(minHours - total)} short`;
         const isOpen = openId === c.id;
@@ -34,7 +35,15 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
               onClick={() => setOpenId(isOpen ? null : c.id)}
               className="flex w-full items-center gap-2 py-1 text-left"
             >
-              <span className="flex-1 text-[13.5px]">{c.full_name}</span>
+              <span className="flex-1 text-[13.5px]">
+                {c.full_name}
+                {c.clock_in_at && (
+                  <span className="ml-1.5 inline-flex items-center gap-1 align-middle text-[10px] font-medium uppercase text-(--color-accent-700)">
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--color-accent-700)" />
+                    On the clock
+                  </span>
+                )}
+              </span>
               <span className="font-(family-name:--font-heading) text-[15px] font-semibold">{fmtHours(total)}</span>
               <span
                 className={`w-14 text-right text-[11px] ${total < minHours ? "text-(--color-accent-900)" : "text-(--color-text-55)"}`}
@@ -44,6 +53,11 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
               <ProgressBar hours={total} className="h-[7px] w-16" />
               <span className="w-3 text-center text-[13px] text-(--color-text-50)">{isOpen ? "–" : "+"}</span>
             </button>
+            {pendingHours > 0 && (
+              <p className="pl-0 text-[11px] text-(--color-text-50)">
+                +{fmtHours(pendingHours)} pending your approval, not counted above yet.
+              </p>
+            )}
 
             {isOpen && (
               <div className="mt-1 flex flex-col gap-1 pb-1 pl-1">
