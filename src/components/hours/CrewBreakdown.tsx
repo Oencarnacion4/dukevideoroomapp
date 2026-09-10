@@ -20,7 +20,7 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
     <div className="flex flex-col gap-2">
       {crew.map((c) => {
         const mine = entries.filter((e) => e.profile_id === c.id);
-        const total = mine.reduce((sum, e) => sum + Number(e.hours), 0);
+        const total = mine.filter((e) => e.status === "approved").reduce((sum, e) => sum + Number(e.hours), 0);
         const status =
           total >= capHours ? "at cap" : total >= minHours ? "in range" : `${fmtHours(minHours - total)} short`;
         const isOpen = openId === c.id;
@@ -57,7 +57,11 @@ export function CrewBreakdown({ crew, entries, minHours, capHours }: CrewBreakdo
                           {new Date(`${e.date}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" })}
                         </span>
                         <span className="flex-1 text-(--color-text)">{e.session_label}</span>
-                        <Tag variant="neutral">{e.source === "clocked" ? "Clocked" : "Manual"}</Tag>
+                        <Tag variant="neutral">
+                          {e.source === "tap" ? "Tap" : e.source === "clocked" ? "Clocked" : "Manual"}
+                        </Tag>
+                        {e.status === "pending" && <Tag variant="outline">Pending</Tag>}
+                        {e.status === "rejected" && <Tag variant="accent">Rejected</Tag>}
                         <span className="w-10 text-right font-(family-name:--font-heading) font-semibold">
                           {fmtHours(Number(e.hours))}
                         </span>

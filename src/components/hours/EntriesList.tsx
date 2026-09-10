@@ -105,7 +105,9 @@ export function EntriesList({ entries }: EntriesListProps) {
               {new Date(`${e.date}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" })}
             </div>
             <div className="flex-1 text-[13.5px]">{e.session_label}</div>
-            <Tag variant="neutral">{e.source === "clocked" ? "Clocked" : "Manual"}</Tag>
+            <Tag variant="neutral">{e.source === "tap" ? "Tap" : e.source === "clocked" ? "Clocked" : "Manual"}</Tag>
+            {e.status === "pending" && <Tag variant="outline">Pending</Tag>}
+            {e.status === "rejected" && <Tag variant="accent">Rejected</Tag>}
             <div className="font-(family-name:--font-heading) text-[15px] font-semibold">
               {fmtHours(Number(e.hours))}
             </div>

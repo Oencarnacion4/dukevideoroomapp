@@ -26,8 +26,13 @@ export function locationFor(session: SessionType): string {
   return SESSION_LOCATIONS[session] ?? DEFAULT_LOCATION;
 }
 
-/** Where someone can say they're clocking in from — shown as a picker before starting the clock. */
-export const CLOCK_LOCATIONS = ["Video room", "Practice court", "Main arena", "Weight room", "Working remotely"];
+/**
+ * Where someone can say they're clocking in from with the in-app button —
+ * shown as a picker before starting the clock. "Video room" isn't in this
+ * list on purpose: that's what the QR tap station is for, since it's the
+ * one source that's actually physically verified.
+ */
+export const CLOCK_LOCATIONS = ["Working remotely", "Practice court", "Main arena", "Weight room"];
 
 export const TASK_BUCKETS: { id: TaskBucket; label: string }[] = [
   { id: "assigned", label: "From coaches" },

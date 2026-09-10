@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAllProfiles, getCurrentProfile } from "@/lib/data/profiles";
 import { listShifts } from "@/lib/data/shifts";
-import { listAllTimeEntries, listTimeEntriesFor, sumHours } from "@/lib/data/time-entries";
+import { listAllTimeEntries, listTimeEntriesFor, sumApprovedHours, sumHours } from "@/lib/data/time-entries";
 import { addDays, durationHours, formatWeekLabel, getWeekStart, pgTimeToLabel } from "@/lib/domain/time";
 import { fmtHours, hoursVerdict, WEEKLY_CAP_HOURS, WEEKLY_MIN_HOURS } from "@/lib/domain/hours";
 import { ClockControl } from "@/components/hours/ClockControl";
@@ -11,6 +11,7 @@ import { LogShiftRow } from "@/components/hours/LogShiftRow";
 import { EntriesList } from "@/components/hours/EntriesList";
 import { AddEntryCard } from "@/components/hours/AddEntryCard";
 import { CrewBreakdown } from "@/components/hours/CrewBreakdown";
+import { PendingApprovals } from "@/components/hours/PendingApprovals";
 import { Card } from "@/components/ui/Card";
 
 export default async function HoursPage() {
@@ -31,9 +32,17 @@ export default async function HoursPage() {
   ]);
 
   const total = isStaff ? 0 : sumHours(myEntries, weekStart, weekEnd);
+  const pendingHours = isStaff
+    ? 0
+    : total - sumApprovedHours(myEntries, weekStart, weekEnd);
   const myAccepted = weekShifts.filter((s) => s.assignee_id === profile.id && s.status === "accepted");
   const loggedLabels = new Set(myEntries.filter((e) => e.date >= weekStart && e.date < weekEnd).map((e) => e.session_label));
   const unlogged = myAccepted.filter((s) => !loggedLabels.has(s.session_type));
+
+  const nameById = new Map(crew.map((c) => [c.id, c.full_name]));
+  const pendingEntries = allEntries
+    .filter((e) => e.status === "pending")
+    .map((e) => ({ ...e, profileName: nameById.get(e.profile_id) ?? "Unknown" }));
 
   const priorWeeks = [1, 2, 3].map((n) => {
     const start = addDays(weekStart, -7 * n);
@@ -69,10 +78,15 @@ export default async function HoursPage() {
             <span>{WEEKLY_CAP_HOURS} cap</span>
           </div>
           <p className="text-[13px]">{hoursVerdict(total)}</p>
+          {pendingHours > 0 && (
+            <p className="text-[11.5px] text-(--color-text-50)">
+              {fmtHours(pendingHours)} of that is still waiting on a lead to approve it.
+            </p>
+          )}
           <ClockControl
             clockInAt={profile.clock_in_at}
             clockLabel={profile.clock_label}
-            defaultLabel="Video room"
+            defaultLabel="Working remotely"
             variant="timesheet"
           />
         </Card>
@@ -107,9 +121,29 @@ export default async function HoursPage() {
       {isAdmin && (
         <div>
           <div className="mb-2 flex items-baseline justify-between">
+            <h5 className="font-(family-name:--font-heading) text-[16px] font-semibold">Needs your approval</h5>
+            {pendingEntries.length > 0 && (
+              <span className="text-[13px] text-(--color-accent-700)">{pendingEntries.length} pending</span>
+            )}
+          </div>
+          <PendingApprovals entries={pendingEntries} />
+        </div>
+      )}
+
+      {isAdmin && (
+        <div>
+          <div className="mb-2 flex items-baseline justify-between">
             <h5 className="font-(family-name:--font-heading) text-[16px] font-semibold">Everyone this week</h5>
             <span className="text-[13px] text-(--color-accent-700)">
-              {crew.filter((c) => c.role !== "staff" && sumHours(allEntries.filter((e) => e.profile_id === c.id), weekStart, weekEnd) < WEEKLY_MIN_HOURS).length} under 10
+              {
+                crew.filter(
+                  (c) =>
+                    c.role !== "staff" &&
+                    sumApprovedHours(allEntries.filter((e) => e.profile_id === c.id), weekStart, weekEnd) <
+                      WEEKLY_MIN_HOURS,
+                ).length
+              }{" "}
+              under 10
             </span>
           </div>
           <p className="mb-2 text-[11.5px] text-(--color-text-50)">Tap a name to see where their hours came from.</p>

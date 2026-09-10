@@ -42,10 +42,12 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
     const wasClockedIn = !!clockInAt;
     startTransition(async () => {
       const result = await toggleClockAction(wasClockedIn ? defaultLabel : location);
-      if (!wasClockedIn) {
+      if (result.error) {
+        show(result.error);
+      } else if (!wasClockedIn) {
         show("Clocked in. Timer runs until you clock out.");
       } else if (result.loggedHours) {
-        show(`Clocked out — ${liveDurationLabel(result.loggedHours)} added to this week.`);
+        show(`Clocked out — ${liveDurationLabel(result.loggedHours)} logged, pending approval.`);
       } else {
         show("Clocked out — under a minute, nothing logged.");
       }
@@ -141,6 +143,11 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
             ))}
           </Select>
         )}
+        {!clockInAt && (
+          <p className="text-center text-[10.5px] text-(--color-text-50)">
+            In the Video Room? Use the QR code posted there instead — instant, no approval needed.
+          </p>
+        )}
         <Button variant="secondary" fullWidth onClick={onToggle} disabled={pending} className="h-11">
           {clockInAt ? `Clock out · ${statusLine}` : `Clock in · ${statusLine}`}
         </Button>
@@ -188,6 +195,12 @@ export function ClockControl({ clockInAt, clockLabel, defaultLabel, variant }: C
         {clockInAt ? "Clock out" : "Clock in"}
       </Button>
       <p className="text-center text-[11.5px] text-(--color-text-62)">{statusLine}</p>
+      {!clockInAt && (
+        <p className="text-center text-[11px] text-(--color-text-50)">
+          In the Video Room? Use the QR code posted there instead — it clocks you in instantly with no approval
+          needed.
+        </p>
+      )}
       {clockInAt && (
         <div className="flex items-center gap-3">
           <button

@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/Button";
 
 const initialState: AuthActionState = { error: null };
 
-export function SignInForm() {
+export function SignInForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState(signInAction, initialState);
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
+      {next && <input type="hidden" name="next" value={next} />}
       <Field label="Email">
         <Input type="email" name="email" placeholder="you@gmail.com" required />
       </Field>

@@ -95,7 +95,7 @@ export default async function TodayPage() {
           baseHours={baseHours}
           clockInAt={profile.clock_in_at}
           clockLabel={profile.clock_label}
-          defaultLabel={nextShift?.session_type ?? "Video room"}
+          defaultLabel={nextShift?.session_type ?? "Working remotely"}
         />
       )}
 

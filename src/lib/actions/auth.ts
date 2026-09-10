@@ -15,6 +15,7 @@ export async function signInAction(
 ): Promise<AuthActionState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "");
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -23,7 +24,8 @@ export async function signInAction(
     return { error: error.message };
   }
 
-  redirect("/today");
+  // Only a same-site relative path is safe to bounce back to.
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/today");
 }
 
 export async function registerAction(

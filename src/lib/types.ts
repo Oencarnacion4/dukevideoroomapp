@@ -16,7 +16,9 @@ export type SessionType =
 
 export type TaskBucket = "assigned" | "daily" | "practice" | "post" | "game" | "personal";
 
-export type TimeEntrySource = "clocked" | "manual";
+export type TimeEntrySource = "clocked" | "manual" | "tap";
+
+export type TimeEntryStatus = "pending" | "approved" | "rejected";
 
 export type GuideFormat = "written" | "video" | "document";
 
@@ -30,6 +32,7 @@ export interface Profile {
   alerts_seen_at: string | null;
   clock_in_at: string | null;
   clock_label: string | null;
+  clock_source: "clocked" | "tap" | null;
   created_at: string;
 }
 
@@ -81,6 +84,9 @@ export interface TimeEntry {
   session_label: string;
   hours: number;
   source: TimeEntrySource;
+  status: TimeEntryStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   clock_in_at: string | null;
 }
 

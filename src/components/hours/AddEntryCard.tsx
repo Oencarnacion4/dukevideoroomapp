@@ -42,7 +42,7 @@ export function AddEntryCard() {
       </span>
       <p className="text-[13px] text-(--color-text-62)">
         Log hours you already worked directly — for anything that wasn&apos;t a scheduled shift, or if you
-        forgot to clock in or out entirely.
+        forgot to clock in or out entirely. A lead reviews it before it counts toward your total.
       </p>
 
       <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayStr()} />
