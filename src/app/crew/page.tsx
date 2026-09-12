@@ -8,6 +8,7 @@ import { getWeekStart } from "@/lib/domain/time";
 import { initialsFor } from "@/lib/domain/shift-view";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
 import { Tag } from "@/components/ui/Tag";
+import { buttonClasses } from "@/components/ui/Button";
 import { AddRosterForm } from "@/components/crew/AddRosterForm";
 import { RemoveCrewButton } from "@/components/crew/RemoveCrewButton";
 
@@ -31,11 +32,11 @@ export default async function CrewPage() {
           Add names now, no email needed. When someone signs up with that name, their account attaches to
           this roster entry — shifts, hours and classes already waiting.
         </p>
-        <div className="flex gap-4">
-          <Link href={`/crew/${profile.id}/classes`} className="text-[13px] font-medium text-(--color-accent-700)">
+        <div className="flex gap-2">
+          <Link href={`/crew/${profile.id}/classes`} className={buttonClasses("secondary", true, "text-[13px]")}>
             My class schedule
           </Link>
-          <Link href="/crew/calendar" className="text-[13px] font-medium text-(--color-accent-700)">
+          <Link href="/crew/calendar" className={buttonClasses("secondary", true, "text-[13px]")}>
             Who&apos;s busy &amp; coming in
           </Link>
         </div>
