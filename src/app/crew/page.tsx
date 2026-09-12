@@ -33,9 +33,11 @@ export default async function CrewPage() {
           this roster entry — shifts, hours and classes already waiting.
         </p>
         <div className="flex gap-2">
-          <Link href={`/crew/${profile.id}/classes`} className={buttonClasses("secondary", true, "text-[13px]")}>
-            My class schedule
-          </Link>
+          {profile.role !== "staff" && (
+            <Link href={`/crew/${profile.id}/classes`} className={buttonClasses("secondary", true, "text-[13px]")}>
+              My class schedule
+            </Link>
+          )}
           <Link href="/crew/calendar" className={buttonClasses("secondary", true, "text-[13px]")}>
             Who&apos;s busy &amp; coming in
           </Link>
