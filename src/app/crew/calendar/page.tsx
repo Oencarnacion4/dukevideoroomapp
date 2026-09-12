@@ -23,7 +23,7 @@ export default async function CrewCalendarPage({
 
   const { week, tab } = await searchParams;
   const weekStart = resolveWeekParam(week);
-  const activeTab = tab === "free" ? "free" : "coming-in";
+  const activeTab = tab === "coming-in" ? "coming-in" : "free";
 
   const [crew, availability, shifts] = await Promise.all([
     getAllProfiles(supabase),
@@ -55,11 +55,11 @@ export default async function CrewCalendarPage({
     <div className="flex min-h-dvh flex-1 flex-col bg-(--color-bg)">
       <OverlayHeader eyebrow="Crew" title="Who's busy & coming in" />
       <div className="flex gap-0 px-4 pt-3">
-        <Link href={`/crew/calendar?tab=coming-in&week=${weekStart}`} className={cn(tabClass("coming-in"), "border-r-0")}>
-          Coming in
-        </Link>
-        <Link href={`/crew/calendar?tab=free&week=${weekStart}`} className={tabClass("free")}>
+        <Link href={`/crew/calendar?tab=free&week=${weekStart}`} className={cn(tabClass("free"), "border-r-0")}>
           Find a time
+        </Link>
+        <Link href={`/crew/calendar?tab=coming-in&week=${weekStart}`} className={tabClass("coming-in")}>
+          Coming in
         </Link>
       </div>
       {activeTab === "free" ? (

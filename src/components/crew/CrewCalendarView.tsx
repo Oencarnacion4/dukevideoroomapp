@@ -73,7 +73,7 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center gap-1.5">
         <Link
-          href={`/crew/calendar?week=${prevWeek}`}
+          href={`/crew/calendar?tab=coming-in&week=${prevWeek}`}
           aria-label="Previous week"
           className="flex h-8 w-8 items-center justify-center border border-(--color-divider)"
         >
@@ -83,7 +83,7 @@ export function CrewCalendarView({ weekStart, crew, availability }: CrewCalendar
           {formatWeekLabel(weekStart)}
         </h4>
         <Link
-          href={`/crew/calendar?week=${nextWeek}`}
+          href={`/crew/calendar?tab=coming-in&week=${nextWeek}`}
           aria-label="Next week"
           className="flex h-8 w-8 items-center justify-center border border-(--color-divider)"
         >
