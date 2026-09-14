@@ -21,6 +21,7 @@ import { EntriesList } from "@/components/hours/EntriesList";
 import { AddEntryCard } from "@/components/hours/AddEntryCard";
 import { CrewBreakdown } from "@/components/hours/CrewBreakdown";
 import { PendingApprovals } from "@/components/hours/PendingApprovals";
+import { CopySummaryButton } from "@/components/hours/CopySummaryButton";
 import { Card } from "@/components/ui/Card";
 
 export default async function HoursPage({
@@ -193,6 +194,14 @@ export default async function HoursPage({
               Back to this week
             </Link>
           )}
+          <CopySummaryButton
+            weekLabel={formatWeekLabel(crewWeekStart)}
+            crew={crew.filter((c) => c.role !== "staff")}
+            entries={allEntries.filter((e) => e.date >= crewWeekStart && e.date < crewWeekEnd)}
+            minHours={WEEKLY_MIN_HOURS}
+            capHours={WEEKLY_CAP_HOURS}
+            className="mb-2 w-full"
+          />
           <p className="mb-2 text-[11.5px] text-(--color-text-50)">Tap a name to see where their hours came from.</p>
           <CrewBreakdown
             crew={crew.filter((c) => c.role !== "staff")}
