@@ -1,9 +1,18 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getAllProfiles, getCurrentProfile } from "@/lib/data/profiles";
 import { listShifts } from "@/lib/data/shifts";
 import { listAllTimeEntries, listTimeEntriesFor, sumApprovedHours, sumHours } from "@/lib/data/time-entries";
-import { addDays, durationHours, formatWeekLabel, getWeekStart, pgTimeToLabel } from "@/lib/domain/time";
+import {
+  addDays,
+  durationHours,
+  formatWeekLabel,
+  getWeekStart,
+  pgTimeToLabel,
+  resolveWeekParam,
+} from "@/lib/domain/time";
 import { fmtHours, hoursVerdict, WEEKLY_CAP_HOURS, WEEKLY_MIN_HOURS } from "@/lib/domain/hours";
 import { ClockControl } from "@/components/hours/ClockControl";
 import { ProgressBar } from "@/components/hours/ProgressBar";
@@ -14,7 +23,11 @@ import { CrewBreakdown } from "@/components/hours/CrewBreakdown";
 import { PendingApprovals } from "@/components/hours/PendingApprovals";
 import { Card } from "@/components/ui/Card";
 
-export default async function HoursPage() {
+export default async function HoursPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
@@ -23,6 +36,14 @@ export default async function HoursPage() {
   const isAdmin = profile.role === "lead" || profile.role === "staff";
   const weekStart = getWeekStart();
   const weekEnd = addDays(weekStart, 7);
+
+  // The crew breakdown can look at other weeks; the personal timesheet
+  // above it (clock in/out, this week's entries) always stays on the real
+  // current week — clocking in for a past week wouldn't make sense.
+  const { week } = await searchParams;
+  const crewWeekStart = resolveWeekParam(week);
+  const crewWeekEnd = addDays(crewWeekStart, 7);
+  const isCurrentCrewWeek = crewWeekStart === weekStart;
 
   const [weekShifts, myEntries, crew, allEntries] = await Promise.all([
     listShifts(supabase, weekStart),
@@ -133,23 +154,49 @@ export default async function HoursPage() {
       {isAdmin && (
         <div>
           <div className="mb-2 flex items-baseline justify-between">
-            <h5 className="font-(family-name:--font-heading) text-[16px] font-semibold">Everyone this week</h5>
+            <h5 className="font-(family-name:--font-heading) text-[16px] font-semibold">
+              {isCurrentCrewWeek ? "Everyone this week" : "Everyone"}
+            </h5>
             <span className="text-[13px] text-(--color-accent-700)">
               {
                 crew.filter(
                   (c) =>
                     c.role !== "staff" &&
-                    sumApprovedHours(allEntries.filter((e) => e.profile_id === c.id), weekStart, weekEnd) <
+                    sumApprovedHours(allEntries.filter((e) => e.profile_id === c.id), crewWeekStart, crewWeekEnd) <
                       WEEKLY_MIN_HOURS,
                 ).length
               }{" "}
               under 10
             </span>
           </div>
+          <div className="mb-2 flex items-center gap-1.5">
+            <Link
+              href={`/hours?week=${addDays(crewWeekStart, -7)}`}
+              aria-label="Previous week"
+              className="flex h-7 w-7 items-center justify-center border border-(--color-divider)"
+            >
+              <ChevronLeft size={14} strokeWidth={1.5} />
+            </Link>
+            <span className="flex-1 text-center text-[12.5px] text-(--color-text-62)">
+              {formatWeekLabel(crewWeekStart)}
+            </span>
+            <Link
+              href={`/hours?week=${addDays(crewWeekStart, 7)}`}
+              aria-label="Next week"
+              className="flex h-7 w-7 items-center justify-center border border-(--color-divider)"
+            >
+              <ChevronRight size={14} strokeWidth={1.5} />
+            </Link>
+          </div>
+          {!isCurrentCrewWeek && (
+            <Link href="/hours" className="mb-2 inline-block text-[12px] font-medium text-(--color-accent-700)">
+              Back to this week
+            </Link>
+          )}
           <p className="mb-2 text-[11.5px] text-(--color-text-50)">Tap a name to see where their hours came from.</p>
           <CrewBreakdown
             crew={crew.filter((c) => c.role !== "staff")}
-            entries={allEntries.filter((e) => e.date >= weekStart && e.date < weekEnd)}
+            entries={allEntries.filter((e) => e.date >= crewWeekStart && e.date < crewWeekEnd)}
             minHours={WEEKLY_MIN_HOURS}
             capHours={WEEKLY_CAP_HOURS}
           />
