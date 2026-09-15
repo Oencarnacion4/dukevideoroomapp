@@ -3,6 +3,7 @@ import { Tag } from "@/components/ui/Tag";
 import { ShiftActions } from "@/components/schedule/ShiftActions";
 import { AddCoverPicker } from "@/components/schedule/AddCoverPicker";
 import { DeleteShiftGroupButton } from "@/components/schedule/DeleteShiftGroupButton";
+import { EditShiftGroupButton } from "@/components/schedule/EditShiftGroupButton";
 import { pgTimeToLabel, spanLabel } from "@/lib/domain/time";
 import { shiftStatusMeta, initialsFor } from "@/lib/domain/shift-view";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
@@ -52,12 +53,25 @@ export function ShiftCard({
               {[first.camera_role, first.location].filter(Boolean).join(" · ")}
             </p>
           </div>
-          {isAdmin && shifts.length > 1 && (
-            <DeleteShiftGroupButton
-              shiftIds={shifts.map((s) => s.id)}
-              summary={`${first.session_type} · ${first.day_of_week} ${startLabel}`}
-              names={shifts.map((s) => s.assignee?.full_name).filter((n): n is string => !!n)}
-            />
+          {isAdmin && (
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <EditShiftGroupButton
+                shifts={shifts.map((s) => ({ id: s.id, assigneeId: s.assignee_id }))}
+                initialDay={first.day_of_week}
+                initialDate={first.date}
+                initialStart={startLabel}
+                initialEnd={endLabel}
+                initialSession={first.session_type}
+                initialCameraRole={first.camera_role}
+              />
+              {shifts.length > 1 && (
+                <DeleteShiftGroupButton
+                  shiftIds={shifts.map((s) => s.id)}
+                  summary={`${first.session_type} · ${first.day_of_week} ${startLabel}`}
+                  names={shifts.map((s) => s.assignee?.full_name).filter((n): n is string => !!n)}
+                />
+              )}
+            </div>
           )}
         </div>
 
@@ -114,7 +128,6 @@ export function ShiftCard({
                 endLabel={endLabel}
                 session={shift.session_type}
                 location={shift.location}
-                cameraRole={shift.camera_role}
                 availability={availability}
               />
             </div>

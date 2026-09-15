@@ -135,14 +135,16 @@ export async function saveShiftNoteAction(shiftId: string, note: string): Promis
 }
 
 /**
- * Fixes a shift's day/time/session/location — e.g. it was posted for the
- * wrong time — without deleting and recreating it, so whoever already
- * accepted or declined keeps that response. Notifies the assignee (if any)
- * since the details they responded to just changed under them.
+ * Fixes a shift's day/time/session/location — e.g. the whole slot was
+ * posted for the wrong time — without deleting and recreating it, so
+ * whoever already accepted or declined keeps that response. A shift
+ * "slot" on the schedule can be several rows (one per person covering
+ * it, plus maybe an open one); this updates every row in the group at
+ * once so the practice moves for everyone together, and notifies each
+ * assignee since the details they responded to just changed under them.
  */
-export async function updateShiftAction(
-  shiftId: string,
-  assigneeId: string | null,
+export async function updateShiftGroupAction(
+  shifts: { id: string; assigneeId: string | null }[],
   input: {
     day: DayOfWeek;
     date: string;
@@ -157,7 +159,7 @@ export async function updateShiftAction(
   const profile = await getCurrentProfile(supabase);
   if (!profile || (profile.role !== "lead" && profile.role !== "staff")) return { error: "Not allowed." };
 
-  await updateShift(supabase, shiftId, {
+  const patch = {
     day_of_week: input.day,
     date: input.date,
     start_time: labelToPgTime(input.startLabel),
@@ -165,15 +167,18 @@ export async function updateShiftAction(
     session_type: input.session,
     camera_role: input.cameraRole,
     location: input.location,
-  });
+  };
 
-  if (assigneeId) {
-    await notify(
-      supabase,
-      assigneeId,
-      `Shift time updated: ${input.session}`,
-      `Now ${input.day} ${input.startLabel} · ${input.location}`,
-    );
+  for (const s of shifts) {
+    await updateShift(supabase, s.id, patch);
+    if (s.assigneeId) {
+      await notify(
+        supabase,
+        s.assigneeId,
+        `Shift time updated: ${input.session}`,
+        `Now ${input.day} ${input.startLabel} · ${input.location}`,
+      );
+    }
   }
 
   revalidateSchedule();

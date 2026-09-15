@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateShiftAction } from "@/lib/actions/shifts";
+import { updateShiftGroupAction } from "@/lib/actions/shifts";
 import { DAYS, TIME_OPTIONS, addDays } from "@/lib/domain/time";
 import { SESSIONS, locationFor } from "@/lib/constants";
 import { Dialog } from "@/components/ui/Dialog";
@@ -16,8 +16,8 @@ const OPEN_END = "Open end";
 interface EditShiftDialogProps {
   open: boolean;
   onClose: () => void;
-  shiftId: string;
-  assigneeId: string | null;
+  /** Every row sharing this slot — one per person covering it (plus an open one, if any). All move together. */
+  shifts: { id: string; assigneeId: string | null }[];
   initialDay: DayOfWeek;
   initialDate: string;
   initialStart: string;
@@ -27,16 +27,15 @@ interface EditShiftDialogProps {
 }
 
 /**
- * Corrects a shift's day/time/session without deleting and recreating it —
- * that would wipe out an assignee's accept/decline response. Sibling rows
- * that share the same original slot (see ShiftCard's grouping) are each
- * their own row, so this only moves the one shift being edited.
+ * Corrects a shift slot's day/time/session without deleting and
+ * recreating it — that would wipe out everyone's accept/decline
+ * response. Moves every row in the group at once, so the whole practice
+ * shifts together rather than one person's row at a time.
  */
 export function EditShiftDialog({
   open,
   onClose,
-  shiftId,
-  assigneeId,
+  shifts,
   initialDay,
   initialDate,
   initialStart,
@@ -58,7 +57,7 @@ export function EditShiftDialog({
 
   const save = () => {
     startTransition(async () => {
-      const result = await updateShiftAction(shiftId, assigneeId, {
+      const result = await updateShiftGroupAction(shifts, {
         day,
         date,
         startLabel: start,
@@ -71,7 +70,11 @@ export function EditShiftDialog({
         show(result.error);
         return;
       }
-      show("Shift updated — whoever responded keeps that response.");
+      show(
+        shifts.length > 1
+          ? `Shift updated for everyone on it — whoever responded keeps that response.`
+          : "Shift updated — whoever responded keeps that response.",
+      );
       onClose();
     });
   };
@@ -80,8 +83,9 @@ export function EditShiftDialog({
     <Dialog open={open} onClose={onClose} title="Edit this shift">
       <div className="flex flex-col gap-3.5">
         <p className="text-[12.5px] text-(--color-text-62)">
-          Fixes the day, time, or session on this slot. Whoever already accepted or declined keeps that
-          response — they&apos;ll just be notified the details changed.
+          {shifts.length > 1
+            ? `Fixes the day, time, or session for everyone on this slot (${shifts.length} people). Whoever already accepted or declined keeps that response — they'll just be notified the details changed.`
+            : "Fixes the day, time, or session on this slot. Whoever already accepted or declined keeps that response — they'll just be notified the details changed."}
         </p>
 
         <div>

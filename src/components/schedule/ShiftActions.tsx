@@ -18,7 +18,6 @@ import { Dialog } from "@/components/ui/Dialog";
 import { Select } from "@/components/ui/Field";
 import { SwapDialog } from "@/components/schedule/SwapDialog";
 import { ShiftNoteDialog } from "@/components/schedule/ShiftNoteDialog";
-import { EditShiftDialog } from "@/components/schedule/EditShiftDialog";
 import { useToast } from "@/components/ui/Toast";
 import { crewWithAvailabilityHints, type CrewOption } from "@/lib/domain/crew-picker";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
@@ -42,7 +41,6 @@ interface ShiftActionsProps {
   endLabel?: string | null;
   session?: SessionType;
   location?: string;
-  cameraRole?: string | null;
   availability?: AvailabilityBlock[];
 }
 
@@ -64,14 +62,12 @@ export function ShiftActions({
   endLabel,
   session,
   location,
-  cameraRole,
   availability,
 }: ShiftActionsProps) {
   const [pending, startTransition] = useTransition();
   const [swapOpen, setSwapOpen] = useState(false);
   const [noteDialog, setNoteDialog] = useState<"accept" | "edit" | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
   const [assignTarget, setAssignTarget] = useState("");
   const { show } = useToast();
 
@@ -255,39 +251,13 @@ export function ShiftActions({
       )}
 
       {isAdmin && status !== "proposed" && (
-        <div className="flex justify-end gap-3">
-          {day && date && startLabel && session && (
-            <button
-              type="button"
-              onClick={() => setEditOpen(true)}
-              className="text-[13px] font-medium text-(--color-accent-700)"
-            >
-              Edit time
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setDeleteOpen(true)}
-            className="text-[13px] font-medium text-(--color-accent-700)"
-          >
-            Delete slot
-          </button>
-        </div>
-      )}
-
-      {day && date && startLabel && session && (
-        <EditShiftDialog
-          open={editOpen}
-          onClose={() => setEditOpen(false)}
-          shiftId={shiftId}
-          assigneeId={assigneeId ?? null}
-          initialDay={day}
-          initialDate={date}
-          initialStart={startLabel}
-          initialEnd={endLabel ?? null}
-          initialSession={session}
-          initialCameraRole={cameraRole ?? null}
-        />
+        <button
+          type="button"
+          onClick={() => setDeleteOpen(true)}
+          className="self-end text-[13px] font-medium text-(--color-accent-700)"
+        >
+          Delete slot
+        </button>
       )}
 
       <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete this slot?">
