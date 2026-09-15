@@ -15,6 +15,8 @@ interface CopySummaryButtonProps {
   className?: string;
 }
 
+const DIVIDER = "────────────────────";
+
 function buildSummary(
   weekLabel: string,
   crew: Profile[],
@@ -22,7 +24,7 @@ function buildSummary(
   minHours: number,
   capHours: number,
 ): string {
-  const lines: string[] = [`Video Room Crew — Hours, ${weekLabel}`, ""];
+  const lines: string[] = [`VIDEO ROOM — HOURS SUMMARY`, weekLabel];
 
   const rows = crew
     .map((c) => {
@@ -30,25 +32,35 @@ function buildSummary(
       const total = mine.reduce((sum, e) => sum + Number(e.hours), 0);
       return { c, mine, total };
     })
-    .sort((a, b) => b.total - a.total);
+    // Short-of-minimum people float to the top — that's what needs attention first.
+    .sort((a, b) => a.total - b.total);
 
   const underCount = rows.filter((r) => r.total < minHours).length;
-  lines.push(`${underCount} of ${crew.length} under the ${minHours}h minimum`, "");
+  lines.push(`${underCount} of ${crew.length} crew under the ${minHours}h minimum`);
 
   for (const { c, mine, total } of rows) {
+    lines.push("", DIVIDER, "");
     const status = total >= capHours ? "at cap" : total >= minHours ? "in range" : `${fmtHours(minHours - total)} short`;
     lines.push(`${c.full_name} — ${fmtHours(total)} (${status})`);
     if (mine.length === 0) {
-      lines.push("  No approved hours logged.");
-    } else {
-      const sorted = [...mine].sort((a, b) => (a.date < b.date ? -1 : 1));
-      for (const e of sorted) {
-        const day = new Date(`${e.date}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" });
-        const source = e.source === "tap" ? "Tap" : e.source === "clocked" ? "Clocked" : "Manual";
-        lines.push(`  ${day}  ${e.session_label} — ${fmtHours(Number(e.hours))} (${source})`);
-      }
+      lines.push("No hours logged.");
+      continue;
     }
-    lines.push("");
+
+    const byDate = new Map<string, TimeEntry[]>();
+    for (const e of mine) {
+      if (!byDate.has(e.date)) byDate.set(e.date, []);
+      byDate.get(e.date)!.push(e);
+    }
+    const dates = [...byDate.keys()].sort();
+    for (const date of dates) {
+      const day = new Date(`${date}T00:00:00`).toLocaleDateString("en-US", { weekday: "short" });
+      const items = byDate
+        .get(date)!
+        .map((e) => `${e.session_label} (${fmtHours(Number(e.hours))})`)
+        .join(", ");
+      lines.push(`${day}: ${items}`);
+    }
   }
 
   return lines.join("\n").trimEnd();
