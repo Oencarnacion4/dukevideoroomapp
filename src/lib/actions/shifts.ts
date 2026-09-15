@@ -4,7 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
-import { createShift, createSwapRequest, deleteShift, proposeShift, respondToShift, setShiftNote } from "@/lib/data/shifts";
+import {
+  createShift,
+  createSwapRequest,
+  deleteShift,
+  proposeShift,
+  respondToShift,
+  setShiftNote,
+  updateShift,
+} from "@/lib/data/shifts";
 import { getAllProfiles } from "@/lib/data/profiles";
 import { notify } from "@/lib/data/notifications";
 import { labelToPgTime } from "@/lib/domain/time";
@@ -124,6 +132,52 @@ export async function saveShiftNoteAction(shiftId: string, note: string): Promis
   const supabase = await createClient();
   await setShiftNote(supabase, shiftId, note.trim() || null);
   revalidateSchedule();
+}
+
+/**
+ * Fixes a shift's day/time/session/location — e.g. it was posted for the
+ * wrong time — without deleting and recreating it, so whoever already
+ * accepted or declined keeps that response. Notifies the assignee (if any)
+ * since the details they responded to just changed under them.
+ */
+export async function updateShiftAction(
+  shiftId: string,
+  assigneeId: string | null,
+  input: {
+    day: DayOfWeek;
+    date: string;
+    startLabel: string;
+    endLabel: string | null;
+    session: SessionType;
+    cameraRole: string | null;
+    location: string;
+  },
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) return { error: "Not allowed." };
+
+  await updateShift(supabase, shiftId, {
+    day_of_week: input.day,
+    date: input.date,
+    start_time: labelToPgTime(input.startLabel),
+    end_time: input.endLabel ? labelToPgTime(input.endLabel) : null,
+    session_type: input.session,
+    camera_role: input.cameraRole,
+    location: input.location,
+  });
+
+  if (assigneeId) {
+    await notify(
+      supabase,
+      assigneeId,
+      `Shift time updated: ${input.session}`,
+      `Now ${input.day} ${input.startLabel} · ${input.location}`,
+    );
+  }
+
+  revalidateSchedule();
+  return {};
 }
 
 export async function proposeShiftAction(input: {

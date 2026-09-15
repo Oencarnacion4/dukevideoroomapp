@@ -114,6 +114,7 @@ export function ShiftCard({
                 endLabel={endLabel}
                 session={shift.session_type}
                 location={shift.location}
+                cameraRole={shift.camera_role}
                 availability={availability}
               />
             </div>

@@ -89,6 +89,28 @@ export async function setShiftNote(supabase: SupabaseClient, shiftId: string, no
   if (error) throw error;
 }
 
+/**
+ * Corrects a shift's day/time/session/location/camera role in place —
+ * deliberately never touches assignee_id or status, so an already
+ * accepted/declined response survives fixing a mistake like the wrong time.
+ */
+export async function updateShift(
+  supabase: SupabaseClient,
+  shiftId: string,
+  patch: {
+    day_of_week: DayOfWeek;
+    date: string;
+    start_time: string;
+    end_time: string | null;
+    session_type: SessionType;
+    camera_role: string | null;
+    location: string;
+  },
+): Promise<void> {
+  const { error } = await supabase.from("shifts").update(patch).eq("id", shiftId);
+  if (error) throw error;
+}
+
 export async function createSwapRequest(
   supabase: SupabaseClient,
   input: { shift_id: string; from_profile: string; to_profile: string },
