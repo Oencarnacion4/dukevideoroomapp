@@ -32,6 +32,7 @@ export default async function HoursPage({
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
+  if (profile.role === "masters") redirect("/classes");
 
   const isStaff = profile.role === "staff";
   const isAdmin = profile.role === "lead" || profile.role === "staff";

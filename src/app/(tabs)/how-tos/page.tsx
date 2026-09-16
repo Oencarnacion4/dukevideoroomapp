@@ -12,6 +12,7 @@ export default async function HowTosPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
+  if (profile.role === "masters") redirect("/classes");
 
   const guides = await listGuides(supabase);
 

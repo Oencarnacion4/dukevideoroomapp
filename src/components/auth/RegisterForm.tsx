@@ -12,6 +12,7 @@ const ROLE_NOTES: Record<RegisterRole, string> = {
   lead: "Head intern: assign shifts, track the whole crew's hours, and keep your own timesheet.",
   staff:
     "Staff build the schedule, assign shifts and post tasks, and see everyone's hours. Salaried — no timesheet of your own.",
+  masters: "Masters students see the crew calendar to find times to meet — no shifts, no timesheet.",
 };
 
 const initialState: AuthActionState = { error: null };
@@ -76,6 +77,7 @@ export function RegisterForm({ rosterNames }: { rosterNames: string[] }) {
             { value: "intern", label: "Intern" },
             { value: "lead", label: "Head intern" },
             { value: "staff", label: "Staff" },
+            { value: "masters", label: "Masters student" },
           ]}
           value={role}
           onChange={setRole}

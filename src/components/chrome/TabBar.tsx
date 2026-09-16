@@ -21,6 +21,12 @@ interface Tab {
 }
 
 function tabsFor(role: Role): Tab[] {
+  if (role === "masters") {
+    return [
+      { href: "/classes", label: "My schedule", icon: CalendarDays, match: (p) => p.startsWith("/classes") },
+      { href: "/crew/calendar", label: "Crew", icon: User, match: (p) => p.startsWith("/crew") },
+    ];
+  }
   const isAdmin = role === "lead" || role === "staff";
   return [
     { href: "/today", label: "Today", icon: Home, match: (p) => p === "/today" },
@@ -47,7 +53,12 @@ export function TabBar({ role }: { role: Role }) {
   const tabs = tabsFor(role);
 
   return (
-    <nav className="grid grid-cols-6 border-t border-(--color-divider) bg-(--color-bg) pb-6.5">
+    <nav
+      className={cn(
+        "grid border-t border-(--color-divider) bg-(--color-bg) pb-6.5",
+        tabs.length === 2 ? "grid-cols-2" : "grid-cols-6",
+      )}
+    >
       {tabs.map((tab) => {
         const active = tab.match(pathname);
         const Icon = tab.icon;

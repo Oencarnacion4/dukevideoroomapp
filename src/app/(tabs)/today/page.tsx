@@ -26,6 +26,7 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
+  if (profile.role === "masters") redirect("/classes");
 
   const weekStart = getWeekStart();
   const today = new Date().toISOString().slice(0, 10);

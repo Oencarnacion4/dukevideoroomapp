@@ -1,4 +1,4 @@
-export type Role = "intern" | "lead" | "staff";
+export type Role = "intern" | "lead" | "staff" | "masters";
 
 export type DayOfWeek = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 

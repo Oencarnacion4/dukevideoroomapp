@@ -25,7 +25,7 @@ export function matchRoster(typed: string, names: string[]): string | null {
   );
 }
 
-export type RegisterRole = "intern" | "lead" | "staff";
+export type RegisterRole = "intern" | "lead" | "staff" | "masters";
 
 interface RegisterButtonState {
   disabled: boolean;
@@ -58,6 +58,7 @@ export function registerButtonState(
 
 /** The helper line under the name field on the register screen. */
 export function registerHelperLine(role: RegisterRole, matchedName: string | null): string {
+  if (role === "masters") return "Masters accounts do not need a roster entry.";
   if (role !== "intern") return "Staff accounts do not need a roster entry.";
   if (matchedName) {
     return `✓ Matched to the roster as ${matchedName} — your shifts and hours are already waiting.`;

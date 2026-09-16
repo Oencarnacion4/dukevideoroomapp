@@ -15,6 +15,7 @@ export default async function TasksPage({
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in");
+  if (profile.role === "masters") redirect("/classes");
 
   const { bucket } = await searchParams;
   const initialBucket = VALID_BUCKETS.find((b) => b === bucket);

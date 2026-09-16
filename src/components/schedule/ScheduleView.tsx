@@ -9,6 +9,7 @@ import { Seg } from "@/components/ui/Seg";
 import { buttonClasses } from "@/components/ui/Button";
 import { ShiftCard } from "@/components/schedule/ShiftCard";
 import { DAYS, addDays, formatWeekLabel } from "@/lib/domain/time";
+import { worksShifts } from "@/lib/domain/roles";
 import { cn } from "@/lib/utils";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
@@ -40,7 +41,7 @@ export function ScheduleView({
   const nextWeek = addDays(weekStart, 7);
 
   const candidates = crew
-    .filter((c) => c.id !== profile.id)
+    .filter((c) => c.id !== profile.id && worksShifts(c.role))
     .map((c) => ({
       id: c.id,
       full_name: c.full_name,
@@ -49,11 +50,13 @@ export function ScheduleView({
 
   // Unlike swap candidates, assigning an open slot can include yourself —
   // the head intern works shifts too.
-  const assignableCrew = crew.map((c) => ({
-    id: c.id,
-    full_name: c.id === profile.id ? `${c.full_name} (you)` : c.full_name,
-    shiftCount: shifts.filter((s) => s.assignee_id === c.id).length,
-  }));
+  const assignableCrew = crew
+    .filter((c) => worksShifts(c.role))
+    .map((c) => ({
+      id: c.id,
+      full_name: c.id === profile.id ? `${c.full_name} (you)` : c.full_name,
+      shiftCount: shifts.filter((s) => s.assignee_id === c.id).length,
+    }));
 
   const visible = useMemo(() => {
     return shifts.filter((s) => {

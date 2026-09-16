@@ -28,8 +28,9 @@ export default async function ClassesPage({
         <h4 className="font-(family-name:--font-heading) text-[21px] font-semibold">My availability</h4>
         <p className="text-[12px] text-(--color-text-50)">{profile.email}</p>
         <p className="mt-1 text-[13px] text-(--color-text-62)">
-          Classes and days you cannot work, plus when you plan to come in outside a scheduled shift. Staff see a
-          conflict warning before they assign you, and see your planned time on the crew calendar.
+          {profile.role === "masters"
+            ? "Your classes and free time, so staff can find a moment to meet. Visible to the crew on the crew calendar."
+            : "Classes and days you cannot work, plus when you plan to come in outside a scheduled shift. Staff see a conflict warning before they assign you, and see your planned time on the crew calendar."}
         </p>
       </div>
 

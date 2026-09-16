@@ -6,6 +6,7 @@ import { getCurrentProfile } from "@/lib/data/profiles";
 import { deleteTimeEntry, logTimeEntry, reviewTimeEntry, updateTimeEntry } from "@/lib/data/time-entries";
 import { roundClockedHours } from "@/lib/domain/hours";
 import { isNearVideoRoom } from "@/lib/domain/geo";
+import { tracksHours } from "@/lib/domain/roles";
 import type { Profile } from "@/lib/types";
 
 export interface GeoPoint {
@@ -77,7 +78,7 @@ async function clockOutAndLog(
 export async function toggleClockAction(defaultLabel: string): Promise<{ loggedHours: number | null; error?: string }> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+  if (!profile || !tracksHours(profile.role)) throw new Error("Not allowed");
 
   if (profile.clock_in_at) {
     if (profile.clock_source === "tap") {
@@ -118,7 +119,7 @@ export async function tapClockAction(
 ): Promise<{ clockedIn: boolean; loggedHours: number | null; error?: string }> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+  if (!profile || !tracksHours(profile.role)) throw new Error("Not allowed");
 
   if (profile.clock_in_at) {
     if (profile.clock_source !== "tap") {
@@ -168,7 +169,7 @@ export async function logManualHoursAction(input: {
 
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") return { error: "Not allowed." };
+  if (!profile || !tracksHours(profile.role)) return { error: "Not allowed." };
 
   await writeTolerant(
     (payload) => logTimeEntry(supabase, payload).then(() => ({ error: null })).catch((error) => ({ error })),
@@ -196,7 +197,7 @@ export async function updateTimeEntryAction(input: {
 
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") return { error: "Not allowed." };
+  if (!profile || !tracksHours(profile.role)) return { error: "Not allowed." };
 
   await updateTimeEntry(supabase, input.id, {
     date: input.date,
@@ -232,7 +233,7 @@ export async function editClockInAction(minutesAgo: number): Promise<{ error?: s
 
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") return { error: "Not allowed." };
+  if (!profile || !tracksHours(profile.role)) return { error: "Not allowed." };
   if (!profile.clock_in_at) return { error: "You're not clocked in right now." };
 
   const newClockInAt = new Date(Date.now() - minutesAgo * 60_000).toISOString();
@@ -251,7 +252,7 @@ export async function editClockInAction(minutesAgo: number): Promise<{ error?: s
 export async function cancelClockAction(): Promise<void> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+  if (!profile || !tracksHours(profile.role)) throw new Error("Not allowed");
 
   await writeTolerant(
     (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),

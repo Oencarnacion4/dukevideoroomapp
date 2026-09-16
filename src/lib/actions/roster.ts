@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile, removeProfile } from "@/lib/data/profiles";
+import type { Role } from "@/lib/types";
 
-export async function addRosterNameAction(fullName: string): Promise<void> {
+export async function addRosterNameAction(fullName: string, role: Role = "intern"): Promise<void> {
   const trimmed = fullName.trim();
   if (!trimmed) return;
 
   const supabase = await createClient();
-  const { error } = await supabase.from("profiles").insert({ full_name: trimmed, role: "intern" });
+  const { error } = await supabase.from("profiles").insert({ full_name: trimmed, role });
   if (error) throw error;
 
   revalidatePath("/crew");

@@ -16,6 +16,7 @@ import {
 import { getAllProfiles } from "@/lib/data/profiles";
 import { notify } from "@/lib/data/notifications";
 import { labelToPgTime } from "@/lib/domain/time";
+import { worksShifts } from "@/lib/domain/roles";
 import type { DayOfWeek, SessionType } from "@/lib/types";
 
 function revalidateSchedule() {
@@ -196,7 +197,7 @@ export async function proposeShiftAction(input: {
 }): Promise<void> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
-  if (!profile || profile.role === "staff") throw new Error("Not allowed");
+  if (!profile || !worksShifts(profile.role)) throw new Error("Not allowed");
 
   await proposeShift(supabase, {
     day_of_week: input.day,

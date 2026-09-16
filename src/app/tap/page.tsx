@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
+import { tracksHours } from "@/lib/domain/roles";
 import { TapConfirm } from "@/components/hours/TapConfirm";
 
 /**
@@ -12,7 +13,7 @@ export default async function TapPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) redirect("/sign-in?next=/tap");
-  if (profile.role === "staff") redirect("/today");
+  if (!tracksHours(profile.role)) redirect("/today");
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-(--color-accent-900) text-white">
