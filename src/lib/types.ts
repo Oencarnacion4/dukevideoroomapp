@@ -48,6 +48,7 @@ export interface Shift {
   location: string;
   assignee_id: string | null;
   status: ShiftStatus;
+  open_signup: boolean;
   note: string | null;
   created_by: string;
   created_at: string;

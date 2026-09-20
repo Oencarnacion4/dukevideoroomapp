@@ -26,6 +26,7 @@ import type { DayOfWeek, SessionType, ShiftStatus } from "@/lib/types";
 interface ShiftActionsProps {
   shiftId: string;
   status: ShiftStatus;
+  openSignup?: boolean;
   isMine: boolean;
   isAdmin: boolean;
   assigneeId?: string | null;
@@ -47,6 +48,7 @@ interface ShiftActionsProps {
 export function ShiftActions({
   shiftId,
   status,
+  openSignup,
   isMine,
   isAdmin,
   assigneeId,
@@ -183,7 +185,10 @@ export function ShiftActions({
           <Button className="w-full" disabled={pending} onClick={claim}>
             Claim this slot
           </Button>
-          {isAdmin && assignCandidates.length > 0 && (
+          {openSignup && (
+            <p className="text-[12px] text-(--color-text-50)">Stays open after you claim it — others can too.</p>
+          )}
+          {isAdmin && !openSignup && assignCandidates.length > 0 && (
             <div className="flex flex-col gap-1.5 border-t border-(--color-divider) pt-2">
               <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-(--color-text-55)">
                 Or assign someone

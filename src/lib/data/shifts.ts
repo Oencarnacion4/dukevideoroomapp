@@ -34,11 +34,24 @@ export async function createShift(
     assignee_id: string | null;
     note: string | null;
     created_by: string;
+    /** Lets the slot stay open after someone claims it, so more than one person can join. Open rows only. */
+    open_signup?: boolean;
   },
 ): Promise<void> {
   const status: ShiftStatus = input.assignee_id ? "pending" : "open";
   const { error } = await supabase.from("shifts").insert({ ...input, status });
-  if (error) throw error;
+  if (error) {
+    // Migration 0015 (open_signup column) may not have run yet on this
+    // Supabase project — retry without it so posting a shift still works.
+    if (input.open_signup !== undefined && error.message?.includes("open_signup")) {
+      const rest: Record<string, unknown> = { ...input };
+      delete rest.open_signup;
+      const { error: retryError } = await supabase.from("shifts").insert({ ...rest, status });
+      if (retryError) throw retryError;
+      return;
+    }
+    throw error;
+  }
 }
 
 /** An intern proposing their own extra shift, distinct from an admin-built one — starts 'proposed', not 'pending'. */
@@ -68,6 +81,30 @@ export async function proposeShift(
     status: "proposed" satisfies ShiftStatus,
   });
   if (error) throw error;
+}
+
+/**
+ * Claims an open slot. A plain open slot is claimed in place (it goes from
+ * unassigned to accepted, and disappears from "open" for everyone else). An
+ * open_signup slot stays open — the claim adds a new accepted row alongside
+ * it, via the claim_open_signup_shift() SECURITY DEFINER function, so the
+ * next person can still tap Claim too. Falls back to a plain claim if that
+ * column/function isn't there yet (migration 0015 not yet run).
+ */
+export async function claimShift(supabase: SupabaseClient, shiftId: string, profileId: string): Promise<void> {
+  const { data: shift, error: lookupError } = await supabase
+    .from("shifts")
+    .select("open_signup")
+    .eq("id", shiftId)
+    .single();
+
+  if (!lookupError && shift?.open_signup) {
+    const { error } = await supabase.rpc("claim_open_signup_shift", { shift_id: shiftId });
+    if (error) throw error;
+    return;
+  }
+
+  await respondToShift(supabase, shiftId, { status: "accepted", assignee_id: profileId });
 }
 
 export async function respondToShift(

@@ -1,6 +1,9 @@
 import type { ShiftStatus } from "@/lib/types";
 
-export function shiftStatusMeta(status: ShiftStatus): { label: string; variant: "accent" | "outline" | "neutral" } {
+export function shiftStatusMeta(
+  status: ShiftStatus,
+  openSignup?: boolean,
+): { label: string; variant: "accent" | "outline" | "neutral" } {
   switch (status) {
     case "accepted":
       return { label: "Accepted", variant: "accent" };
@@ -9,7 +12,9 @@ export function shiftStatusMeta(status: ShiftStatus): { label: string; variant: 
     case "swap_sent":
       return { label: "Swap sent", variant: "outline" };
     case "open":
-      return { label: "Open slot", variant: "outline" };
+      return openSignup
+        ? { label: "Open — anyone can join", variant: "outline" }
+        : { label: "Open slot", variant: "outline" };
     case "proposed":
       return { label: "Awaiting approval", variant: "outline" };
     default:

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
 import {
+  claimShift,
   createShift,
   createSwapRequest,
   deleteShift,
@@ -40,7 +41,7 @@ export async function claimShiftAction(shiftId: string): Promise<void> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) throw new Error("Not signed in");
-  await respondToShift(supabase, shiftId, { status: "accepted", assignee_id: profile.id });
+  await claimShift(supabase, shiftId, profile.id);
   revalidateSchedule();
 }
 

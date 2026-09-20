@@ -36,6 +36,7 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
   const [session, setSession] = useState<SessionType>("Full practice");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [openSlot, setOpenSlot] = useState(openByDefault);
+  const [openSignup, setOpenSignup] = useState(false);
   const [note, setNote] = useState("");
   const [override, setOverride] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -47,6 +48,13 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
 
   const toggleSelected = (id: string) =>
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+
+  const toggleOpenSlot = () =>
+    setOpenSlot((prev) => {
+      const next = !prev;
+      if (!next) setOpenSignup(false);
+      return next;
+    });
 
   const win = useMemo(() => shiftWindow(start, end === OPEN_END ? null : end), [start, end]);
 
@@ -64,13 +72,14 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
   const blocked = conflicts.length > 0 && !override;
 
   const selectedProfiles = crew.filter((c) => selectedIds.includes(c.id));
+  const openDescriptor = openSignup ? "open sign-up — everyone who wants can claim it" : "open, anyone can claim";
   const summary =
     selectedProfiles.length > 0
       ? `Assigned to ${selectedProfiles.map((p) => p.full_name).join(", ")}${
           openSlot ? " + 1 open slot" : ""
         } — must accept`
       : openSlot
-        ? `${day} · ${start} · ${durationLabel === "Open end" ? "open end" : durationLabel} — ${session} · ${location} · open, anyone can claim`
+        ? `${day} · ${start} · ${durationLabel === "Open end" ? "open end" : durationLabel} — ${session} · ${location} · ${openDescriptor}`
         : "Pick who works it, or leave a slot open.";
 
   const canSubmit = selectedProfiles.length > 0 || openSlot;
@@ -88,6 +97,7 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
         location,
         assigneeIds: selectedIds,
         alsoOpen: openSlot,
+        openSignup,
         note,
       }),
     );
@@ -169,7 +179,7 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
           </p>
           <div className="flex flex-col gap-1.5">
             <button
-              onClick={() => setOpenSlot((v) => !v)}
+              onClick={toggleOpenSlot}
               className={cn(
                 "flex items-center justify-between border p-2.5 text-left",
                 openSlot ? "border-(--color-accent-800)" : "border-(--color-divider)",
@@ -180,6 +190,23 @@ export function ShiftBuilderForm({ weekStart, crew, availability, shiftCounts }:
               </span>
               <span className="text-[12px] text-(--color-text-50)">anyone can claim</span>
             </button>
+            {openSlot && (
+              <label className="flex items-center justify-between gap-3 border border-(--color-divider) p-2.5 text-left">
+                <span className="flex flex-col">
+                  <span className="text-[13px] font-medium">Let more than one person claim it</span>
+                  <span className="text-[11.5px] text-(--color-text-50)">
+                    For optional stuff like a Saturday practice — everyone who wants to come taps Claim, and it
+                    stays open for the rest instead of closing after the first person.
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={openSignup}
+                  onChange={(e) => setOpenSignup(e.target.checked)}
+                  className="mt-0.5 shrink-0"
+                />
+              </label>
+            )}
             {crew.map((c) => {
               const personConflict = conflictFor(blocksFor(availability, c.id), day, date, win);
               const startMinutes = toMinutes(start) ?? 0;

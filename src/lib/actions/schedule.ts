@@ -20,6 +20,7 @@ export async function postShiftAction(input: {
   location: string;
   assigneeIds: string[];
   alsoOpen: boolean;
+  openSignup: boolean;
   note: string;
 }): Promise<void> {
   const supabase = await createClient();
@@ -42,6 +43,7 @@ export async function postShiftAction(input: {
       assignee_id: assigneeId,
       note,
       created_by: profile.id,
+      open_signup: assigneeId === null && input.openSignup,
     });
 
     if (assigneeId) {

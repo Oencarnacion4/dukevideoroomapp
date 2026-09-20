@@ -34,6 +34,10 @@ export function ShiftCard({
   const startLabel = pgTimeToLabel(first.start_time);
   const endLabel = first.end_time ? pgTimeToLabel(first.end_time) : null;
   const assignedIds = shifts.map((s) => s.assignee_id).filter((id): id is string => !!id);
+  // An open_signup slot's "open" row stays around after people claim it, so
+  // it can keep taking claims — show it last rather than wherever it lands
+  // in fetch order.
+  const orderedShifts = [...shifts].sort((a, b) => Number(a.status === "open") - Number(b.status === "open"));
 
   return (
     <Card blueprint className="flex gap-3 p-3.5">
@@ -75,9 +79,9 @@ export function ShiftCard({
           )}
         </div>
 
-        {shifts.map((shift, i) => {
+        {orderedShifts.map((shift, i) => {
           const isMine = shift.assignee_id === currentProfileId;
-          const meta = shiftStatusMeta(shift.status);
+          const meta = shiftStatusMeta(shift.status, shift.open_signup);
           const shiftSummary = `${shift.session_type} · ${shift.day_of_week} ${startLabel} · ${shift.location}`;
           return (
             <div
@@ -114,6 +118,7 @@ export function ShiftCard({
               <ShiftActions
                 shiftId={shift.id}
                 status={shift.status}
+                openSignup={shift.open_signup}
                 isMine={isMine}
                 isAdmin={isAdmin}
                 assigneeId={shift.assignee_id}
