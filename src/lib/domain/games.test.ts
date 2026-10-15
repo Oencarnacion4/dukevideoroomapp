@@ -30,6 +30,32 @@ describe("parseGameSchedule", () => {
     });
   });
 
+  it("keeps a comma inside the venue intact (e.g. 'Lawrence, KS') instead of shearing it into the time field", () => {
+    const { games, errors } = parseGameSchedule("10/25/2026, Kansas, away, Lawrence, KS, 1:00 PM");
+    expect(errors).toHaveLength(0);
+    expect(games[0]).toEqual({
+      date: "2026-10-25",
+      opponent: "Kansas",
+      homeAway: "away",
+      venue: "Lawrence, KS",
+      startLabel: "1:00 PM",
+      timeIsPlaceholder: false,
+    });
+  });
+
+  it("keeps a comma-containing venue with no trailing time", () => {
+    const { games, errors } = parseGameSchedule("12/8/2026, Georgia, neutral, New York, NY");
+    expect(errors).toHaveLength(0);
+    expect(games[0]).toEqual({
+      date: "2026-12-08",
+      opponent: "Georgia",
+      homeAway: "neutral",
+      venue: "New York, NY",
+      startLabel: "7:00 PM",
+      timeIsPlaceholder: true,
+    });
+  });
+
   it("accepts ISO dates and short home/away letters", () => {
     const { games, errors } = parseGameSchedule("2026-11-10, Michigan State, n, United Center - Chicago, 7:30 PM");
     expect(errors).toHaveLength(0);
@@ -59,9 +85,13 @@ describe("parseGameSchedule", () => {
     expect(errors[0].reason).toContain("home, away, or neutral");
   });
 
-  it("reports an unreadable time", () => {
-    const { errors } = parseGameSchedule("11/2/2026, Army, home, Cameron Indoor Stadium, not a time");
-    expect(errors[0].reason).toContain("time");
+  it("treats an unparseable trailing chunk as part of the venue, not a bad time", () => {
+    // Can't tell a typo'd time apart from a venue with its own extra comma
+    // segment, so it falls back to a placeholder time rather than erroring.
+    const { games, errors } = parseGameSchedule("11/2/2026, Army, home, Cameron Indoor Stadium, not a time");
+    expect(errors).toHaveLength(0);
+    expect(games[0].venue).toBe("Cameron Indoor Stadium, not a time");
+    expect(games[0].timeIsPlaceholder).toBe(true);
   });
 
   it("collects multiple games and errors together", () => {

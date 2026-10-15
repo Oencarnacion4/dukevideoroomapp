@@ -52,6 +52,13 @@ function parseHomeAway(raw: string): HomeAway | null {
  * "Date, Opponent, Home/Away/Neutral, Venue, Time" — Venue and Time are
  * optional (Venue defaults by home/away, Time defaults to DEFAULT_GAME_TIME
  * and is flagged so the preview can call it out as a placeholder).
+ *
+ * Only the first three fields are split strictly on commas. Everything
+ * after that is treated as "venue[, time]" rather than two more
+ * comma-separated fields, since a real venue like "Lawrence, KS" or
+ * "New York, NY" legitimately contains its own comma — splitting on every
+ * comma would otherwise shear the state abbreviation off into the time
+ * field and misparse the line.
  */
 export function parseGameSchedule(text: string): { games: ParsedGame[]; errors: ParseError[] } {
   const games: ParsedGame[] = [];
@@ -62,31 +69,57 @@ export function parseGameSchedule(text: string): { games: ParsedGame[]; errors: 
     const line = rawLine.trim();
     if (!line) return;
 
-    const parts = line.split(",").map((p) => p.trim());
-    const [dateRaw, opponentRaw, homeAwayRaw, venueRaw, timeRaw] = parts;
+    const commaIndexes: number[] = [];
+    for (let pos = line.indexOf(","); pos !== -1 && commaIndexes.length < 3; pos = line.indexOf(",", pos + 1)) {
+      commaIndexes.push(pos);
+    }
+    const [firstComma, secondComma, thirdComma] = commaIndexes;
 
-    const date = dateRaw ? parseDate(dateRaw) : null;
+    const dateRaw = firstComma === undefined ? line : line.slice(0, firstComma);
+    const opponentRaw =
+      firstComma === undefined ? "" : line.slice(firstComma + 1, secondComma ?? line.length);
+    const homeAwayRaw =
+      secondComma === undefined ? "" : line.slice(secondComma + 1, thirdComma ?? line.length);
+    const rest = thirdComma === undefined ? "" : line.slice(thirdComma + 1).trim();
+
+    const date = parseDate(dateRaw.trim());
     if (!date) {
       errors.push({ line: i + 1, text: line, reason: "Couldn't read the date — use M/D/YYYY or YYYY-MM-DD." });
       return;
     }
 
-    const opponent = opponentRaw?.trim();
+    const opponent = opponentRaw.trim();
     if (!opponent) {
       errors.push({ line: i + 1, text: line, reason: "Missing opponent." });
       return;
     }
 
-    const homeAway = homeAwayRaw ? parseHomeAway(homeAwayRaw) : null;
+    const homeAway = parseHomeAway(homeAwayRaw.trim());
     if (!homeAway) {
       errors.push({ line: i + 1, text: line, reason: "Third field needs to be home, away, or neutral." });
       return;
     }
 
-    const venue = venueRaw?.trim() || (homeAway === "home" ? "Cameron Indoor Stadium" : "TBD");
+    // The trailing chunk after the last comma in "rest" is the time if it
+    // reads as one — otherwise the whole remainder is just the venue.
+    let venueRaw = rest;
+    let timeRaw = "";
+    const lastComma = rest.lastIndexOf(",");
+    if (lastComma !== -1) {
+      const tail = rest.slice(lastComma + 1).trim();
+      if (toMinutes(tail) != null) {
+        timeRaw = tail;
+        venueRaw = rest.slice(0, lastComma).trim();
+      }
+    } else if (toMinutes(rest) != null) {
+      timeRaw = rest;
+      venueRaw = "";
+    }
 
-    const timeIsPlaceholder = !timeRaw?.trim();
-    const startLabel = timeIsPlaceholder ? DEFAULT_GAME_TIME : timeRaw.trim();
+    const venue = venueRaw || (homeAway === "home" ? "Cameron Indoor Stadium" : "TBD");
+
+    const timeIsPlaceholder = !timeRaw;
+    const startLabel = timeIsPlaceholder ? DEFAULT_GAME_TIME : timeRaw;
     if (toMinutes(startLabel) == null) {
       errors.push({ line: i + 1, text: line, reason: `Couldn't read the time "${timeRaw}" — use "7:00 PM" style.` });
       return;
