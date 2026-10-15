@@ -241,6 +241,12 @@ export function ScheduleView({
         </div>
       )}
 
+      {isAdmin && (
+        <Link href="/schedule/games/new" className="text-center text-[13px] font-medium text-(--color-accent-700)">
+          Import season games
+        </Link>
+      )}
+
       {!isAdmin && (
         <div className="pt-1">
           <Link

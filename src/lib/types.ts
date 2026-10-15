@@ -22,6 +22,8 @@ export type TimeEntryStatus = "pending" | "approved" | "rejected";
 
 export type GuideFormat = "written" | "video" | "document";
 
+export type HomeAway = "home" | "away" | "neutral";
+
 export interface Profile {
   id: string;
   auth_user_id: string | null;
@@ -34,6 +36,7 @@ export interface Profile {
   clock_label: string | null;
   clock_source: "clocked" | "tap" | null;
   clock_location_verified: boolean | null;
+  clock_shift_id: string | null;
   created_at: string;
 }
 
@@ -46,6 +49,8 @@ export interface Shift {
   session_type: SessionType;
   camera_role: string | null;
   location: string;
+  opponent: string | null;
+  home_away: HomeAway | null;
   assignee_id: string | null;
   status: ShiftStatus;
   open_signup: boolean;
@@ -91,6 +96,8 @@ export interface TimeEntry {
   reviewed_at: string | null;
   location_verified: boolean | null;
   clock_in_at: string | null;
+  /** The specific shift this session was for — set for game clock-ins, null otherwise. */
+  shift_id: string | null;
 }
 
 export interface Task {

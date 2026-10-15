@@ -9,15 +9,18 @@ import {
   createShift,
   createSwapRequest,
   deleteShift,
+  listGameShifts,
   proposeShift,
   respondToShift,
   setShiftNote,
   updateShift,
 } from "@/lib/data/shifts";
 import { getAllProfiles } from "@/lib/data/profiles";
+import { listAllTimeEntries } from "@/lib/data/time-entries";
 import { notify } from "@/lib/data/notifications";
 import { labelToPgTime } from "@/lib/domain/time";
 import { worksShifts } from "@/lib/domain/roles";
+import { computeGameStats, gameClaimWarning } from "@/lib/domain/games";
 import type { DayOfWeek, SessionType } from "@/lib/types";
 
 function revalidateSchedule() {
@@ -37,12 +40,39 @@ export async function declineShiftAction(shiftId: string): Promise<void> {
   revalidateSchedule();
 }
 
-export async function claimShiftAction(shiftId: string): Promise<void> {
+/**
+ * Claiming a Game shift checks the season-wide sign-up balance first — if
+ * it'd put the claimant notably ahead of whoever's claimed the fewest, it
+ * comes back asking for a second tap (`confirmed: true`) instead of
+ * claiming immediately. Never a hard block, and every other session type
+ * skips the check entirely.
+ */
+export async function claimShiftAction(
+  shiftId: string,
+  confirmed = false,
+): Promise<{ needsConfirm?: boolean; warningMessage?: string }> {
   const supabase = await createClient();
   const profile = await getCurrentProfile(supabase);
   if (!profile) throw new Error("Not signed in");
+
+  if (!confirmed) {
+    const { data: target } = await supabase.from("shifts").select("session_type").eq("id", shiftId).maybeSingle();
+    if (target?.session_type === "Game") {
+      const [gameShifts, timeEntries, crew] = await Promise.all([
+        listGameShifts(supabase),
+        listAllTimeEntries(supabase),
+        getAllProfiles(supabase),
+      ]);
+      const stats = computeGameStats(gameShifts, timeEntries);
+      const eligibleIds = crew.filter((c) => worksShifts(c.role)).map((c) => c.id);
+      const warningMessage = gameClaimWarning(stats, profile.id, eligibleIds);
+      if (warningMessage) return { needsConfirm: true, warningMessage };
+    }
+  }
+
   await claimShift(supabase, shiftId, profile.id);
   revalidateSchedule();
+  return {};
 }
 
 export async function assignShiftAction(

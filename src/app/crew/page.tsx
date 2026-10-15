@@ -2,10 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getAllProfiles, getCurrentProfile } from "@/lib/data/profiles";
-import { listShifts } from "@/lib/data/shifts";
+import { listShifts, listGameShifts } from "@/lib/data/shifts";
 import { listAllAvailability } from "@/lib/data/availability";
+import { listAllTimeEntries } from "@/lib/data/time-entries";
 import { getWeekStart } from "@/lib/domain/time";
 import { initialsFor } from "@/lib/domain/shift-view";
+import { computeGameStats } from "@/lib/domain/games";
+import { worksShifts } from "@/lib/domain/roles";
 import { OverlayHeader } from "@/components/chrome/OverlayHeader";
 import { Tag } from "@/components/ui/Tag";
 import { buttonClasses } from "@/components/ui/Button";
@@ -18,11 +21,14 @@ export default async function CrewPage() {
   if (!profile || (profile.role !== "lead" && profile.role !== "staff")) redirect("/today");
 
   const weekStart = getWeekStart();
-  const [crew, shifts, availability] = await Promise.all([
+  const [crew, shifts, availability, gameShifts, timeEntries] = await Promise.all([
     getAllProfiles(supabase),
     listShifts(supabase, weekStart),
     listAllAvailability(supabase),
+    listGameShifts(supabase),
+    listAllTimeEntries(supabase),
   ]);
+  const gameStats = computeGameStats(gameShifts, timeEntries);
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-(--color-bg)">
@@ -47,6 +53,7 @@ export default async function CrewPage() {
           {crew.map((c) => {
             const shiftCount = shifts.filter((s) => s.assignee_id === c.id).length;
             const blockCount = availability.filter((a) => a.profile_id === c.id).length;
+            const stat = gameStats[c.id];
             return (
               <div
                 key={c.id}
@@ -63,6 +70,11 @@ export default async function CrewPage() {
                       {shiftCount} shift{shiftCount === 1 ? "" : "s"} this week · {blockCount} block
                       {blockCount === 1 ? "" : "s"} on file
                     </p>
+                    {worksShifts(c.role) && (
+                      <p className="text-[11px] text-(--color-text-50)">
+                        Games: {stat?.claimed ?? 0} claimed · {stat?.worked ?? 0} worked
+                      </p>
+                    )}
                   </div>
                 </Link>
                 <div className="flex flex-col items-end gap-1.5">

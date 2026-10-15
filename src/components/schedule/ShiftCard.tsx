@@ -6,6 +6,7 @@ import { DeleteShiftGroupButton } from "@/components/schedule/DeleteShiftGroupBu
 import { EditShiftGroupButton } from "@/components/schedule/EditShiftGroupButton";
 import { pgTimeToLabel, spanLabel } from "@/lib/domain/time";
 import { shiftStatusMeta, initialsFor } from "@/lib/domain/shift-view";
+import { gameTitle } from "@/lib/domain/games";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
 import type { CrewOption } from "@/lib/domain/crew-picker";
@@ -52,9 +53,11 @@ export function ShiftCard({
       <div className="flex flex-1 flex-col gap-2.25">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h3 className="font-(family-name:--font-heading) text-[17px] font-semibold">{first.session_type}</h3>
+            <h3 className="font-(family-name:--font-heading) text-[17px] font-semibold">{gameTitle(first)}</h3>
             <p className="text-[12.5px] text-(--color-text)/62">
-              {[first.camera_role, first.location].filter(Boolean).join(" · ")}
+              {first.session_type === "Game"
+                ? first.location
+                : [first.camera_role, first.location].filter(Boolean).join(" · ")}
             </p>
           </div>
           {isAdmin && (
@@ -92,6 +95,11 @@ export function ShiftCard({
                   : "flex flex-col gap-2.25 border-t border-(--color-divider) pt-2.25"
               }
             >
+              {shift.camera_role && (
+                <span className="font-(family-name:--font-heading) text-[10px] font-medium uppercase tracking-[0.08em] text-(--color-accent-700)">
+                  {shift.camera_role}
+                </span>
+              )}
               {shift.assignee ? (
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center bg-(--color-accent-100) font-(family-name:--font-heading) text-[11px] text-(--color-accent-800)">

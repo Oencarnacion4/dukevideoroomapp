@@ -21,6 +21,30 @@ export async function listShifts(supabase: SupabaseClient, weekStart: string): P
   return data as unknown as ShiftWithAssignee[];
 }
 
+/** Every game shift (any role, any week) — the season is small enough to fetch in one go for the claimed/worked stats. */
+export async function listGameShifts(supabase: SupabaseClient): Promise<Shift[]> {
+  const { data, error } = await supabase.from("shifts").select("*").eq("session_type", "Game");
+  if (error) throw error;
+  return data;
+}
+
+/** The caller's accepted game shift for today, if any — used to link a clock-in to the specific game. */
+export async function findTodaysGameShiftId(supabase: SupabaseClient, profileId: string): Promise<string | null> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from("shifts")
+    .select("id")
+    .eq("assignee_id", profileId)
+    .eq("date", today)
+    .eq("session_type", "Game")
+    .eq("status", "accepted")
+    .limit(1)
+    .maybeSingle();
+
+  if (error) return null; // column may not exist yet pre-migration — fail quiet, not fatal to clocking in
+  return data?.id ?? null;
+}
+
 export async function createShift(
   supabase: SupabaseClient,
   input: {
@@ -36,21 +60,59 @@ export async function createShift(
     created_by: string;
     /** Lets the slot stay open after someone claims it, so more than one person can join. Open rows only. */
     open_signup?: boolean;
+    /** Game shifts only — who it's against and where, for the card title. */
+    opponent?: string | null;
+    home_away?: "home" | "away" | "neutral" | null;
   },
 ): Promise<void> {
   const status: ShiftStatus = input.assignee_id ? "pending" : "open";
-  const { error } = await supabase.from("shifts").insert({ ...input, status });
-  if (error) {
-    // Migration 0015 (open_signup column) may not have run yet on this
-    // Supabase project — retry without it so posting a shift still works.
-    if (input.open_signup !== undefined && error.message?.includes("open_signup")) {
-      const rest: Record<string, unknown> = { ...input };
-      delete rest.open_signup;
-      const { error: retryError } = await supabase.from("shifts").insert({ ...rest, status });
-      if (retryError) throw retryError;
-      return;
+  const optionalKeys = ["open_signup", "opponent", "home_away"] as const;
+  let payload: Record<string, unknown> = { ...input, status };
+
+  for (let attempt = 0; attempt <= optionalKeys.length; attempt++) {
+    const { error } = await supabase.from("shifts").insert(payload);
+    if (!error) return;
+    // Migrations 0015/0016 (open_signup/opponent/home_away columns) may not
+    // have run yet on this Supabase project — retry without whichever
+    // column PostgREST says it can't find, so posting a shift still works.
+    const missingKey = optionalKeys.find((key) => key in payload && error.message?.includes(`'${key}'`));
+    if (!missingKey) throw error;
+    payload = { ...payload };
+    delete payload[missingKey];
+  }
+}
+
+/** Bulk-creates the season's game shifts — one open row per GAME_ROLE per game, ready for self sign-up. */
+export async function createGameShifts(
+  supabase: SupabaseClient,
+  games: {
+    day_of_week: DayOfWeek;
+    date: string;
+    start_time: string;
+    opponent: string;
+    home_away: "home" | "away" | "neutral";
+    location: string;
+    roles: readonly string[];
+  }[],
+  createdBy: string,
+): Promise<void> {
+  for (const game of games) {
+    for (const role of game.roles) {
+      await createShift(supabase, {
+        day_of_week: game.day_of_week,
+        date: game.date,
+        start_time: game.start_time,
+        end_time: null,
+        session_type: "Game",
+        camera_role: role,
+        location: game.location,
+        assignee_id: null,
+        note: null,
+        created_by: createdBy,
+        opponent: game.opponent,
+        home_away: game.home_away,
+      });
     }
-    throw error;
   }
 }
 

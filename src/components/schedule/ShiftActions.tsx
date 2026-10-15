@@ -71,6 +71,7 @@ export function ShiftActions({
   const [noteDialog, setNoteDialog] = useState<"accept" | "edit" | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [assignTarget, setAssignTarget] = useState("");
+  const [claimWarning, setClaimWarning] = useState<string | null>(null);
   const { show } = useToast();
 
   const assignCandidates = useMemo(() => {
@@ -97,7 +98,18 @@ export function ShiftActions({
 
   const claim = () =>
     startTransition(async () => {
-      await claimShiftAction(shiftId);
+      const result = await claimShiftAction(shiftId);
+      if (result.needsConfirm && result.warningMessage) {
+        setClaimWarning(result.warningMessage);
+        return;
+      }
+      show("Slot claimed. It is yours.");
+    });
+
+  const confirmClaim = () =>
+    startTransition(async () => {
+      setClaimWarning(null);
+      await claimShiftAction(shiftId, true);
       show("Slot claimed. It is yours.");
     });
 
@@ -275,6 +287,18 @@ export function ShiftActions({
           </Button>
           <Button className="flex-1" disabled={pending} onClick={remove}>
             Delete
+          </Button>
+        </div>
+      </Dialog>
+
+      <Dialog open={!!claimWarning} onClose={() => setClaimWarning(null)} title="Spread the games around?">
+        <p className="mb-4 text-[13px] text-(--color-text-62)">{claimWarning}</p>
+        <div className="flex gap-2">
+          <Button variant="secondary" className="flex-1" onClick={() => setClaimWarning(null)}>
+            Never mind
+          </Button>
+          <Button className="flex-1" disabled={pending} onClick={confirmClaim}>
+            Claim anyway
           </Button>
         </div>
       </Dialog>

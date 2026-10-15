@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
 import { deleteTimeEntry, logTimeEntry, reviewTimeEntry, updateTimeEntry } from "@/lib/data/time-entries";
+import { findTodaysGameShiftId } from "@/lib/data/shifts";
 import { roundClockedHours } from "@/lib/domain/hours";
 import { isNearVideoRoom } from "@/lib/domain/geo";
 import { tracksHours } from "@/lib/domain/roles";
@@ -27,7 +28,7 @@ const VIDEO_ROOM_LABEL = "Video room";
  * PostgREST says it can't find, so the core clock action still succeeds
  * even mid-migration-gap; the extra tracking just doesn't get recorded yet.
  */
-const OPTIONAL_COLUMNS = ["location_verified", "clock_location_verified", "clock_source", "status"];
+const OPTIONAL_COLUMNS = ["location_verified", "clock_location_verified", "clock_source", "status", "shift_id", "clock_shift_id"];
 
 async function writeTolerant<T extends Record<string, unknown>>(
   run: (payload: T) => PromiseLike<{ error: { message?: string } | null }>,
@@ -64,12 +65,13 @@ async function clockOutAndLog(
         hours,
         source,
         ...(locationVerified !== undefined ? { location_verified: locationVerified } : {}),
+        ...(profile.clock_shift_id ? { shift_id: profile.clock_shift_id } : {}),
       },
     );
   }
   await writeTolerant(
     (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
-    { clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null },
+    { clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null, clock_shift_id: null },
   );
   return hours > 0 ? hours : null;
 }
@@ -90,9 +92,15 @@ export async function toggleClockAction(defaultLabel: string): Promise<{ loggedH
     return { loggedHours };
   }
 
+  const gameShiftId = await findTodaysGameShiftId(supabase, profile.id);
   await writeTolerant(
     (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
-    { clock_in_at: new Date().toISOString(), clock_label: defaultLabel, clock_source: "clocked" },
+    {
+      clock_in_at: new Date().toISOString(),
+      clock_label: defaultLabel,
+      clock_source: "clocked",
+      ...(gameShiftId ? { clock_shift_id: gameShiftId } : {}),
+    },
   );
 
   revalidatePath("/today");
@@ -143,6 +151,7 @@ export async function tapClockAction(
     };
   }
 
+  const gameShiftId = await findTodaysGameShiftId(supabase, profile.id);
   await writeTolerant(
     (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
     {
@@ -150,6 +159,7 @@ export async function tapClockAction(
       clock_label: VIDEO_ROOM_LABEL,
       clock_source: "tap",
       clock_location_verified: !!location,
+      ...(gameShiftId ? { clock_shift_id: gameShiftId } : {}),
     },
   );
 
@@ -256,7 +266,7 @@ export async function cancelClockAction(): Promise<void> {
 
   await writeTolerant(
     (payload) => supabase.from("profiles").update(payload).eq("id", profile.id),
-    { clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null },
+    { clock_in_at: null, clock_label: null, clock_source: null, clock_location_verified: null, clock_shift_id: null },
   );
 
   revalidatePath("/today");

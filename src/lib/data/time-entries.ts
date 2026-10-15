@@ -50,6 +50,7 @@ export async function logTimeEntry(
     hours: number;
     source: TimeEntrySource;
     location_verified?: boolean;
+    shift_id?: string;
   },
 ): Promise<void> {
   const { error } = await supabase.from("time_entries").insert({

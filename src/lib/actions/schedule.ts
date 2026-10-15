@@ -4,9 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/data/profiles";
-import { createShift } from "@/lib/data/shifts";
+import { createShift, createGameShifts } from "@/lib/data/shifts";
 import { notify } from "@/lib/data/notifications";
-import { labelToPgTime } from "@/lib/domain/time";
+import { labelToPgTime, dayOfWeekFor } from "@/lib/domain/time";
+import { GAME_ROLES, type ParsedGame } from "@/lib/domain/games";
 import type { DayOfWeek, SessionType } from "@/lib/types";
 
 export async function postShiftAction(input: {
@@ -59,4 +60,31 @@ export async function postShiftAction(input: {
   revalidatePath("/schedule");
   revalidatePath("/today");
   redirect(`/schedule?week=${input.weekStart}`);
+}
+
+/** Bulk-creates a season's worth of game shifts (3 role slots per game) from the import preview — admin-only. */
+export async function importGamesAction(games: ParsedGame[]): Promise<{ error?: string; created?: number }> {
+  if (games.length === 0) return { error: "Nothing to import." };
+
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) return { error: "Not allowed." };
+
+  await createGameShifts(
+    supabase,
+    games.map((g) => ({
+      day_of_week: dayOfWeekFor(g.date),
+      date: g.date,
+      start_time: labelToPgTime(g.startLabel),
+      opponent: g.opponent,
+      home_away: g.homeAway,
+      location: g.venue,
+      roles: GAME_ROLES,
+    })),
+    profile.id,
+  );
+
+  revalidatePath("/schedule");
+  revalidatePath("/today");
+  return { created: games.length };
 }
