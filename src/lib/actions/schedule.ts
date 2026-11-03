@@ -86,5 +86,6 @@ export async function importGamesAction(games: ParsedGame[]): Promise<{ error?: 
 
   revalidatePath("/schedule");
   revalidatePath("/today");
+  revalidatePath("/schedule/games");
   return { created: games.length };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeGameStats, gameClaimWarning, gameTitle, parseGameSchedule } from "./games";
+import { computeGameStats, distinctGames, gameClaimWarning, gameTitle, parseGameSchedule } from "./games";
 
 describe("parseGameSchedule", () => {
   it("parses a full line", () => {
@@ -178,5 +178,25 @@ describe("gameClaimWarning", () => {
   it("treats an unseen crew member as zero claimed, not exempt", () => {
     const stats = { jon: { profileId: "jon", claimed: 3, worked: 0 } };
     expect(gameClaimWarning(stats, "jon", ["jon", "maya"])).not.toBeNull();
+  });
+});
+
+describe("distinctGames", () => {
+  it("collapses the 3 role shifts for one game into a single entry, sorted by date", () => {
+    const shifts = [
+      { date: "2026-12-01", opponent: "Army", home_away: "home" as const, location: "Cameron Indoor Stadium" },
+      { date: "2026-12-01", opponent: "Army", home_away: "home" as const, location: "Cameron Indoor Stadium" },
+      { date: "2026-12-01", opponent: "Army", home_away: "home" as const, location: "Cameron Indoor Stadium" },
+      { date: "2026-11-02", opponent: "Navy", home_away: "away" as const, location: "Annapolis, MD" },
+    ];
+    expect(distinctGames(shifts)).toEqual([
+      { date: "2026-11-02", opponent: "Navy", home_away: "away", location: "Annapolis, MD" },
+      { date: "2026-12-01", opponent: "Army", home_away: "home", location: "Cameron Indoor Stadium" },
+    ]);
+  });
+
+  it("skips non-game shifts (no opponent)", () => {
+    const shifts = [{ date: "2026-11-02", opponent: null, home_away: null, location: "Practice court" }];
+    expect(distinctGames(shifts)).toEqual([]);
   });
 });

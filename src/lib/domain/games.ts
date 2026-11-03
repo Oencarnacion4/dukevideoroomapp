@@ -131,6 +131,28 @@ export function parseGameSchedule(text: string): { games: ParsedGame[]; errors: 
   return { games, errors };
 }
 
+export interface GameSummary {
+  date: string;
+  opponent: string;
+  home_away: HomeAway | null;
+  location: string;
+}
+
+/** One row per distinct (date, opponent) — each game has 3 role shift rows sharing those. */
+export function distinctGames(
+  shifts: Pick<Shift, "date" | "opponent" | "home_away" | "location">[],
+): GameSummary[] {
+  const map = new Map<string, GameSummary>();
+  for (const s of shifts) {
+    if (!s.opponent) continue;
+    const key = `${s.date}|${s.opponent}`;
+    if (!map.has(key)) {
+      map.set(key, { date: s.date, opponent: s.opponent, home_away: s.home_away, location: s.location });
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export interface GameStat {
   profileId: string;
   /** Signed up for (accepted a game-day role) — live, used for the sign-up fairness nudge. */

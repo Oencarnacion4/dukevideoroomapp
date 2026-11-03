@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   CalendarDays,
   CheckSquare,
+  ClipboardList,
   Clock,
   FileText,
   Home,
@@ -38,6 +39,7 @@ function tabsFor(role: Role): Tab[] {
       match: (p) => p.startsWith("/hours"),
     },
     { href: "/tasks", label: "Tasks", icon: CheckSquare, match: (p) => p.startsWith("/tasks") },
+    { href: "/game-prep", label: "Game prep", icon: ClipboardList, match: (p) => p.startsWith("/game-prep") },
     { href: "/how-tos", label: "Resources", icon: FileText, match: (p) => p.startsWith("/how-tos") },
     {
       href: isAdmin ? "/crew" : "/classes",
@@ -56,7 +58,7 @@ export function TabBar({ role }: { role: Role }) {
     <nav
       className={cn(
         "grid border-t border-(--color-divider) bg-(--color-bg) pb-6.5",
-        tabs.length === 2 ? "grid-cols-2" : "grid-cols-6",
+        tabs.length === 2 ? "grid-cols-2" : "grid-cols-7",
       )}
     >
       {tabs.map((tab) => {
