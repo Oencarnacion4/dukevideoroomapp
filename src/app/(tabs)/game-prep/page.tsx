@@ -32,7 +32,6 @@ export default async function GamePrepPage() {
       scouts={scouts}
       assignableCrew={assignableCrew}
       isAdmin={isAdmin}
-      currentProfileId={profile.id}
       today={today}
     />
   );

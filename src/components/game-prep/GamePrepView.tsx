@@ -30,7 +30,6 @@ interface GamePrepViewProps {
   scouts: GameScoutWithProfile[];
   assignableCrew: CrewOption[];
   isAdmin: boolean;
-  currentProfileId: string;
   today: string;
 }
 
@@ -40,7 +39,6 @@ export function GamePrepView({
   scouts,
   assignableCrew,
   isAdmin,
-  currentProfileId,
   today,
 }: GamePrepViewProps) {
   const upcoming = games.filter((g) => g.date >= today);
@@ -71,7 +69,6 @@ export function GamePrepView({
               scouts={scouts.filter((s) => s.game_date === game.date && s.opponent === game.opponent)}
               assignableCrew={assignableCrew}
               isAdmin={isAdmin}
-              currentProfileId={currentProfileId}
               today={today}
               defaultOpen={defaultOpen}
             />
@@ -91,7 +88,6 @@ interface GameCardProps {
   scouts: GameScoutWithProfile[];
   assignableCrew: CrewOption[];
   isAdmin: boolean;
-  currentProfileId: string;
   today: string;
   defaultOpen: boolean;
 }
@@ -102,7 +98,6 @@ function GameCard({
   scouts,
   assignableCrew,
   isAdmin,
-  currentProfileId,
   today,
   defaultOpen,
 }: GameCardProps) {
@@ -112,11 +107,13 @@ function GameCard({
   const { show } = useToast();
 
   const doneByKey: Partial<Record<GamePrepItemKey, boolean>> = {};
-  for (const item of prepItems) doneByKey[item.item_key] = item.done;
+  const doneByName: Partial<Record<GamePrepItemKey, string>> = {};
+  for (const item of prepItems) {
+    doneByKey[item.item_key] = item.done;
+    if (item.done && item.done_by_profile) doneByName[item.item_key] = item.done_by_profile.full_name;
+  }
 
   const summary = gamePrepSummary(doneByKey, game.date, today);
-  const iAmScout = scouts.some((s) => s.profile_id === currentProfileId);
-  const canToggle = isAdmin || iAmScout;
   const scoutCandidates = assignableCrew.filter((c) => !scouts.some((s) => s.profile_id === c.id));
   const allRequiredDone = summary.doneCount === summary.totalRequired;
 
@@ -220,7 +217,7 @@ function GameCard({
                   <input
                     type="checkbox"
                     checked={done}
-                    disabled={!canToggle || pending}
+                    disabled={pending}
                     onChange={(e) => toggle(item.key, e.target.checked)}
                     className="mt-0.5 shrink-0"
                   />
@@ -232,7 +229,12 @@ function GameCard({
                       {status === "optional" && <Tag variant="neutral">Optional</Tag>}
                     </span>
                     <span className="block text-[11.5px] text-(--color-text-50)">
-                      {due ? `Due ${formatShortDate(due)}` : "No deadline"} — {item.hint}
+                      {done && doneByName[item.key]
+                        ? `Done by ${doneByName[item.key]}`
+                        : due
+                          ? `Due ${formatShortDate(due)}`
+                          : "No deadline"}{" "}
+                      — {item.hint}
                     </span>
                   </span>
                 </label>

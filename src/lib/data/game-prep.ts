@@ -9,6 +9,7 @@ export interface GamePrepItemRow {
   done: boolean;
   done_by: string | null;
   done_at: string | null;
+  done_by_profile: { id: string; full_name: string } | null;
 }
 
 export interface GameScoutRow {
@@ -34,12 +35,14 @@ function isMissingTable(error: { code?: string; message?: string }): boolean {
 }
 
 export async function listGamePrepItems(supabase: SupabaseClient): Promise<GamePrepItemRow[]> {
-  const { data, error } = await supabase.from("game_prep_items").select("*");
+  const { data, error } = await supabase
+    .from("game_prep_items")
+    .select("*, done_by_profile:done_by(id, full_name)");
   if (error) {
     if (isMissingTable(error)) return [];
     throw error;
   }
-  return data;
+  return data as unknown as GamePrepItemRow[];
 }
 
 export async function listGameScouts(supabase: SupabaseClient): Promise<GameScoutWithProfile[]> {
