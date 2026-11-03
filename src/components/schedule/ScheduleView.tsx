@@ -8,11 +8,13 @@ import { Tag } from "@/components/ui/Tag";
 import { Seg } from "@/components/ui/Seg";
 import { buttonClasses } from "@/components/ui/Button";
 import { ShiftCard } from "@/components/schedule/ShiftCard";
+import { GamesLeaderboard } from "@/components/schedule/GamesLeaderboard";
 import { DAYS, addDays, formatWeekLabel } from "@/lib/domain/time";
 import { worksShifts } from "@/lib/domain/roles";
 import { cn } from "@/lib/utils";
 import type { ShiftWithAssignee } from "@/lib/data/shifts";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
+import type { GameStat } from "@/lib/domain/games";
 import type { DayOfWeek, Profile } from "@/lib/types";
 
 interface ScheduleViewProps {
@@ -22,6 +24,7 @@ interface ScheduleViewProps {
   crew: Profile[];
   availability: AvailabilityBlock[];
   requireSwapOnDecline: boolean;
+  gameStats: Record<string, GameStat>;
 }
 
 export function ScheduleView({
@@ -31,6 +34,7 @@ export function ScheduleView({
   crew,
   availability,
   requireSwapOnDecline,
+  gameStats,
 }: ScheduleViewProps) {
   const isAdmin = profile.role === "lead" || profile.role === "staff";
   const [selectedDay, setSelectedDay] = useState<DayOfWeek | null>(null);
@@ -118,6 +122,8 @@ export function ScheduleView({
       <p className="-mt-2 text-[12px] font-medium uppercase tracking-[0.06em] text-(--color-accent-700)">
         {accepted} accepted · {pending} pending
       </p>
+
+      <GamesLeaderboard crew={crew} stats={gameStats} currentProfileId={profile.id} />
 
       {isAdmin && (
         <Card blueprint className="flex flex-col gap-3 p-3.5">
