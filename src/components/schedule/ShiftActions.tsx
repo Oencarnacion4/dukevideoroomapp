@@ -70,6 +70,7 @@ export function ShiftActions({
   const [swapOpen, setSwapOpen] = useState(false);
   const [noteDialog, setNoteDialog] = useState<"accept" | "edit" | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [cantMakeItOpen, setCantMakeItOpen] = useState(false);
   const [assignTarget, setAssignTarget] = useState("");
   const [claimWarning, setClaimWarning] = useState<string | null>(null);
   const { show } = useToast();
@@ -89,6 +90,7 @@ export function ShiftActions({
   const decline = () =>
     startTransition(async () => {
       await declineShiftAction(shiftId);
+      setCantMakeItOpen(false);
       if (requireSwapOnDecline) {
         setSwapOpen(true);
       } else {
@@ -267,6 +269,16 @@ export function ShiftActions({
         </button>
       )}
 
+      {isMine && status === "accepted" && (
+        <button
+          type="button"
+          onClick={() => setCantMakeItOpen(true)}
+          className="self-end text-[13px] font-medium text-(--color-accent-700)"
+        >
+          Can&apos;t make it?
+        </button>
+      )}
+
       {isAdmin && status !== "proposed" && (
         <button
           type="button"
@@ -287,6 +299,23 @@ export function ShiftActions({
           </Button>
           <Button className="flex-1" disabled={pending} onClick={remove}>
             Delete
+          </Button>
+        </div>
+      </Dialog>
+
+      <Dialog open={cantMakeItOpen} onClose={() => setCantMakeItOpen(false)} title="Can't make this one?">
+        <p className="mb-4 text-[13px] text-(--color-text-62)">
+          {shiftSummary}.{" "}
+          {requireSwapOnDecline
+            ? "You'll need to name who can cover it next — coaches see the swap, not a hole in the schedule."
+            : "This takes you off the shift and coaches will see it as declined."}
+        </p>
+        <div className="flex gap-2">
+          <Button variant="secondary" className="flex-1" onClick={() => setCantMakeItOpen(false)}>
+            Never mind
+          </Button>
+          <Button className="flex-1" disabled={pending} onClick={decline}>
+            Remove me
           </Button>
         </div>
       </Dialog>
