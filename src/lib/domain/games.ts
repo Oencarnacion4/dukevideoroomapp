@@ -4,6 +4,13 @@ import { toMinutes } from "./time";
 /** The three jobs covered per game — reuses the existing (previously unused) shifts.camera_role field. */
 export const GAME_ROLES = ["Minutes", "Stats", "Offense-Defense"] as const;
 
+/**
+ * Roles an admin can hand-assign on top of the three above — not auto-created
+ * by the season importer, just available when manually adding or relabeling
+ * someone on a game (e.g. a shadow assignment some games need and others don't).
+ */
+export const ASSIGNABLE_GAME_ROLES = [...GAME_ROLES, "Shadow"] as const;
+
 /** Claiming a game that would put you this many (or more) ahead of whoever's claimed the fewest triggers a confirm step. */
 export const GAME_SIGNUP_GAP_WARNING = 2;
 

@@ -21,7 +21,7 @@ import { SwapDialog } from "@/components/schedule/SwapDialog";
 import { ShiftNoteDialog } from "@/components/schedule/ShiftNoteDialog";
 import { useToast } from "@/components/ui/Toast";
 import { crewWithAvailabilityHints, type CrewOption } from "@/lib/domain/crew-picker";
-import { GAME_ROLES } from "@/lib/domain/games";
+import { ASSIGNABLE_GAME_ROLES } from "@/lib/domain/games";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
 import type { DayOfWeek, SessionType, ShiftStatus } from "@/lib/types";
 
@@ -299,7 +299,7 @@ export function ShiftActions({
             disabled={pending}
             className="h-8 w-auto text-[12.5px]"
           >
-            {GAME_ROLES.map((r) => (
+            {ASSIGNABLE_GAME_ROLES.map((r) => (
               <option key={r} value={r}>
                 {r}
               </option>
