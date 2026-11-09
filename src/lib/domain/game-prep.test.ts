@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GAME_PREP_ITEMS, gamePrepSummary, prepItemDueDate, prepItemStatus } from "./game-prep";
+import { GAME_PREP_ITEMS, gamePrepItemsFor, gamePrepSummary, prepItemDueDate, prepItemStatus } from "./game-prep";
 
 const personnel = GAME_PREP_ITEMS.find((i) => i.key === "personnel_extendeds")!;
 const recentClips = GAME_PREP_ITEMS.find((i) => i.key === "recent_clips")!;
@@ -71,5 +71,27 @@ describe("gamePrepSummary", () => {
   it("flags overdue when an undone required item's due date has passed", () => {
     const summary = gamePrepSummary({}, "2026-12-01", "2026-12-01");
     expect(summary.hasOverdue).toBe(true);
+  });
+});
+
+describe("gamePrepItemsFor", () => {
+  it("adds Late game, due the same day as Blue Ribbon, for a Power 5 opponent", () => {
+    const items = gamePrepItemsFor("North Carolina");
+    const lateGame = items.find((i) => i.key === "late_game")!;
+    const blueRibbon = items.find((i) => i.key === "blue_ribbon")!;
+    expect(lateGame).toBeDefined();
+    expect(lateGame.dueDaysBefore).toBe(blueRibbon.dueDaysBefore);
+  });
+
+  it("leaves Late game off the checklist for a non-Power 5 opponent", () => {
+    const items = gamePrepItemsFor("Coastal Carolina");
+    expect(items.find((i) => i.key === "late_game")).toBeUndefined();
+  });
+
+  it("totals 5 required items for a Power 5 opponent, 4 otherwise", () => {
+    const power5Summary = gamePrepSummary({}, "2026-12-01", "2026-11-01", gamePrepItemsFor("North Carolina"));
+    const otherSummary = gamePrepSummary({}, "2026-12-01", "2026-11-01", gamePrepItemsFor("Coastal Carolina"));
+    expect(power5Summary.totalRequired).toBe(5);
+    expect(otherSummary.totalRequired).toBe(4);
   });
 });

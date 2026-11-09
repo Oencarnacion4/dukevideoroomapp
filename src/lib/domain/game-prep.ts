@@ -1,6 +1,13 @@
+import { isPower5Opponent } from "./games";
 import { addDays } from "./time";
 
-export type GamePrepItemKey = "personnel_extendeds" | "select_clips" | "ato_bob_sob" | "blue_ribbon" | "recent_clips";
+export type GamePrepItemKey =
+  | "personnel_extendeds"
+  | "select_clips"
+  | "ato_bob_sob"
+  | "blue_ribbon"
+  | "late_game"
+  | "recent_clips";
 
 export interface GamePrepItemDef {
   key: GamePrepItemKey;
@@ -9,6 +16,8 @@ export interface GamePrepItemDef {
   /** Days before game day this is due — null for the optional item, which has no deadline. */
   dueDaysBefore: number | null;
   required: boolean;
+  /** Only shows up for Power 5 opponents — see isPower5Opponent. */
+  power5Only?: boolean;
 }
 
 /** The fixed scouting checklist, ported from the "OPPONENT SCOUTING UPDATE" memo. */
@@ -42,6 +51,14 @@ export const GAME_PREP_ITEMS: GamePrepItemDef[] = [
     required: true,
   },
   {
+    key: "late_game",
+    label: "Late game",
+    hint: "Pull their late-game/crunch-time sets and execution — how they play the last few minutes of a close game. Power 5 opponents only.",
+    dueDaysBefore: 3,
+    required: true,
+    power5Only: true,
+  },
+  {
     key: "recent_clips",
     label: "Recent-game clips",
     hint: "Optional — if the opponent played within a week of us, clip personnel/sets from it if you want. Good practice, not required.",
@@ -49,6 +66,12 @@ export const GAME_PREP_ITEMS: GamePrepItemDef[] = [
     required: false,
   },
 ];
+
+/** The checklist that applies to a specific game — adds Late game for Power 5 opponents, otherwise the fixed list. */
+export function gamePrepItemsFor(opponent: string): GamePrepItemDef[] {
+  const power5 = isPower5Opponent(opponent);
+  return GAME_PREP_ITEMS.filter((item) => !item.power5Only || power5);
+}
 
 export type PrepItemStatus = "done" | "overdue" | "due_today" | "upcoming" | "optional";
 
@@ -78,8 +101,10 @@ export function gamePrepSummary(
   doneByKey: Partial<Record<GamePrepItemKey, boolean>>,
   gameDate: string,
   today: string,
+  // Defaults to the non-Power 5 checklist — callers that care about a specific opponent pass gamePrepItemsFor(opponent).
+  items: GamePrepItemDef[] = GAME_PREP_ITEMS.filter((item) => !item.power5Only),
 ): GamePrepSummary {
-  const required = GAME_PREP_ITEMS.filter((item) => item.required);
+  const required = items.filter((item) => item.required);
   const doneCount = required.filter((item) => doneByKey[item.key]).length;
   const hasOverdue = required.some(
     (item) => !doneByKey[item.key] && prepItemStatus(item, false, gameDate, today) === "overdue",

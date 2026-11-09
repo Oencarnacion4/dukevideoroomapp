@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeGameStats, distinctGames, gameClaimWarning, gameTitle, parseGameSchedule } from "./games";
+import { computeGameStats, distinctGames, gameClaimWarning, gameTitle, isPower5Opponent, parseGameSchedule } from "./games";
 
 describe("parseGameSchedule", () => {
   it("parses a full line", () => {
@@ -198,5 +198,19 @@ describe("distinctGames", () => {
   it("skips non-game shifts (no opponent)", () => {
     const shifts = [{ date: "2026-11-02", opponent: null, home_away: null, location: "Practice court" }];
     expect(distinctGames(shifts)).toEqual([]);
+  });
+});
+
+describe("isPower5Opponent", () => {
+  it("is true for an ACC opponent", () => {
+    expect(isPower5Opponent("North Carolina")).toBe(true);
+  });
+
+  it("is true for a major-conference non-conference opponent", () => {
+    expect(isPower5Opponent("Michigan State")).toBe(true);
+  });
+
+  it("is false for a mid-major opponent", () => {
+    expect(isPower5Opponent("Coastal Carolina")).toBe(false);
   });
 });

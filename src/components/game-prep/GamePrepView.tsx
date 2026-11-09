@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { assignScoutAction, removeScoutAction, togglePrepItemAction } from "@/lib/actions/game-prep";
 import {
-  GAME_PREP_ITEMS,
+  gamePrepItemsFor,
   gamePrepSummary,
   prepItemDueDate,
   prepItemStatus,
@@ -58,7 +58,7 @@ export function GamePrepView({
           const gameItems = prepItems.filter((i) => i.game_date === game.date && i.opponent === game.opponent);
           const doneByKey: Partial<Record<GamePrepItemKey, boolean>> = {};
           for (const item of gameItems) doneByKey[item.item_key] = item.done;
-          const summary = gamePrepSummary(doneByKey, game.date, today);
+          const summary = gamePrepSummary(doneByKey, game.date, today, gamePrepItemsFor(game.opponent));
           // Open by default for anything close or already behind — everything further out stays tucked away.
           const defaultOpen = game.date <= soonCutoff || summary.hasOverdue;
           return (
@@ -113,7 +113,8 @@ function GameCard({
     if (item.done && item.done_by_profile) doneByName[item.item_key] = item.done_by_profile.full_name;
   }
 
-  const summary = gamePrepSummary(doneByKey, game.date, today);
+  const items = gamePrepItemsFor(game.opponent);
+  const summary = gamePrepSummary(doneByKey, game.date, today, items);
   const scoutCandidates = assignableCrew.filter((c) => !scouts.some((s) => s.profile_id === c.id));
   const allRequiredDone = summary.doneCount === summary.totalRequired;
 
@@ -208,7 +209,7 @@ function GameCard({
           </div>
 
           <div className="flex flex-col gap-2.5 border-t border-(--color-divider) pt-2.5">
-            {GAME_PREP_ITEMS.map((item) => {
+            {items.map((item) => {
               const done = !!doneByKey[item.key];
               const status = prepItemStatus(item, done, game.date, today);
               const due = prepItemDueDate(item, game.date);

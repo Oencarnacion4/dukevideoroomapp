@@ -11,6 +11,49 @@ export const GAME_ROLES = ["Minutes", "Stats", "Offense-Defense"] as const;
  */
 export const ASSIGNABLE_GAME_ROLES = [...GAME_ROLES, "Shadow"] as const;
 
+/**
+ * Power 5 (-equivalent) opponents on the 2026-27 schedule, as of when this
+ * was put together — every ACC opponent, the other major-conference
+ * non-conference games, and UConn/Washington State/Gonzaga by request even
+ * though none of those three is in one of the five conferences. This is a
+ * one-time read of the actual schedule, not a live conference lookup (the
+ * app doesn't track conference membership) — update this set by hand if the
+ * schedule changes or next season's opponents are different.
+ */
+export const POWER5_OPPONENTS = new Set([
+  // ACC
+  "Georgia Tech",
+  "California",
+  "Syracuse",
+  "Pittsburgh",
+  "Stanford",
+  "Boston College",
+  "Wake Forest",
+  "Notre Dame",
+  "Clemson",
+  "Miami",
+  "Virginia",
+  "SMU",
+  "North Carolina",
+  "Florida State",
+  "Louisville",
+  "NC State",
+  // Other major-conference non-conference games
+  "Michigan State",
+  "Illinois",
+  "Florida",
+  "Georgia",
+  "Texas Tech",
+  // Included by request, despite not being in one of the five conferences
+  "UConn",
+  "Washington State",
+  "Gonzaga",
+]);
+
+export function isPower5Opponent(opponent: string): boolean {
+  return POWER5_OPPONENTS.has(opponent);
+}
+
 /** Claiming a game that would put you this many (or more) ahead of whoever's claimed the fewest triggers a confirm step. */
 export const GAME_SIGNUP_GAP_WARNING = 2;
 
