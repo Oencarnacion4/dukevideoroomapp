@@ -11,6 +11,7 @@ import {
   deleteShiftAction,
   proposeSwapAction,
   saveShiftNoteAction,
+  updateShiftRoleAction,
   withdrawProposedShiftAction,
 } from "@/lib/actions/shifts";
 import { Button } from "@/components/ui/Button";
@@ -20,6 +21,7 @@ import { SwapDialog } from "@/components/schedule/SwapDialog";
 import { ShiftNoteDialog } from "@/components/schedule/ShiftNoteDialog";
 import { useToast } from "@/components/ui/Toast";
 import { crewWithAvailabilityHints, type CrewOption } from "@/lib/domain/crew-picker";
+import { GAME_ROLES } from "@/lib/domain/games";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
 import type { DayOfWeek, SessionType, ShiftStatus } from "@/lib/types";
 
@@ -41,6 +43,7 @@ interface ShiftActionsProps {
   startLabel?: string;
   endLabel?: string | null;
   session?: SessionType;
+  cameraRole?: string | null;
   location?: string;
   availability?: AvailabilityBlock[];
 }
@@ -63,6 +66,7 @@ export function ShiftActions({
   startLabel,
   endLabel,
   session,
+  cameraRole,
   location,
   availability,
 }: ShiftActionsProps) {
@@ -168,6 +172,13 @@ export function ShiftActions({
       );
       show(`Assigned to ${person?.full_name ?? "them"} — they must accept.`);
       setAssignTarget("");
+    });
+
+  const changeRole = (role: string) =>
+    startTransition(async () => {
+      const res = await updateShiftRoleAction(shiftId, role);
+      if (res.error) show(res.error);
+      else show(`Role updated to ${role}.`);
     });
 
   return (
@@ -277,6 +288,24 @@ export function ShiftActions({
         >
           Can&apos;t make it?
         </button>
+      )}
+
+      {isAdmin && session === "Game" && cameraRole && (
+        <div className="flex items-center justify-end gap-2">
+          <span className="text-[11px] text-(--color-text-50)">Role</span>
+          <Select
+            value={cameraRole}
+            onChange={(e) => changeRole(e.target.value)}
+            disabled={pending}
+            className="h-8 w-auto text-[12.5px]"
+          >
+            {GAME_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </Select>
+        </div>
       )}
 
       {isAdmin && status !== "proposed" && (

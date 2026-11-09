@@ -189,6 +189,22 @@ export async function setShiftNote(supabase: SupabaseClient, shiftId: string, no
 }
 
 /**
+ * Fixes just the camera role on one row of a game — e.g. a replacement got
+ * added under the wrong role, or a 4th person needs re-labeling. Deliberately
+ * scoped to a single row rather than the whole slot: a Game's three roles
+ * share one ShiftCard, so changing one person's role must never touch the
+ * other two.
+ */
+export async function updateShiftCameraRole(
+  supabase: SupabaseClient,
+  shiftId: string,
+  cameraRole: string,
+): Promise<void> {
+  const { error } = await supabase.from("shifts").update({ camera_role: cameraRole }).eq("id", shiftId);
+  if (error) throw error;
+}
+
+/**
  * Corrects a shift's day/time/session/location/camera role in place —
  * deliberately never touches assignee_id or status, so an already
  * accepted/declined response survives fixing a mistake like the wrong time.

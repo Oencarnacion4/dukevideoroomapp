@@ -140,6 +140,7 @@ export function ShiftCard({
                 startLabel={startLabel}
                 endLabel={endLabel}
                 session={shift.session_type}
+                cameraRole={shift.camera_role}
                 location={shift.location}
                 availability={availability}
               />
@@ -154,7 +155,7 @@ export function ShiftCard({
             startLabel={startLabel}
             endLabel={endLabel}
             session={first.session_type}
-            cameraRole={first.camera_role}
+            existingRoles={shifts.map((s) => s.camera_role)}
             location={first.location}
             excludeIds={assignedIds}
             assignableCrew={assignableCrew}

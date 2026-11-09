@@ -14,6 +14,7 @@ import {
   respondToShift,
   setShiftNote,
   updateShift,
+  updateShiftCameraRole,
 } from "@/lib/data/shifts";
 import { getAllProfiles } from "@/lib/data/profiles";
 import { listAllTimeEntries } from "@/lib/data/time-entries";
@@ -164,6 +165,16 @@ export async function saveShiftNoteAction(shiftId: string, note: string): Promis
   const supabase = await createClient();
   await setShiftNote(supabase, shiftId, note.trim() || null);
   revalidateSchedule();
+}
+
+/** Admin-only fix for one row's camera role — see updateShiftCameraRole. */
+export async function updateShiftRoleAction(shiftId: string, cameraRole: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const profile = await getCurrentProfile(supabase);
+  if (!profile || (profile.role !== "lead" && profile.role !== "staff")) return { error: "Not allowed." };
+  await updateShiftCameraRole(supabase, shiftId, cameraRole);
+  revalidateSchedule();
+  return {};
 }
 
 /**

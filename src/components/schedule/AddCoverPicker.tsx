@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 import { crewWithAvailabilityHints, type CrewOption } from "@/lib/domain/crew-picker";
+import { GAME_ROLES } from "@/lib/domain/games";
 import type { AvailabilityBlock } from "@/lib/domain/conflicts";
 import type { DayOfWeek, SessionType } from "@/lib/types";
 
@@ -15,7 +16,8 @@ interface AddCoverPickerProps {
   startLabel: string;
   endLabel: string | null;
   session: SessionType;
-  cameraRole: string | null;
+  /** Every camera_role already on this slot — used to default a Game's role picker to whichever one's still open. */
+  existingRoles: (string | null)[];
   location: string;
   excludeIds: string[];
   assignableCrew: CrewOption[];
@@ -28,14 +30,17 @@ export function AddCoverPicker({
   startLabel,
   endLabel,
   session,
-  cameraRole,
+  existingRoles,
   location,
   excludeIds,
   assignableCrew,
   availability,
 }: AddCoverPickerProps) {
+  const isGame = session === "Game";
+  const openRole = GAME_ROLES.find((r) => !existingRoles.includes(r)) ?? GAME_ROLES[0];
   const [pending, startTransition] = useTransition();
   const [target, setTarget] = useState("");
+  const [role, setRole] = useState<string>(openRole);
   const { show } = useToast();
 
   const candidates = useMemo(
@@ -63,12 +68,16 @@ export function AddCoverPicker({
         startLabel,
         endLabel,
         session,
-        cameraRole,
+        cameraRole: isGame ? role : null,
         location,
         note: null,
         assigneeId: target,
       });
-      show(`Added ${person?.full_name ?? "them"} to cover this shift too — they must accept.`);
+      show(
+        isGame
+          ? `Added ${person?.full_name ?? "them"} on ${role} — they must accept.`
+          : `Added ${person?.full_name ?? "them"} to cover this shift too — they must accept.`,
+      );
       setTarget("");
     });
 
@@ -77,6 +86,15 @@ export function AddCoverPicker({
       <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-(--color-text-55)">
         Need another person on this shift too?
       </p>
+      {isGame && (
+        <Select value={role} onChange={(e) => setRole(e.target.value)}>
+          {GAME_ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </Select>
+      )}
       <div className="flex gap-2">
         <Select value={target} onChange={(e) => setTarget(e.target.value)} className="flex-1">
           <option value="">Choose crew…</option>
